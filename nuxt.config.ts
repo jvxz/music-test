@@ -1,3 +1,5 @@
+import tailwindcss from '@tailwindcss/vite'
+
 export default defineNuxtConfig({
   app: {
     head: {
@@ -18,7 +20,7 @@ export default defineNuxtConfig({
     },
   },
   css: [
-    '@/assets/css/main.css',
+    '@/assets/css/globals.css',
   ],
   devServer: {
     host: '0.0.0.0',
@@ -55,7 +57,6 @@ export default defineNuxtConfig({
   },
   modules: [
     '@vueuse/nuxt',
-    '@nuxt/ui',
     'nuxt-svgo',
     'reka-ui/nuxt',
     '@nuxt/eslint',
@@ -72,6 +73,7 @@ export default defineNuxtConfig({
   vite: {
     clearScreen: false,
     envPrefix: ['VITE_', 'TAURI_'],
+    plugins: [tailwindcss()],
     server: {
       hmr: {
         host: '0.0.0.0',

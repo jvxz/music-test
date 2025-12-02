@@ -25,42 +25,4 @@ export default defineAppConfig({
       label: 'System',
     },
   },
-  ui: {
-    accordion: {
-      slots: {
-        item: 'md:py-2',
-        trigger: 'cursor-pointer',
-      },
-    },
-    button: {
-      slots: {
-        base: 'cursor-pointer',
-      },
-    },
-    colors: {
-      neutral: 'zinc',
-      primary: 'green',
-    },
-    formField: {
-      slots: {
-        root: 'w-full',
-      },
-    },
-    input: {
-      slots: {
-        root: 'w-full',
-      },
-    },
-    navigationMenu: {
-      slots: {
-        link: 'cursor-pointer',
-      },
-    },
-    textarea: {
-      slots: {
-        base: 'resize-none',
-        root: 'w-full',
-      },
-    },
-  },
 })

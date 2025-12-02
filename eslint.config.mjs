@@ -26,7 +26,7 @@ export default withNuxt(antfu({
   },
   settings: {
     'better-tailwindcss': {
-      entryPoint: './app/assets/css/main.css',
+      entryPoint: './app/assets/css/globals.css',
     },
   },
   typescript: true,
