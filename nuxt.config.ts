@@ -17,7 +17,6 @@ export default defineNuxtConfig({
       name: 'page',
     },
   },
-  compatibilityDate: '2025-09-01',
   css: [
     '@/assets/css/main.css',
   ],
@@ -37,6 +36,7 @@ export default defineNuxtConfig({
   },
   experimental: {
     typedPages: true,
+    typescriptPlugin: true,
   },
   imports: {
     presets: [
