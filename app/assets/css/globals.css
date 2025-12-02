@@ -86,7 +86,7 @@
   --ring: hsl(196, 66%, 68%);
 }
 
-.dark-mode {
+.dark {
   /* --background: hsl(242, 0%, 3.2%); */
   --background: hsl(from var(--primary) h calc(s * 0) calc(l * 0.035));
   /* --foreground: hsl(0 0% 95%); */

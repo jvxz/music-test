@@ -19,6 +19,10 @@ export default defineNuxtConfig({
       name: 'page',
     },
   },
+  colorMode: {
+    storage: 'cookie',
+  },
+  compatibilityDate: '2025-12-02',
   css: [
     '@/assets/css/globals.css',
   ],
@@ -60,6 +64,7 @@ export default defineNuxtConfig({
     'nuxt-svgo',
     'reka-ui/nuxt',
     '@nuxt/eslint',
+    '@nuxtjs/color-mode',
   ],
   router: {
     options: {
