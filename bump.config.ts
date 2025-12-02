@@ -1,13 +1,13 @@
-import { defineConfig } from "bumpp";
+import { defineConfig } from 'bumpp'
 
 export default defineConfig({
-	release: "prompt",
-	commit: false,
-	tag: false,
-	push: false,
-	files: [
-		"package.json",
-		"src-tauri/tauri.conf.json",
-		"src-tauri/Cargo.toml"
-	]
-});
+  commit: false,
+  files: [
+    'package.json',
+    'src-tauri/tauri.conf.json',
+    'src-tauri/Cargo.toml',
+  ],
+  push: false,
+  release: 'prompt',
+  tag: false,
+})

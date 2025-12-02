@@ -1,7 +1,7 @@
 <template>
-	<div>
-		<SiteNavbar />
+  <div>
+    <SiteNavbar />
 
-		<slot />
-	</div>
+    <slot />
+  </div>
 </template>

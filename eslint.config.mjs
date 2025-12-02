@@ -1,46 +1,34 @@
-import eslintConfig from "@antfu/eslint-config";
-import nuxtConfig from "./.nuxt/eslint.config.mjs";
+import antfu from '@antfu/eslint-config'
+import eslintPluginBetterTailwindcss from 'eslint-plugin-better-tailwindcss'
+import withNuxt from './.nuxt/eslint.config.mjs'
 
-export default eslintConfig(
-	// General
-	{
-		typescript: true,
-		vue: true,
-		stylistic: {
-			indent: "tab",
-			quotes: "double"
-		},
-		rules: {
-			curly: "off",
-			"no-console": "off",
-			"no-new-func": "off",
-			"style/semi": ["error", "always"],
-			"style/indent": ["error", "tab"],
-			"style/quote-props": ["warn", "as-needed"],
-			"style/comma-dangle": ["warn", "never"],
-			"style/brace-style": ["warn", "1tbs"],
-			"style/arrow-parens": ["error", "always"],
-			"vue/block-order": ["error", {
-				order: ["template", "script", "style"]
-			}],
-			"vue/script-indent": ["error", "tab", {
-				baseIndent: 1
-			}],
-			"vue/comma-dangle": ["warn", "never"],
-			"antfu/top-level-function": "off",
-			"antfu/if-newline": "off",
-			"new-cap": "off",
-			"node/prefer-global/process": ["off"]
-		}
-	},
-
-	// Vue
-	{
-		files: ["**/*.vue"],
-		rules: {
-			"style/indent": "off"
-		}
-	},
-
-	nuxtConfig()
-);
+export default withNuxt(antfu({
+  formatters: true,
+  plugins: {
+    'better-tailwindcss': eslintPluginBetterTailwindcss,
+  },
+  rules: {
+    ...eslintPluginBetterTailwindcss.configs['recommended-warn'].rules,
+    'better-tailwindcss/enforce-consistent-line-wrapping': 'off',
+    'node/prefer-global/buffer': 'off',
+    'node/prefer-global/process': 'off',
+    'perfectionist/sort-objects': 'warn',
+    'vue/html-self-closing': 'off',
+    'vue/max-attributes-per-line': ['warn', {
+      multiline: {
+        max: 1,
+      },
+      singleline: {
+        max: 2,
+      },
+    }],
+    'vue/sort-keys': 'warn',
+  },
+  settings: {
+    'better-tailwindcss': {
+      entryPoint: './app/assets/css/main.css',
+    },
+  },
+  typescript: true,
+  vue: true,
+}))

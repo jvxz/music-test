@@ -1,87 +1,87 @@
 export default defineNuxtConfig({
-	modules: [
-		"@vueuse/nuxt",
-		"@nuxt/ui",
-		"nuxt-svgo",
-		"reka-ui/nuxt",
-		"@nuxt/eslint"
-	],
-	app: {
-		head: {
-			title: "Nuxtor",
-			charset: "utf-8",
-			viewport: "width=device-width, initial-scale=1",
-			meta: [
-				{ name: "format-detection", content: "no" }
-			]
-		},
-		pageTransition: {
-			name: "page",
-			mode: "out-in"
-		},
-		layoutTransition: {
-			name: "layout",
-			mode: "out-in"
-		}
-	},
-	css: [
-		"@/assets/css/main.css"
-	],
-	svgo: {
-		autoImportPath: "@/assets/"
-	},
-	ssr: false,
-	dir: {
-		modules: "app/modules"
-	},
-	imports: {
-		presets: [
-			{
-				from: "zod",
-				imports: [
-					"z",
-					{
-						name: "infer",
-						as: "zInfer",
-						type: true
-					}
-				]
-			}
-		]
-	},
-	vite: {
-		clearScreen: false,
-		envPrefix: ["VITE_", "TAURI_"],
-		server: {
-			strictPort: true,
-			hmr: {
-				protocol: "ws",
-				host: "0.0.0.0",
-				port: 3001
-			},
-			watch: {
-				ignored: ["**/src-tauri/**"]
-			}
-		}
-	},
-	devServer: {
-		host: "0.0.0.0"
-	},
-	router: {
-		options: {
-			scrollBehaviorType: "smooth"
-		}
-	},
-	eslint: {
-		config: {
-			standalone: false
-		}
-	},
-	devtools: {
-		enabled: false
-	},
-	experimental: {
-		typedPages: true
-	},
-	compatibilityDate: "2025-09-01"
-});
+  app: {
+    head: {
+      charset: 'utf-8',
+      meta: [
+        { content: 'no', name: 'format-detection' },
+      ],
+      title: 'Nuxtor',
+      viewport: 'width=device-width, initial-scale=1',
+    },
+    layoutTransition: {
+      mode: 'out-in',
+      name: 'layout',
+    },
+    pageTransition: {
+      mode: 'out-in',
+      name: 'page',
+    },
+  },
+  compatibilityDate: '2025-09-01',
+  css: [
+    '@/assets/css/main.css',
+  ],
+  devServer: {
+    host: '0.0.0.0',
+  },
+  devtools: {
+    enabled: false,
+  },
+  dir: {
+    modules: 'app/modules',
+  },
+  eslint: {
+    config: {
+      standalone: false,
+    },
+  },
+  experimental: {
+    typedPages: true,
+  },
+  imports: {
+    presets: [
+      {
+        from: 'zod',
+        imports: [
+          'z',
+          {
+            as: 'zInfer',
+            name: 'infer',
+            type: true,
+          },
+        ],
+      },
+    ],
+  },
+  modules: [
+    '@vueuse/nuxt',
+    '@nuxt/ui',
+    'nuxt-svgo',
+    'reka-ui/nuxt',
+    '@nuxt/eslint',
+  ],
+  router: {
+    options: {
+      scrollBehaviorType: 'smooth',
+    },
+  },
+  ssr: false,
+  svgo: {
+    autoImportPath: '@/assets/',
+  },
+  vite: {
+    clearScreen: false,
+    envPrefix: ['VITE_', 'TAURI_'],
+    server: {
+      hmr: {
+        host: '0.0.0.0',
+        port: 3001,
+        protocol: 'ws',
+      },
+      strictPort: true,
+      watch: {
+        ignored: ['**/src-tauri/**'],
+      },
+    },
+  },
+})

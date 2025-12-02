@@ -1,66 +1,66 @@
 export default defineAppConfig({
-	app: {
-		name: "Nuxtor",
-		author: "Nicola Spadari",
-		repo: "https://github.com/NicolaSpadari/nuxtor",
-		tauriSite: "https://tauri.app",
-		nuxtSite: "https://nuxt.com",
-		nuxtUiSite: "https://ui4.nuxt.dev"
-	},
-	pageCategories: {
-		system: {
-			label: "System",
-			icon: "lucide:square-terminal"
-		},
-		storage: {
-			label: "Storage",
-			icon: "lucide:archive"
-		},
-		interface: {
-			label: "Interface",
-			icon: "lucide:app-window-mac"
-		},
-		other: {
-			label: "Other",
-			icon: "lucide:folder"
-		}
-	},
-	ui: {
-		colors: {
-			primary: "green",
-			neutral: "zinc"
-		},
-		button: {
-			slots: {
-				base: "cursor-pointer"
-			}
-		},
-		formField: {
-			slots: {
-				root: "w-full"
-			}
-		},
-		input: {
-			slots: {
-				root: "w-full"
-			}
-		},
-		textarea: {
-			slots: {
-				root: "w-full",
-				base: "resize-none"
-			}
-		},
-		accordion: {
-			slots: {
-				trigger: "cursor-pointer",
-				item: "md:py-2"
-			}
-		},
-		navigationMenu: {
-			slots: {
-				link: "cursor-pointer"
-			}
-		}
-	}
-});
+  app: {
+    author: 'Nicola Spadari',
+    name: 'Nuxtor',
+    nuxtSite: 'https://nuxt.com',
+    nuxtUiSite: 'https://ui4.nuxt.dev',
+    repo: 'https://github.com/NicolaSpadari/nuxtor',
+    tauriSite: 'https://tauri.app',
+  },
+  pageCategories: {
+    interface: {
+      icon: 'lucide:app-window-mac',
+      label: 'Interface',
+    },
+    other: {
+      icon: 'lucide:folder',
+      label: 'Other',
+    },
+    storage: {
+      icon: 'lucide:archive',
+      label: 'Storage',
+    },
+    system: {
+      icon: 'lucide:square-terminal',
+      label: 'System',
+    },
+  },
+  ui: {
+    accordion: {
+      slots: {
+        item: 'md:py-2',
+        trigger: 'cursor-pointer',
+      },
+    },
+    button: {
+      slots: {
+        base: 'cursor-pointer',
+      },
+    },
+    colors: {
+      neutral: 'zinc',
+      primary: 'green',
+    },
+    formField: {
+      slots: {
+        root: 'w-full',
+      },
+    },
+    input: {
+      slots: {
+        root: 'w-full',
+      },
+    },
+    navigationMenu: {
+      slots: {
+        link: 'cursor-pointer',
+      },
+    },
+    textarea: {
+      slots: {
+        base: 'resize-none',
+        root: 'w-full',
+      },
+    },
+  },
+})

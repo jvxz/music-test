@@ -48,40 +48,40 @@ Check more screenshots at [preview](https://github.com/NicolaSpadari/nuxtor/blob
 
 ## Setup
 
-  - Before running this app, you need to configure your environment with Rust. Take a look at the [Tauri docs](https://tauri.app/start/prerequisites).
-  - This project enforces [bun](https://bun.sh). In order to use another package manager you need to update `package.json` and `tauri.conf.json`
-  - The frontend runs on the usual port `3000` of Nuxt, the Tauri server uses the port `3001`. This settings are customizable in the `nuxt.config.ts` and `tauri.conf.json`.
-  - Once ready, follow these commands:
+- Before running this app, you need to configure your environment with Rust. Take a look at the [Tauri docs](https://tauri.app/start/prerequisites).
+- This project enforces [bun](https://bun.sh). In order to use another package manager you need to update `package.json` and `tauri.conf.json`
+- The frontend runs on the usual port `3000` of Nuxt, the Tauri server uses the port `3001`. This settings are customizable in the `nuxt.config.ts` and `tauri.conf.json`.
+- Once ready, follow these commands:
 
-  ```sh
-  # use this template
-  $ npx degit NicolaSpadari/nuxtor my-nuxtor-app
+```sh
+# use this template
+$ npx degit NicolaSpadari/nuxtor my-nuxtor-app
 
-  # go into the folder
-  $ cd my-nuxtor-app
+# go into the folder
+$ cd my-nuxtor-app
 
-  # install dependencies
-  $ bun install
+# install dependencies
+$ bun install
 
-  # start the project
-  $ bun run tauri:dev
-  ```
+# start the project
+$ bun run tauri:dev
+```
 
-  This will run the Nuxt frontend and will launch the Tauri window.
+This will run the Nuxt frontend and will launch the Tauri window.
 
 ## Build
 
-  ```sh
-  $ bun run tauri:build
-  ```
+```sh
+$ bun run tauri:build
+```
 
 This command will generate the Nuxt static output and bundle the project under `src-tauri/target`.
 
 ## Debug
 
-  ```sh
-  $ bun run tauri:build:debug
-  ```
+```sh
+$ bun run tauri:build:debug
+```
 
 The same Tauri bundle will generate under `src-tauri/target`, but with the ability to open the console.
 

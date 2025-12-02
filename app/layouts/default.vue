@@ -1,9 +1,9 @@
 <template>
-	<div>
-		<SiteNavbar />
+  <div>
+    <SiteNavbar />
 
-		<UContainer>
-			<slot />
-		</UContainer>
-	</div>
+    <UContainer>
+      <slot />
+    </UContainer>
+  </div>
 </template>
