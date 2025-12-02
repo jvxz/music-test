@@ -36,17 +36,6 @@
   "identifier": "com.nicolaspadari.nuxtor",
   "plugins": {},
   "app": {
-    "windows": [
-      {
-        "title": "Nuxtor",
-        "width": 1366,
-        "height": 768,
-        "minWidth": 375,
-        "minHeight": 812,
-        "resizable": true,
-        "fullscreen": false
-      }
-    ],
     "security": {
       "csp": null
     }
