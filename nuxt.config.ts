@@ -44,6 +44,12 @@ export default defineNuxtConfig({
     typedPages: true,
     typescriptPlugin: true,
   },
+  fonts: {
+    defaults: {
+      preload: true,
+      weights: [400, 500, 700],
+    },
+  },
   imports: {
     presets: [
       {
@@ -65,6 +71,8 @@ export default defineNuxtConfig({
     'reka-ui/nuxt',
     '@nuxt/eslint',
     '@nuxtjs/color-mode',
+    '@nuxt/icon',
+    '@nuxt/fonts',
   ],
   router: {
     options: {
