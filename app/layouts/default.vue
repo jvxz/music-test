@@ -22,10 +22,10 @@ const sidebarButtons = [
 </script>
 
 <template>
-  <div class="h-screen">
+  <div class="flex h-screen flex-col">
     <SplitterGroup
       direction="horizontal"
-      class="flex size-full"
+      class="flex size-full flex-1"
       @layout="layoutPanels = $event"
     >
       <SplitterPanel
@@ -68,5 +68,6 @@ const sidebarButtons = [
         Sidebar
       </SplitterPanel>
     </SplitterGroup>
+    <LayoutPlayer />
   </div>
 </template>
