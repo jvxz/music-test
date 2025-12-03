@@ -6,6 +6,12 @@
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "never"
   },
+
+  "[rust]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
+
   "eslint.enable": true,
   "files.associations": {
     "*.css": "tailwindcss"
