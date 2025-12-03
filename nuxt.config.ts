@@ -42,7 +42,6 @@ export default defineNuxtConfig({
   },
   experimental: {
     typedPages: true,
-    typescriptPlugin: true,
   },
   fonts: {
     defaults: {
