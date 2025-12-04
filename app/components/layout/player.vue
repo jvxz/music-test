@@ -1,5 +1,9 @@
 <script lang="ts" setup>
 const tauri = useTauri()
+
+tauri.listen('play_file', (e) => {
+  console.log(e)
+})
 </script>
 
 <template>

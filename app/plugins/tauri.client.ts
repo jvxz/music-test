@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
+import { listen } from '@tauri-apps/api/event'
 
 export default defineNuxtPlugin(async () => {
   const tauriPrefs = await useTauriStoreLoad('prefs.json', {
@@ -15,6 +16,7 @@ export default defineNuxtPlugin(async () => {
     provide: {
       tauri: {
         invoke,
+        listen,
         store: {
           _loaded: {
             layoutPanels,
