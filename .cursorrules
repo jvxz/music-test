@@ -166,6 +166,59 @@ This is a Nuxt 4 desktop application built with Tauri 2, using TypeScript, Tailw
 - Check composable return types for proper destructuring
 - Use TypeScript for type safety with VueUse composables
 
+## Reka UI Component Library
+
+### Overview
+- **This project uses Reka UI, NOT Radix UI**
+- Reka UI is a Vue 3 component library providing headless, accessible UI primitives
+- All UI components in `app/components/u/` are built on top of Reka UI primitives
+- Reka UI provides type-safe props, emits, and composables for building accessible components
+
+### Import Patterns
+- Import types from `reka-ui`: `import type { ButtonProps, DialogRootProps } from 'reka-ui'`
+- Import components and utilities: `import { Slot, useForwardPropsEmits, DialogRoot } from 'reka-ui'`
+- Common utilities:
+  - `useForwardProps` - Forward props to child components
+  - `useForwardPropsEmits` - Forward props and emits to child components
+  - `useFilter` - Text filtering utilities
+  - `createContext` - Create component context providers
+
+### Component Structure
+- UI components wrap Reka UI primitives with Tailwind styling
+- Use `cn()` utility for conditional class merging
+- Components follow the pattern: import types → import utilities → wrap Reka UI components
+- Example:
+```vue
+<script setup lang="ts">
+import type { DialogRootProps, DialogRootEmits } from 'reka-ui'
+import { useForwardPropsEmits } from 'reka-ui'
+
+const props = defineProps<DialogRootProps & { class?: string }>()
+const emits = defineEmits<DialogRootEmits>()
+const forwarded = useForwardPropsEmits(props, emits)
+</script>
+
+<template>
+  <DialogRoot v-bind="forwarded" :class="cn('...', props.class)">
+    <slot />
+  </DialogRoot>
+</template>
+```
+
+### Available Components
+- Alert, Alert Dialog, Avatar, Badge, Button, Card
+- Command, Context Menu, Dialog, Dropdown Menu
+- Hover Card, Input, Label, Slider, Switch
+- Tabs, Tooltip
+- All components are in `app/components/u/` directory
+
+### Best Practices
+- Always import types from `reka-ui` for type safety
+- Use `useForwardProps` or `useForwardPropsEmits` to properly forward props
+- Wrap Reka UI components with Tailwind classes using `cn()` utility
+- Maintain component composition patterns (root, trigger, content, etc.)
+- **Important**: Do not confuse Reka UI with Radix UI - they are different libraries
+
 ## TypeScript Patterns
 
 ### Type Safety
