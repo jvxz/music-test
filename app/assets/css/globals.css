@@ -2,7 +2,7 @@
 @import 'tw-animate-css';
 
 @theme inline {
-  --duration: 0.15s;
+  --duration: 0.125s;
 
   --font-sans: system-ui, -apple-system, 'Inter', sans-serif;
   --font-mono: 'Paper Mono', monospace;
