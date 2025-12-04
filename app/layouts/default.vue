@@ -65,7 +65,7 @@ const sidebarButtons = [
         :default-size="layoutPanels[2]"
         class="shrink-0 border-l"
       >
-        Sidebar
+        <LayoutSidebarRight />
       </SplitterPanel>
     </SplitterGroup>
     <LayoutPlayer />
