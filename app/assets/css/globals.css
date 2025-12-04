@@ -2,6 +2,8 @@
 @import 'tw-animate-css';
 
 @theme inline {
+  --duration: 0.15s;
+
   --font-sans: system-ui, -apple-system, 'Inter', sans-serif;
   --font-mono: 'Paper Mono', monospace;
   --font-display: 'Funnel Display', monospace;
@@ -178,4 +180,33 @@
   .zoom-leave-to {
     @apply animate-out fade-out-0 duration-100 zoom-out-95;
   }
+
+  @keyframes slideDown {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--reka-collapsible-content-height);
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      height: var(--reka-collapsible-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+@utility animate-slide-down {
+  @apply ease-snappy;
+  animation-name: slideDown;
+  animation-duration: var(--duration);
+}
+@utility animate-slide-up {
+  @apply ease-snappy;
+  animation-name: slideUp;
+  animation-duration: var(--duration);
 }
