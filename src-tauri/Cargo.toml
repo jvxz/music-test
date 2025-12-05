@@ -30,6 +30,12 @@ lofty = "0.22.4"
 rodio = "0.21.1"
 tokio = "1.48.0"
 objc2-app-kit = "0.3.2"
+taurpc = "0.5.2"
+specta = { version = "=2.0.0-rc.22", features = [ "derive" ] }
+mimetype-detector = "0.3.3"
+id3 = "1.16.3"
+env_logger = "0"
+log = "0.4.29"
 
 [dependencies.tauri]
 version = "2.9.1"

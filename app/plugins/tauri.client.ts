@@ -1,7 +1,10 @@
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
+import { createTauRPCProxy } from '~/tauri-bindings'
 
 export default defineNuxtPlugin(async () => {
+  const rpc = createTauRPCProxy()
+
   const tauriPrefs = await useTauriStoreLoad('prefs.json', {
     autoSave: true,
     defaults: {
@@ -17,6 +20,7 @@ export default defineNuxtPlugin(async () => {
       tauri: {
         invoke,
         listen,
+        rpc,
         store: {
           _loaded: {
             layoutPanels,

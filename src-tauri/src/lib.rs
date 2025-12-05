@@ -5,11 +5,29 @@ use tauri::{
   TitleBarStyle, WebviewUrl, WebviewWindowBuilder,
 };
 
+use crate::files::read::FileEntry;
+
 mod files {
   pub mod read;
 }
 
-pub fn run() {
+#[taurpc::procedures(export_to = "../app/tauri-bindings.ts")]
+trait Api {
+  async fn read_folder(path: String) -> Vec<FileEntry>;
+}
+
+#[taurpc::resolvers]
+impl Api for ApiImpl {
+  async fn read_folder(self, path: String) -> Vec<FileEntry> {
+    return files::read::read_folder(path).await;
+  }
+}
+
+#[derive(Clone)]
+struct ApiImpl;
+
+#[tokio::main]
+pub async fn run() {
   tauri::Builder::default()
     .setup(|app| {
       let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
@@ -61,12 +79,12 @@ pub fn run() {
 
       Ok(())
     })
-    .invoke_handler(tauri::generate_handler![files::read::read_file_test])
     .plugin(tauri_plugin_shell::init())
     .plugin(tauri_plugin_notification::init())
     .plugin(tauri_plugin_os::init())
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_store::Builder::new().build())
+    .invoke_handler(taurpc::create_ipc_handler(ApiImpl.into_handler()))
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
