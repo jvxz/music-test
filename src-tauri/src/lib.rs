@@ -11,7 +11,7 @@ mod files {
   pub mod read;
 }
 
-#[taurpc::procedures(export_to = "../app/tauri-bindings.ts")]
+#[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
 trait Api {
   async fn read_folder(path: String) -> Vec<FileEntry>;
 }
