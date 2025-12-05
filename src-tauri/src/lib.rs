@@ -1,4 +1,6 @@
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
+use serde::Serialize;
+use std::sync::Arc;
 use tauri::{
   menu::{Menu, MenuItem},
   tray::TrayIconBuilder,
@@ -13,18 +15,18 @@ mod files {
 
 #[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
 trait Api {
-  async fn read_folder(path: String) -> Vec<FileEntry>;
+  async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String>;
 }
 
 #[taurpc::resolvers]
 impl Api for ApiImpl {
-  async fn read_folder(self, path: String) -> Vec<FileEntry> {
+  async fn read_folder(self, path: String) -> Result<Arc<Vec<FileEntry>>, String> {
     return files::read::read_folder(path).await;
   }
 }
 
-#[derive(Clone)]
-struct ApiImpl;
+#[derive(Clone, Serialize)]
+pub struct ApiImpl;
 
 #[tokio::main]
 pub async fn run() {

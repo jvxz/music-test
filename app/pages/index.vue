@@ -1,16 +1,19 @@
 <script lang="ts" setup>
 const { rpc } = useTauri()
-const res = useAsyncState(() => rpc.read_folder('/path/to/folder/').then(
-  (entries) => {
-    console.log(entries)
-    return entries
-  },
-), null)
+const { execute, state: res } = useAsyncState((path: string) => rpc.read_folder(path), [])
 </script>
 
 <template>
   <div class="flex h-full flex-col gap-4 overflow-y-auto p-4 *:shrink-0">
-    <UCard v-for="entry in res.state.value" :key="entry.path">
+    <div class="flex gap-2">
+      <UButton @click="execute(0, 'path1')">
+        read path1
+      </UButton>
+      <UButton @click="execute(0, 'path2')">
+        read path2
+      </UButton>
+    </div>
+    <UCard v-for="entry in res" :key="entry.path">
       <p>{{ entry.tags.find(tag => tag.key === "TPE1")?.value }} - {{ entry.tags.find(tag => tag.key === "TIT2")?.value }}</p>
     </UCard>
   </div>
