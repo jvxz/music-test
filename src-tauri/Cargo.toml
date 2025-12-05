@@ -25,14 +25,9 @@ tauri-plugin-notification = "2.3.1"
 tauri-plugin-os = "2.3.1"
 tauri-plugin-fs = "2.4.2"
 tauri-plugin-store = "2.4.0"
-serde_json = "1"
-lofty = "0.22.4"
-rodio = "0.21.1"
 tokio = "1.48.0"
-objc2-app-kit = "0.3.2"
 taurpc = "0.5.2"
 specta = { version = "=2.0.0-rc.22", features = [ "derive" ] }
-mimetype-detector = "0.3.3"
 id3 = "1.16.3"
 env_logger = "0"
 log = "0.4.29"
@@ -48,6 +43,3 @@ features = [
 [dependencies.serde]
 version = "1"
 features = [ "derive" ]
-
-[target."cfg(target_os = \"macos\")".dependencies]
-cocoa = "0.26"
