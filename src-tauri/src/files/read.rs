@@ -54,7 +54,10 @@ pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String> {
         .collect::<Vec<SerializableTagItem>>();
 
       let path_string = path.to_string_lossy().to_string();
-      let name = path.file_name().unwrap().to_string_lossy().to_string();
+      let name = match path.file_name().map(|n| n.to_string_lossy().to_string()) {
+        Some(name) => name,
+        None => return None,
+      };
 
       return Some(FileEntry {
         path: path_string,
