@@ -2,21 +2,18 @@ use dashmap::DashMap;
 use log::debug;
 use serde::Serialize;
 use specta::Type;
+use std::collections::HashMap;
 use std::fs::read_dir;
 use std::sync::{Arc, LazyLock};
 use std::time::Instant;
 
-#[derive(Serialize, Type, Clone)]
-pub struct SerializableTagItem {
-  pub key: String,
-  pub value: String,
-}
+pub type SerializableTagMap = HashMap<String, String>;
 
 #[derive(Serialize, Type, Clone)]
 pub struct FileEntry {
   pub path: String,
   pub name: String,
-  pub tags: Vec<SerializableTagItem>,
+  pub tags: SerializableTagMap,
 }
 
 static STATE: LazyLock<DashMap<String, Arc<Vec<FileEntry>>>> = LazyLock::new(DashMap::new);
@@ -43,13 +40,8 @@ pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String> {
       let tag = id3::Tag::read_from_path(&path).ok()?;
       let frames = tag
         .frames()
-        .map(|f| {
-          return SerializableTagItem {
-            key: f.id().to_string(),
-            value: f.content().to_string(),
-          };
-        })
-        .collect::<Vec<SerializableTagItem>>();
+        .map(|f| (f.id().to_string(), f.content().to_string()))
+        .collect();
 
       let path_string = path.to_string_lossy().to_string();
       let name = match path.file_name().map(|n| n.to_string_lossy().to_string()) {

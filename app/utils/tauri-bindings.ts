@@ -4,9 +4,7 @@ import { createTauRPCProxy as createProxy, type InferCommandOutput } from 'taurp
 type TAURI_CHANNEL<T> = (response: T) => void
 
 
-export type FileEntry = { path: string; name: string; tags: SerializableTagItem[] }
-
-export type SerializableTagItem = { key: string; value: string }
+export type FileEntry = { path: string; name: string; tags: Partial<{ [key in string]: string }> }
 
 const ARGS_MAP = { '':'{"read_folder":["path"]}' }
 export type Router = { "": {read_folder: (path: string) => Promise<FileEntry[]>} };
