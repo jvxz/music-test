@@ -30,7 +30,17 @@ pub struct ApiImpl;
 
 #[tokio::main]
 pub async fn run() {
-  tauri::Builder::default()
+  #[cfg(debug_assertions)] // only enable instrumentation in development builds
+  let devtools = tauri_plugin_devtools::init();
+
+  let mut builder = tauri::Builder::default();
+
+  #[cfg(debug_assertions)]
+  {
+    builder = builder.plugin(devtools);
+  }
+
+  return builder
     .setup(|app| {
       let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
         .title("Music Test")
