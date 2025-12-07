@@ -1,8 +1,15 @@
 <template>
-  <div class="h-full">
-    <div class="flex h-16 items-center justify-center border-b">
-      music-player
-    </div>
+  <!-- <div class="flex h-full flex-1 flex-col">
     <LayoutLibrary />
-  </div>
+    <LayoutPanelCoverArt />
+  </div> -->
+  <SplitterGroup direction="vertical">
+    <SplitterPanel class="flex h-full flex-1 flex-col">
+      <LayoutLibrary />
+    </SplitterPanel>
+    <SplitterResizeHandle />
+    <SplitterPanel class="border-t">
+      <LayoutPanelCoverArt />
+    </SplitterPanel>
+  </SplitterGroup>
 </template>

@@ -31,6 +31,5 @@ const { layoutPanels } = useLayoutPanels()
         <LayoutSidebarRight />
       </SplitterPanel>
     </SplitterGroup>
-    <LayoutPlayer />
   </div>
 </template>

@@ -1,13 +1,32 @@
 use anyhow::{Context, Result};
 use image::imageops;
+use std::collections::HashMap;
 use std::fs;
 use std::io::Cursor;
 use std::path::PathBuf;
+use std::sync::{LazyLock, Mutex};
 use tauri::http::StatusCode;
 use tauri::http::{Request, Response};
 use tauri::{Manager, UriSchemeContext, UriSchemeResponder, Wry};
 
-pub fn handler(_ctx: UriSchemeContext<Wry>, req: Request<Vec<u8>>, responder: UriSchemeResponder) {
+static FULL_COVER_CACHE: LazyLock<Mutex<HashMap<String, Vec<u8>>>> = LazyLock::new(|| {
+  let placeholder =
+    fs::read("./icons/cover-placeholder.png").expect("Failed to read placeholder image");
+  Mutex::new(HashMap::from([("PLACEHOLDER".to_string(), placeholder)]))
+});
+
+#[derive(PartialEq)]
+pub enum CoverMode {
+  Thumbnail,
+  Full,
+}
+
+pub fn handler(
+  _ctx: UriSchemeContext<Wry>,
+  req: Request<Vec<u8>>,
+  responder: UriSchemeResponder,
+  mode: CoverMode,
+) {
   let cache_dir = match _ctx.app_handle().path().app_cache_dir() {
     Ok(dir) => dir,
     Err(_) => {
@@ -20,7 +39,7 @@ pub fn handler(_ctx: UriSchemeContext<Wry>, req: Request<Vec<u8>>, responder: Ur
     }
   };
 
-  tokio::task::spawn_blocking(move || match main(req, cache_dir) {
+  tokio::task::spawn_blocking(move || match main(req, cache_dir, mode) {
     Ok(r) => responder.respond(
       Response::builder()
         .header("Content-Type", "image/jpeg")
@@ -39,13 +58,35 @@ pub fn handler(_ctx: UriSchemeContext<Wry>, req: Request<Vec<u8>>, responder: Ur
     }
   });
 
-  fn main(req: Request<Vec<u8>>, cache_dir: PathBuf) -> Result<Vec<u8>> {
-    let file_path = decode_path(req.uri().path())?;
+  fn main(req: Request<Vec<u8>>, cache_dir: PathBuf, mode: CoverMode) -> Result<Vec<u8>> {
+    let uri = req.uri();
+    let file_path = decode_path(uri.path())?;
+
+    if mode == CoverMode::Full {
+      {
+        let cache = FULL_COVER_CACHE
+          .lock()
+          .map_err(|e| anyhow::anyhow!("Failed to lock full cover cache: {}", e))?;
+        if let Some(cached_cover) = cache.get(&file_path) {
+          return Ok(cached_cover.clone());
+        }
+      }
+    }
 
     let cover = match get_cover(&file_path) {
       Some(cover) => cover,
-      None => return Ok(Vec::new()),
+      None => return get_placeholder(),
     };
+
+    if mode == CoverMode::Full {
+      {
+        let mut cache = FULL_COVER_CACHE
+          .lock()
+          .map_err(|e| anyhow::anyhow!("Failed to lock full cover cache: {}", e))?;
+        cache.insert(file_path, cover.clone());
+      }
+      return Ok(cover);
+    }
 
     let hash = format!("{:x}", md5::compute(&cover));
 
@@ -94,4 +135,17 @@ fn resize_cover(cover: Vec<u8>) -> Result<Vec<u8>> {
 
   log::info!("{:#?} bytes", &output.len());
   return Ok(output);
+}
+
+fn get_placeholder() -> Result<Vec<u8>> {
+  let cache = FULL_COVER_CACHE.lock().map_err(|e| {
+    anyhow::anyhow!(
+      "Failed to lock full cover cache when getting placeholder: {}",
+      e
+    )
+  })?;
+  if let Some(placeholder) = cache.get("PLACEHOLDER") {
+    return Ok(placeholder.clone());
+  }
+  return Err(anyhow::anyhow!("Placeholder not found in cache"));
 }

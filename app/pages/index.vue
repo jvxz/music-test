@@ -4,6 +4,9 @@ const { rpc } = useTauri()
 const path = ref('')
 
 const { execute: getFolderEntries, state: folderEntries } = useAsyncState(() => rpc.read_folder(path.value), [])
+watchEffect(() => {
+  console.log('folderEntries: ', folderEntries.value)
+})
 const { selectedTrack } = useTrackSelection()
 
 const cols: {
@@ -80,7 +83,7 @@ function handleTrackSelection(track: FileEntry) {
     @keydown.enter="getFolderEntries()"
   /> -->
   <div class="flex h-full flex-col overflow-x-hidden *:shrink-0">
-    <div class="h-full" v-bind="containerProps">
+    <div class="h-full flex-1" v-bind="containerProps">
       <div v-bind="wrapperProps">
         <table class="w-full table-fixed border-separate border-spacing-0 select-none">
           <thead class="sticky top-0 z-20 border-b bg-background">
@@ -128,6 +131,7 @@ function handleTrackSelection(track: FileEntry) {
         </table>
       </div>
     </div>
+    <LayoutPlayer />
   </div>
 </template>
 
