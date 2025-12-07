@@ -69,7 +69,7 @@ pub async fn run() {
 
       Ok(())
     })
-    .register_uri_scheme_protocol("cover", cover_protocol::handler)
+    .register_asynchronous_uri_scheme_protocol("cover", cover_protocol::handler)
     .plugin(tauri_plugin_shell::init())
     .plugin(tauri_plugin_notification::init())
     .plugin(tauri_plugin_os::init())

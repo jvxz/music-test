@@ -56,62 +56,75 @@ const cols: {
     width: 100,
   },
 ] as const
+
+const { containerProps, list, wrapperProps } = useVirtualList(folderEntries, {
+  itemHeight: 34,
+  overscan: 24,
+})
 </script>
 
 <template>
-  <div class="flex h-full flex-col overflow-x-hidden overflow-y-auto *:shrink-0">
-    <UInput
-      v-model="path"
-      placeholder="Enter path"
-      @keydown.enter="getFolderEntries()"
-    />
-    <table class="w-full">
-      <thead class="border-b">
-        <tr class="text-muted-foreground *:h-8 *:px-2 *:text-left *:font-mono *:text-sm *:font-normal *:not-last:border-r">
-          <th
-            v-for="col in cols"
-            :key="col.key"
-            :style="{ width: `${col.width}px` }"
-          >
-            <span class="capitalize">{{ col.label }}</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="entry in folderEntries"
-          :key="entry.path"
-          class="*:h-8 *:px-2 *:text-left *:text-sm *:font-normal *:border-r *:border-b"
-        >
-          <template v-for="col in cols" :key="col.key">
-            <td v-if="col.key === 'cover'" :style="{ width: `${col.width}px` }">
-              <NuxtImg
-                :src="buildCoverUri(entry.path)"
-                class="mx-auto h-full object-contain"
-                width="48"
-                height="48"
-                placeholder="cover.svg"
-                loading="lazy"
-              />
-            </td>
-            <td v-else :style="{ width: `${col.width}px` }">
-              {{ col.default
-                ? entry.tags[col.id3] ?? entry[col.default]
-                : entry.tags[col.id3] }}
-            </td>
-          </template>
-        </tr>
-      </tbody>
-    </table>
+  <!-- <UInput
+    v-model="path"
+    placeholder="Enter path"
+    @keydown.enter="getFolderEntries()"
+  /> -->
+  <div class="flex h-full flex-col overflow-x-hidden *:shrink-0">
+    <div class="h-full" v-bind="containerProps">
+      <div v-bind="wrapperProps">
+        <table class="w-full table-fixed border-separate border-spacing-0 select-none">
+          <thead class="sticky top-0 z-20 border-b bg-background">
+            <tr class="text-muted-foreground *:h-8 *:px-2 *:text-left *:font-mono *:text-sm *:font-normal *:not-last:border-r">
+              <th
+                v-for="col in cols"
+                :key="col.key"
+                :style="{ width: `${col.width}px` }"
+              >
+                <span class="capitalize">{{ col.label }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="entry in list"
+              :key="entry.index"
+              class="*:h-8 *:border-r *:border-b *:px-2 *:text-left *:text-sm *:font-normal"
+            >
+              <template v-for="col in cols" :key="col.key">
+                <td v-if="col.key === 'cover'" :style="{ width: `${col.width}px` }">
+                  <img
+                    :src="buildCoverUri(entry.data.path)"
+                    class="mx-auto h-full object-contain"
+                    width="64"
+                    height="64"
+                    :alt="entry.data.name"
+                    decoding="async"
+                  />
+                </td>
+                <td
+                  v-else
+                  class="truncate"
+                  :style="{ width: `${col.width}px` }"
+                >
+                  {{ col.default
+                    ? entry.data.tags[col.id3] ?? entry.data[col.default]
+                    : entry.data.tags[col.id3] }}
+                </td>
+              </template>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-img[src*='cover.svg'] {
+img[src*='/cover.svg'] {
   opacity: 80%;
 }
 
-.dark img[src*='cover.svg'] {
+.dark img[src*='/cover.svg'] {
   filter: invert();
 }
 </style>

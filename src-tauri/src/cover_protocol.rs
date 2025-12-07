@@ -1,55 +1,64 @@
 use anyhow::{Context, Result};
-use lru::LruCache;
-use std::num::NonZeroUsize;
-use std::sync::{LazyLock, Mutex};
+use image::imageops;
+use std::fs;
+use std::io::Cursor;
+use std::path::PathBuf;
+use tauri::http::StatusCode;
 use tauri::http::{Request, Response};
-use tauri::{UriSchemeContext, Wry};
+use tauri::{Manager, UriSchemeContext, UriSchemeResponder, Wry};
 
-pub static COVER_CACHE: LazyLock<Mutex<LruCache<String, Vec<u8>>>> = LazyLock::new(|| {
-  let cache: LruCache<String, Vec<u8>> = LruCache::new(NonZeroUsize::new(100).unwrap());
-  return cache.into();
-});
-
-pub fn handler(_ctx: UriSchemeContext<Wry>, req: Request<Vec<u8>>) -> Response<Vec<u8>> {
-  fn main(req: Request<Vec<u8>>) -> Result<Response<Vec<u8>>> {
-    let file_path = decode_path(req.uri().path())?;
-
-    {
-      let mut cache = COVER_CACHE
-        .lock()
-        .map_err(|e| anyhow::anyhow!("Failed to acquire cache lock {:#?}", e))?;
-      if let Some(bytes) = cache.get(&file_path) {
-        return Ok(make_response(bytes.clone(), 200));
-      }
-    }
-
-    let cover = get_cover(&file_path).unwrap_or_default();
-
-    {
-      let mut cache = COVER_CACHE
-        .lock()
-        .map_err(|e| anyhow::anyhow!("Failed to acquire cache lock {:#?}", e))?;
-      cache.put(file_path, cover.clone());
-    }
-
-    return Ok(
-      Response::builder()
-        .status(200)
-        .body(cover)
-        .expect("Cover request failed"),
-    );
-  }
-
-  return match main(req) {
-    Ok(r) => r,
-    Err(e) => {
-      log::error!("Error: {:#?}", e);
-      Response::builder()
-        .status(500)
-        .body(b"Internal server error".to_vec())
-        .expect("Failed to build response")
+pub fn handler(_ctx: UriSchemeContext<Wry>, req: Request<Vec<u8>>, responder: UriSchemeResponder) {
+  let cache_dir = match _ctx.app_handle().path().app_cache_dir() {
+    Ok(dir) => dir,
+    Err(_) => {
+      return responder.respond(
+        Response::builder()
+          .status(StatusCode::INTERNAL_SERVER_ERROR)
+          .body(b"Internal server error".to_vec())
+          .unwrap(),
+      )
     }
   };
+
+  tokio::task::spawn_blocking(move || match main(req, cache_dir) {
+    Ok(r) => responder.respond(
+      Response::builder()
+        .header("Content-Type", "image/jpeg")
+        .status(StatusCode::OK)
+        .body(r)
+        .unwrap(),
+    ),
+    Err(e) => {
+      log::error!("Error: {:#?}", e);
+      responder.respond(
+        Response::builder()
+          .status(StatusCode::INTERNAL_SERVER_ERROR)
+          .body(b"Internal server error".to_vec())
+          .unwrap(),
+      )
+    }
+  });
+
+  fn main(req: Request<Vec<u8>>, cache_dir: PathBuf) -> Result<Vec<u8>> {
+    let file_path = decode_path(req.uri().path())?;
+
+    let cover = match get_cover(&file_path) {
+      Some(cover) => cover,
+      None => return Ok(Vec::new()),
+    };
+
+    let hash = format!("{:x}", md5::compute(&cover));
+
+    if let Ok(cached_cover) = fs::read(cache_dir.join(format!("{}.jpg", &hash.clone()))) {
+      return Ok(cached_cover);
+    }
+
+    let resized_cover = resize_cover(cover)?;
+
+    fs::write(cache_dir.join(format!("{}.jpg", hash)), &resized_cover).ok();
+
+    return Ok(resized_cover);
+  }
 }
 
 fn decode_path(path: &str) -> Result<String> {
@@ -73,9 +82,16 @@ fn get_cover(path: &str) -> Option<Vec<u8>> {
   return Some(main_cover.data.clone());
 }
 
-fn make_response<T>(body: T, status: u16) -> tauri::http::Response<T> {
-  Response::builder()
-    .status(status)
-    .body(body)
-    .expect("Failed to build response")
+fn resize_cover(cover: Vec<u8>) -> Result<Vec<u8>> {
+  let img = image::load_from_memory(&cover).context("Failed to load cover image from memory")?;
+  let img = img.resize_to_fill(64, 64, imageops::FilterType::Lanczos3);
+
+  let mut output = Vec::new();
+
+  img
+    .write_to(&mut Cursor::new(&mut output), image::ImageFormat::Jpeg)
+    .context("Failed to write cover image to memory")?;
+
+  log::info!("{:#?} bytes", &output.len());
+  return Ok(output);
 }
