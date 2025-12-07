@@ -72,6 +72,7 @@ export default defineNuxtConfig({
     '@nuxtjs/color-mode',
     '@nuxt/icon',
     '@nuxt/fonts',
+    '@nuxt/image',
   ],
   router: {
     options: {

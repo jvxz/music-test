@@ -12,6 +12,7 @@ use crate::files::read::FileEntry;
 mod files {
   pub mod read;
 }
+mod cover_protocol;
 
 #[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
 trait Api {
@@ -68,6 +69,7 @@ pub async fn run() {
 
       Ok(())
     })
+    .register_uri_scheme_protocol("cover", cover_protocol::handler)
     .plugin(tauri_plugin_shell::init())
     .plugin(tauri_plugin_notification::init())
     .plugin(tauri_plugin_os::init())

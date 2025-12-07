@@ -16,7 +16,7 @@ pub struct FileEntry {
   pub tags: SerializableTagMap,
 }
 
-static STATE: LazyLock<DashMap<String, Arc<Vec<FileEntry>>>> = LazyLock::new(DashMap::new);
+pub static STATE: LazyLock<DashMap<String, Arc<Vec<FileEntry>>>> = LazyLock::new(DashMap::new);
 
 #[tauri::command]
 pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String> {
