@@ -148,9 +148,12 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased text-pretty min-h-screen underline-offset-2;
+    font-optical-sizing: auto !important;
+    letter-spacing: 0.01em;
+  }
+
+  body[style*='font-sans'] {
     font-weight: 450;
-    font-optical-sizing: auto;
-    letter-spacing: 0.005em;
   }
 
   body[style*='font-display'] {
