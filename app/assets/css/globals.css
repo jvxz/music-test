@@ -141,6 +141,23 @@
     @apply border-border outline-ring/50 min-h-0 min-w-0;
   }
 
+  *::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--color-muted-foreground);
+  }
+
   html {
     @apply scrollbar-fancy;
     -webkit-tap-highlight-color: transparent;
