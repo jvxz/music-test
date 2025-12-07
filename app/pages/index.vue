@@ -4,6 +4,7 @@ const { rpc } = useTauri()
 const path = ref('')
 
 const { execute: getFolderEntries, state: folderEntries } = useAsyncState(() => rpc.read_folder(path.value), [])
+const { selectedTrack } = useTrackSelection()
 
 const cols: {
   id3: string
@@ -61,6 +62,15 @@ const { containerProps, list, wrapperProps } = useVirtualList(folderEntries, {
   itemHeight: 34,
   overscan: 24,
 })
+
+function handleTrackSelection(track: FileEntry) {
+  if (selectedTrack.value?.path === track.path) {
+    selectedTrack.value = null
+  }
+  else {
+    selectedTrack.value = track
+  }
+}
 </script>
 
 <template>
@@ -88,7 +98,9 @@ const { containerProps, list, wrapperProps } = useVirtualList(folderEntries, {
             <tr
               v-for="entry in list"
               :key="entry.index"
-              class="*:h-8 *:border-r *:border-b *:px-2 *:text-left *:text-sm *:font-normal"
+              class="*:h-8 *:border-r *:border-b *:px-2 *:text-left *:text-sm *:font-normal data-selected:bg-muted"
+              :data-selected="selectedTrack?.path !== entry.data.path ? undefined : ''"
+              @mousedown="handleTrackSelection(entry.data)"
             >
               <template v-for="col in cols" :key="col.key">
                 <td v-if="col.key === 'cover'" :style="{ width: `${col.width}px` }">
