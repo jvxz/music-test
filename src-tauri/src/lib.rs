@@ -13,16 +13,21 @@ mod files {
   pub mod read;
 }
 mod cover_protocol;
+mod waveform;
 
 #[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
 trait Api {
   async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String>;
+  async fn get_waveform(path: String, bin_size: f32) -> Result<Vec<f32>, String>;
 }
 
 #[taurpc::resolvers]
 impl Api for ApiImpl {
   async fn read_folder(self, path: String) -> Result<Arc<Vec<FileEntry>>, String> {
     return files::read::read_folder(path).await;
+  }
+  async fn get_waveform(self, path: String, bin_size: f32) -> Result<Vec<f32>, String> {
+    return waveform::get_waveform(path, bin_size).await;
   }
 }
 

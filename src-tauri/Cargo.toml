@@ -37,6 +37,7 @@ anyhow = "1.0.100"
 lru = "0.16.2"
 image = "0.25.9"
 md5 = "0.8.0"
+symphonia = { version = "0.5.5", features = [ "mp3" ] }
 
 [dependencies.tauri]
 version = "2.9.1"
