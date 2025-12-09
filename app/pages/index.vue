@@ -3,10 +3,7 @@ const { rpc } = useTauri()
 
 const path = ref('')
 
-const { execute: getFolderEntries, state: folderEntries } = useAsyncState(() => rpc.read_folder(path.value), [])
-watchEffect(() => {
-  console.log('folderEntries: ', folderEntries.value)
-})
+const { state: folderEntries } = useAsyncState(() => rpc.read_folder(path.value), [])
 const { selectedTrack } = useTrackSelection()
 
 const cols: {
@@ -77,11 +74,6 @@ function handleTrackSelection(track: FileEntry) {
 </script>
 
 <template>
-  <!-- <UInput
-    v-model="path"
-    placeholder="Enter path"
-    @keydown.enter="getFolderEntries()"
-  /> -->
   <div class="flex h-full flex-col overflow-x-hidden *:shrink-0">
     <div class="h-full flex-1" v-bind="containerProps">
       <div v-bind="wrapperProps">
@@ -131,7 +123,7 @@ function handleTrackSelection(track: FileEntry) {
         </table>
       </div>
     </div>
-    <LayoutPlayer />
+    <LayoutWaveform />
   </div>
 </template>
 
