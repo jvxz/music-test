@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { layoutPanels } = useLayoutPanels()
+const { layoutPanels } = usePersistentPanels('main', [12.5, 35, 12.5])
 </script>
 
 <template>

@@ -4,28 +4,22 @@ import { listen } from '@tauri-apps/api/event'
 export default defineNuxtPlugin(async () => {
   const rpc = createTauRPCProxy()
 
-  const tauriPrefs = await useTauriStoreLoad('prefs.json', {
+  const tauriStore = await useTauriStoreLoad('prefs.json', {
     autoSave: true,
-    defaults: {
-      'layout-panels': [12.5, 50, 12.5],
-    },
+    defaults: {},
   })
 
-  // prerequisites (needed for fcp)
-  const layoutPanels = await tauriPrefs.get<number[]>('layout-panels') ?? [12.5, 50, 12.5]
+  const entries = await tauriStore.entries()
+  const prefs = new Map<string, unknown>(entries)
 
   return {
     provide: {
       tauri: {
         invoke,
         listen,
+        prefs,
         rpc,
-        store: {
-          _loaded: {
-            layoutPanels,
-          },
-          prefs: tauriPrefs,
-        },
+        store: tauriStore,
       },
     },
   }
