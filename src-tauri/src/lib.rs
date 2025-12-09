@@ -4,7 +4,7 @@ use std::sync::Arc;
 use tauri::{
   menu::{Menu, MenuItem},
   tray::TrayIconBuilder,
-  AppHandle, Runtime, WebviewUrl, WebviewWindowBuilder,
+  AppHandle, Manager, Runtime, WebviewUrl, WebviewWindowBuilder,
 };
 
 use crate::files::read::FileEntry;
@@ -61,6 +61,9 @@ pub async fn run() {
         .title("swim")
         .inner_size(800.0, 600.0)
         .focused(false);
+
+      let cache_dir = app.app_handle().path().app_cache_dir().unwrap();
+      std::fs::create_dir_all(&cache_dir).unwrap();
 
       win_builder.build().unwrap();
 
