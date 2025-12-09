@@ -7,7 +7,7 @@ export default defineNuxtConfig({
       meta: [
         { content: 'no', name: 'format-detection' },
       ],
-      title: 'Nuxtor',
+      title: 'swim',
       viewport: 'width=device-width, initial-scale=1',
     },
     layoutTransition: {

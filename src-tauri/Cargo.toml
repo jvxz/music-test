@@ -1,14 +1,14 @@
 [package]
-name = "nuxtor"
-version = "1.5.0"
-description = "Starter template for Nuxt 4 and Tauri 2"
-authors = [ "NicolaSpadari" ]
+name = "swim"
+version = "0.0.0"
+description = "Audio player made for archivists"
+authors = [ "jvxz" ]
 license = "MIT"
-repository = "https://github.com/NicolaSpadari/nuxtor"
+repository = "https://github.com/jvxz/swim"
 edition = "2021"
 
 [lib]
-name = "nuxtor_lib"
+name = "swim_lib"
 crate-type = [
   "staticlib",
   "cdylib",

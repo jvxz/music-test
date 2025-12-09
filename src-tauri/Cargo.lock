@@ -2977,34 +2977,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nuxtor"
-version = "1.5.0"
-dependencies = [
- "anyhow",
- "dashmap",
- "id3",
- "image",
- "log",
- "lru",
- "md5",
- "serde",
- "serde_json",
- "specta",
- "symphonia",
- "tauri",
- "tauri-build",
- "tauri-plugin-devtools",
- "tauri-plugin-fs",
- "tauri-plugin-notification",
- "tauri-plugin-os",
- "tauri-plugin-shell",
- "tauri-plugin-store",
- "taurpc",
- "tokio",
- "urlencoding",
-]
-
-[[package]]
 name = "objc"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4743,6 +4715,34 @@ dependencies = [
  "base64 0.21.7",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "swim"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "dashmap",
+ "id3",
+ "image",
+ "log",
+ "lru",
+ "md5",
+ "serde",
+ "serde_json",
+ "specta",
+ "symphonia",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-devtools",
+ "tauri-plugin-fs",
+ "tauri-plugin-notification",
+ "tauri-plugin-os",
+ "tauri-plugin-shell",
+ "tauri-plugin-store",
+ "taurpc",
+ "tokio",
+ "urlencoding",
 ]
 
 [[package]]

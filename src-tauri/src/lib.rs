@@ -58,7 +58,7 @@ pub async fn run() {
   return builder
     .setup(|app| {
       let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
-        .title("Music Test")
+        .title("swim")
         .inner_size(800.0, 600.0)
         .focused(false);
 

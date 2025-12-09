@@ -31,9 +31,9 @@
     "beforeDevCommand": "bun run nuxt:dev",
     "devUrl": "http://localhost:3000"
   },
-  "productName": "Nuxtor",
+  "productName": "swim",
   "version": "1.5.0",
-  "identifier": "com.nicolaspadari.nuxtor",
+  "identifier": "com.jvxz.swim",
   "plugins": {},
   "app": {
     "security": {

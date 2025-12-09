@@ -3,5 +3,5 @@
 #![warn(clippy::implicit_return)]
 
 fn main() {
-  nuxtor_lib::run();
+  swim_lib::run();
 }
