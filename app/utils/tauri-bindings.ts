@@ -6,8 +6,9 @@ type TAURI_CHANNEL<T> = (response: T) => void
 
 export type FileEntry = { path: string; name: string; tags: Partial<{ [key in string]: string }> }
 
-const ARGS_MAP = { '':'{"read_folder":["path"]}' }
-export type Router = { "": {read_folder: (path: string) => Promise<FileEntry[]>} };
+const ARGS_MAP = { '':'{"get_waveform":["path","bin_size"],"read_folder":["path"]}' }
+export type Router = { "": {get_waveform: (path: string, binSize: number) => Promise<number[]>, 
+read_folder: (path: string) => Promise<FileEntry[]>} };
 
 
 export const createTauRPCProxy = () => createProxy<Router>(ARGS_MAP)

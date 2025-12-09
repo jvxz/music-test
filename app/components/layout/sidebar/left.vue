@@ -1,8 +1,4 @@
 <template>
-  <!-- <div class="flex h-full flex-1 flex-col">
-    <LayoutLibrary />
-    <LayoutPanelCoverArt />
-  </div> -->
   <SplitterGroup direction="vertical">
     <SplitterPanel class="flex h-full flex-1 flex-col">
       <LayoutLibrary />
