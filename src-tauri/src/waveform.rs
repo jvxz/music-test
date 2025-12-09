@@ -9,12 +9,28 @@ use symphonia::core::{
   meta::MetadataOptions,
   probe::Hint,
 };
+use tauri::{AppHandle, Manager, Runtime};
 
 #[tauri::command]
-pub async fn get_waveform(path: String, bin_size: f32) -> Result<Vec<f32>, String> {
-  fn main(path: String, bin_size: f32) -> Result<Vec<f32>, AnyhowError> {
+pub async fn get_waveform<R: Runtime>(
+  app_handle: AppHandle<R>,
+  path: String,
+  bin_size: f32,
+) -> Result<Vec<f32>, String> {
+  fn main<R: Runtime>(
+    app_handle: AppHandle<R>,
+    path: String,
+    bin_size: f32,
+  ) -> Result<Vec<f32>, AnyhowError> {
+    let cache_dir = app_handle.app_handle().path().app_cache_dir()?;
+    println!("cache_dir: {:?}", cache_dir);
+
+    let cache_path = build_cache_path(&path, &cache_dir);
+    if let Ok(cached_waveform) = std::fs::read(&cache_path) {
+      return serde_json::from_slice(&cached_waveform).context("failed to parse cached waveform");
+    }
+
     let src = std::fs::File::open(&path).context("failed to open media")?;
-    println!("src: {:?}", src);
 
     let mss = MediaSourceStream::new(Box::new(src), Default::default());
 
@@ -117,12 +133,16 @@ pub async fn get_waveform(path: String, bin_size: f32) -> Result<Vec<f32>, Strin
       waveform_data.push((max * 100.0).round());
     }
 
-    println!("waveform_data: {:?}", waveform_data.len());
+    std::fs::write(
+      &cache_path,
+      serde_json::to_vec(&waveform_data).context("failed to serialize waveform")?,
+    )
+    .context("failed to write waveform to cache")?;
 
     Ok(waveform_data)
   }
 
-  return main(path, bin_size).map_err(|e| e.to_string());
+  return main(app_handle, path, bin_size).map_err(|e| e.to_string());
 }
 
 fn get_extension_from_filename(filename: &str) -> Result<&str, AnyhowError> {
@@ -130,4 +150,12 @@ fn get_extension_from_filename(filename: &str) -> Result<&str, AnyhowError> {
     .extension()
     .and_then(OsStr::to_str)
     .ok_or(anyhow!("failed to get extension"))
+}
+
+fn build_cache_path(file_path: &str, cache_dir: &Path) -> String {
+  let hash = format!("{:x}", md5::compute(file_path));
+  return cache_dir
+    .join(format!("{}-wf.json", hash))
+    .to_string_lossy()
+    .to_string();
 }

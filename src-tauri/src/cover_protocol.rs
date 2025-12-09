@@ -22,12 +22,12 @@ pub enum CoverMode {
 }
 
 pub fn handler(
-  _ctx: UriSchemeContext<Wry>,
+  ctx: UriSchemeContext<Wry>,
   req: Request<Vec<u8>>,
   responder: UriSchemeResponder,
   mode: CoverMode,
 ) {
-  let cache_dir = match _ctx.app_handle().path().app_cache_dir() {
+  let cache_dir = match ctx.app_handle().path().app_cache_dir() {
     Ok(dir) => dir,
     Err(_) => {
       return responder.respond(

@@ -4,7 +4,7 @@ use std::sync::Arc;
 use tauri::{
   menu::{Menu, MenuItem},
   tray::TrayIconBuilder,
-  WebviewUrl, WebviewWindowBuilder,
+  AppHandle, Runtime, WebviewUrl, WebviewWindowBuilder,
 };
 
 use crate::files::read::FileEntry;
@@ -18,7 +18,11 @@ mod waveform;
 #[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
 trait Api {
   async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String>;
-  async fn get_waveform(path: String, bin_size: f32) -> Result<Vec<f32>, String>;
+  async fn get_waveform<R: Runtime>(
+    app_handle: AppHandle<R>,
+    path: String,
+    bin_size: f32,
+  ) -> Result<Vec<f32>, String>;
 }
 
 #[taurpc::resolvers]
@@ -26,8 +30,13 @@ impl Api for ApiImpl {
   async fn read_folder(self, path: String) -> Result<Arc<Vec<FileEntry>>, String> {
     return files::read::read_folder(path).await;
   }
-  async fn get_waveform(self, path: String, bin_size: f32) -> Result<Vec<f32>, String> {
-    return waveform::get_waveform(path, bin_size).await;
+  async fn get_waveform<R: Runtime>(
+    self,
+    app_handle: AppHandle<R>,
+    path: String,
+    bin_size: f32,
+  ) -> Result<Vec<f32>, String> {
+    return waveform::get_waveform(app_handle, path, bin_size).await;
   }
 }
 
