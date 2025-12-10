@@ -1,3 +1,4 @@
+use anyhow::Context;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use serde::Serialize;
 use std::sync::Arc;
@@ -13,11 +14,13 @@ mod files {
   pub mod read;
 }
 mod cover_protocol;
+mod playback;
 mod waveform;
 
 #[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
 trait Api {
   async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String>;
+  async fn play_track(path: String) -> Result<(), String>;
   async fn get_waveform<R: Runtime>(
     app_handle: AppHandle<R>,
     path: String,
@@ -37,6 +40,9 @@ impl Api for ApiImpl {
     bin_size: f32,
   ) -> Result<Vec<f32>, String> {
     return waveform::get_waveform(app_handle, path, bin_size).await;
+  }
+  async fn play_track(self, path: String) -> Result<(), String> {
+    return playback::play_track(path).await;
   }
 }
 
@@ -69,6 +75,10 @@ pub async fn run() {
 
       let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
       let menu = Menu::with_items(app, &[&quit_i])?;
+
+      let stream_handle = rodio::OutputStreamBuilder::open_default_stream()
+        .context("Failed to open default audio stream")?;
+      let sink = rodio::Sink::connect_new(stream_handle.mixer());
 
       let _tray = TrayIconBuilder::new()
         .menu(&menu)
