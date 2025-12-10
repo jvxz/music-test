@@ -31,5 +31,6 @@ const { layoutPanels } = usePersistentPanels('main', [12.5, 35, 12.5])
         <LayoutSidebarRight />
       </SplitterPanel>
     </SplitterGroup>
+    <LayoutStatusBar />
   </div>
 </template>
