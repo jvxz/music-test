@@ -87,8 +87,8 @@ function handleColumnClick(id3: Id3FrameId) {
   <div class="h-full flex-1" v-bind="containerProps">
     <div v-bind="wrapperProps">
       <table class="w-full table-fixed border-separate border-spacing-0 cursor-default select-none">
-        <thead class="sticky top-0 z-20 border-b bg-background">
-          <tr class="text-muted-foreground *:h-8 *:px-2 *:text-left *:text-sm *:font-normal *:not-last:border-r">
+        <thead class="sticky top-0 z-20  bg-background">
+          <tr class="text-muted-foreground *:border-b *:h-8 *:px-2 *:text-left *:text-sm *:font-normal *:not-last:border-r">
             <th
               v-for="col in cols"
               :key="col.key"
@@ -112,7 +112,7 @@ function handleColumnClick(id3: Id3FrameId) {
           <tr
             v-for="entry in list"
             :key="entry.index"
-            class="*:h-8 *:border-b *:px-2 *:text-left *:text-sm *:font-normal data-selected:bg-muted"
+            class="*:h-8 odd:bg-card *:px-2 *:text-left *:text-sm *:font-normal data-selected:bg-muted"
             :data-selected="selectedTrack?.path !== entry.data.path ? undefined : ''"
             @mousedown="handleTrackSelection(entry.data)"
           >

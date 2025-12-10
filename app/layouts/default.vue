@@ -4,6 +4,7 @@ const { layoutPanels } = usePersistentPanels('main', [12.5, 35, 12.5])
 
 <template>
   <div class="flex h-screen flex-col">
+    <LayoutTopBar />
     <SplitterGroup
       direction="horizontal"
       class="flex size-full flex-1"
