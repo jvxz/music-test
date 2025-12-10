@@ -14,6 +14,8 @@ pub struct FileEntry {
   pub path: String,
   pub name: String,
   pub tags: SerializableTagMap,
+  pub thumbnail_uri: String,
+  pub full_uri: String,
 }
 
 pub static STATE: LazyLock<DashMap<String, Arc<Vec<FileEntry>>>> = LazyLock::new(DashMap::new);
@@ -50,9 +52,11 @@ pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String> {
       };
 
       return Some(FileEntry {
-        path: path_string,
+        path: path_string.clone(),
         name,
         tags: frames,
+        thumbnail_uri: build_cover_uri(path_string.as_str(), "thumbnail"),
+        full_uri: build_cover_uri(path_string.as_str(), "full"),
       });
     })
     .collect::<Vec<FileEntry>>();
@@ -64,4 +68,8 @@ pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String> {
   STATE.insert(path, data.clone());
 
   return Ok(data);
+}
+
+fn build_cover_uri(path: &str, mode: &str) -> String {
+  return format!("cover-{mode}://localhost/{path}");
 }

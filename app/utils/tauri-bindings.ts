@@ -4,7 +4,7 @@ import { createTauRPCProxy as createProxy, type InferCommandOutput } from 'taurp
 type TAURI_CHANNEL<T> = (response: T) => void
 
 
-export type FileEntry = { path: string; name: string; tags: Partial<{ [key in string]: string }> }
+export type FileEntry = { path: string; name: string; tags: Partial<{ [key in string]: string }>; thumbnail_uri: string; full_uri: string }
 
 const ARGS_MAP = { '':'{"get_waveform":["path","bin_size"],"read_folder":["path"]}' }
 export type Router = { "": {get_waveform: (path: string, binSize: number) => Promise<number[]>, 
