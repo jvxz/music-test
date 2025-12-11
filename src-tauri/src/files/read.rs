@@ -40,10 +40,15 @@ pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String> {
     .filter_map(|e| {
       let path = e.path();
       let tag = id3::Tag::read_from_path(&path).ok()?;
-      let frames = tag
+      let mut frames: SerializableTagMap = tag
         .frames()
         .map(|f| (f.id().to_string(), f.content().to_string()))
         .collect();
+      if !frames.contains_key("TIT2") {
+        if let Some(file_name) = path.file_name().map(|n| n.to_string_lossy().to_string()) {
+          frames.insert("TIT2".to_string(), file_name);
+        }
+      }
 
       let path_string = path.to_string_lossy().to_string();
       let name = match path.file_name().map(|n| n.to_string_lossy().to_string()) {
