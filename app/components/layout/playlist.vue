@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 const { folderEntries, playlistData } = usePlaylistData()
-
 const { selectedTrack } = useTrackSelection()
 const { playTrack } = usePlayingTrack()
+const { layoutPanels: playlistHeaderPercents } = usePersistentPanels('playlist-columns', [10, 25, 20, 20, 10, 15])
 
 const cols: {
   id3: Id3FrameId
@@ -58,7 +58,7 @@ const cols: {
 
 const { containerProps, list, wrapperProps } = useVirtualList(folderEntries, {
   itemHeight: 34,
-  overscan: 24,
+  overscan: 8,
 })
 
 function handleTrackSelection(track: FileEntry) {
@@ -82,63 +82,74 @@ function handleColumnClick(id3: Id3FrameId) {
 </script>
 
 <template>
-  <div class="h-full flex-1" v-bind="containerProps">
-    <div v-bind="wrapperProps">
-      <table class="w-full table-fixed border-separate border-spacing-0 cursor-default select-none">
-        <thead class="sticky top-0 z-20 bg-background">
-          <tr class="text-muted-foreground *:h-8 *:border-b *:px-2 *:text-left *:text-sm *:font-normal *:not-last:border-r">
-            <th
-              v-for="col in cols"
-              :key="col.key"
-              :data-sort-order="playlistData.sortOrder"
-              :style="{ width: `${col.width}px` }"
-              class="group"
-              @click="handleColumnClick(col.id3)"
-            >
-              <div class="flex items-center justify-between">
-                <span class="capitalize">{{ col.label }}</span>
-                <Icon
-                  v-show="playlistData.sortBy === col.id3"
-                  name="tabler:chevron-down"
-                  class="group-data-[sort-order='asc']:rotate-180"
-                />
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="entry in list"
-            :key="entry.index"
-            class="*:h-8 *:px-2 *:text-left *:text-sm *:font-normal odd:bg-card data-selected:bg-muted"
-            :data-selected="selectedTrack?.path !== entry.data.path ? undefined : ''"
-            @mousedown="handleTrackSelection(entry.data)"
-            @dblclick="playTrack(entry.data)"
+  <div class="h-full flex-1 cursor-default select-none" v-bind="containerProps">
+    <SplitterGroup
+      direction="horizontal"
+      class="sticky top-0 z-20 h-8! bg-background"
+      @layout="playlistHeaderPercents = $event"
+    >
+      <template
+        v-for="col in cols"
+        :key="col.key"
+      >
+        <SplitterResizeHandle v-if="cols.indexOf(col) !== 0" class="h-8 w-px bg-muted" />
+        <SplitterPanel
+          :default-size="playlistHeaderPercents[cols.indexOf(col)]"
+          :min-size="2"
+          class="flex h-8 items-center"
+          @click="handleColumnClick(col.id3)"
+        >
+          <p class="truncate px-2 text-sm">
+            {{ col.label }}
+          </p>
+        </SplitterPanel>
+      </template>
+    </SplitterGroup>
+    <div
+      class="h-full"
+      v-bind="wrapperProps"
+    >
+      <div
+        v-for="entry in list"
+        :key="entry.index"
+        v-memo="[playlistData.sortBy, playlistData.sortOrder, selectedTrack?.path, playlistHeaderPercents]"
+        class="flex size-full h-8 items-center"
+        :class="{
+          'bg-primary/25': selectedTrack?.path === entry.data.path,
+          'bg-muted/50': selectedTrack?.path !== entry.data.path && entry.index % 2 === 0,
+        }"
+        :style="{ contain: 'strict' }"
+        @mousedown.left="handleTrackSelection(entry.data)"
+        @dblclick.left="playTrack(entry.data)"
+      >
+        <template
+          v-for="(col, i) in cols"
+          :key="col.key"
+        >
+          <template v-if="col.key === 'cover'">
+            <div v-if="!entry.data.tags.APIC" class="mx-auto grid size-8 place-items-center">
+              -
+            </div>
+            <img
+              v-else
+              :src="entry.data.thumbnail_uri"
+              :alt="entry.data.name"
+              width="32"
+              height="32"
+              class="mx-auto h-full object-contain"
+              loading="lazy"
+              decoding="async"
+            />
+          </template>
+          <p
+            v-else
+            class="shrink-0 grow-0 truncate px-2 text-sm"
+            :style="{ flexBasis: `calc( (100% - ${(cols.length - 1)}px) * ${playlistHeaderPercents[i]} / 100 )` }"
           >
-            <template v-for="col in cols" :key="col.key">
-              <td v-if="col.key === 'cover'" :style="{ width: `${col.width}px` }">
-                <img
-                  :src="entry.data.thumbnail_uri"
-                  class="mx-auto h-full object-contain"
-                  width="64"
-                  height="64"
-                  :alt="entry.data.name"
-                  decoding="async"
-                />
-              </td>
-              <td
-                v-else
-                class="truncate"
-                :style="{ width: `${col.width}px` }"
-              >
-                {{ col.default
-                  ? entry.data.tags[col.id3] ?? entry.data[col.default]
-                  : entry.data.tags[col.id3] }}
-              </td>
-            </template>
-          </tr>
-        </tbody>
-      </table>
+            {{ entry.data.tags[col.id3] }}
+          </p>
+        </template>
+      </div>
     </div>
   </div>
 </template>
