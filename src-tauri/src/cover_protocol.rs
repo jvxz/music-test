@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use id3::frame::{Picture, PictureType};
 use image::imageops;
 use std::collections::HashMap;
 use std::fs;
@@ -116,11 +117,9 @@ fn decode_path(path: &str) -> Result<String> {
 fn get_cover(path: &str) -> Option<Vec<u8>> {
   let tag = id3::Tag::read_from_path(path).ok()?;
 
-  let main_cover = tag
-    .pictures()
-    .find(|p| p.picture_type == id3::frame::PictureType::CoverFront)?;
+  let pictures = tag.pictures().cloned().collect::<Vec<Picture>>();
 
-  return Some(main_cover.data.clone());
+  return get_cover_from_frames(pictures);
 }
 
 fn resize_cover(cover: Vec<u8>) -> Result<Vec<u8>> {
@@ -148,4 +147,27 @@ fn get_placeholder() -> Result<Vec<u8>> {
     return Ok(placeholder.clone());
   }
   return Err(anyhow::anyhow!("Placeholder not found in cache"));
+}
+
+const COVER_PRIORITY: &[PictureType] = &[
+  PictureType::CoverFront,
+  PictureType::CoverBack,
+  PictureType::Other,
+];
+
+fn get_cover_from_frames(pictures: Vec<Picture>) -> Option<Vec<u8>> {
+  fn find(pictures: &[Picture]) -> Option<Vec<u8>> {
+    for picture in pictures {
+      if COVER_PRIORITY.contains(&picture.picture_type) {
+        return Some(picture.data.clone());
+      }
+    }
+
+    return None;
+  }
+
+  return match find(&pictures) {
+    Some(cover) => Some(cover),
+    None => pictures.first().map(|p| p.data.clone()),
+  };
 }
