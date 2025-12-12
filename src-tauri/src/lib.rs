@@ -134,20 +134,25 @@ fn audio_thread(mut rx: mpsc::Receiver<(StreamAction, oneshot::Sender<StreamStat
   while let Some((action, response_tx)) = rx.blocking_recv() {
     println!("action: {:?}", action);
     match action {
-      StreamAction::Play(path) => {
+      StreamAction::Play(path, should_loop) => {
         println!("playing {}", path);
         let stream = rodio::Decoder::new(std::fs::File::open(path).unwrap()).unwrap();
-
         let duration = stream.total_duration().unwrap_or_default().as_secs_f64();
+        let is_empty = sink.empty();
 
-        sink.append(stream);
+        if should_loop {
+          sink.append(stream.repeat_infinite());
+        } else {
+          sink.append(stream);
+        }
         sink.play();
 
         let _ = response_tx.send(StreamStatus {
           is_playing: true,
           position: 0.0,
           duration,
-          is_empty: false,
+          is_empty,
+          is_looping: should_loop,
         });
       }
       _ => todo!(),

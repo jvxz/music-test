@@ -10,7 +10,7 @@ pub struct AudioHandle {
 
 #[derive(Serialize, Clone, Deserialize, Type, Debug)]
 pub enum StreamAction {
-  Play(String),
+  Play(String, bool),
   Pause,
   Resume,
   Seek(f64),
@@ -24,6 +24,7 @@ pub struct StreamStatus {
   pub position: f64,
   pub duration: f64,
   pub is_empty: bool,
+  pub is_looping: bool,
 }
 
 #[tauri::command]
