@@ -6,7 +6,7 @@ export function usePlaylistData() {
     sortBy: SortBy
     sortOrder: SortOrder
   }>({
-    path: '',
+    path: '/Users/jamie/Downloads',
     sortBy: 'TYER',
     sortOrder: 'asc',
   })

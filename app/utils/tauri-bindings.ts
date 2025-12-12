@@ -6,7 +6,7 @@ type TAURI_CHANNEL<T> = (response: T) => void
 
 export type FileEntry = { path: string; name: string; tags: Partial<{ [key in string]: string }>; thumbnail_uri: string; full_uri: string }
 
-export type StreamAction = { Play: string } | "Pause" | "Resume" | { Seek: number } | "Next" | "Previous" | { SetLoop: boolean }
+export type StreamAction = { Play: string } | "Pause" | "Resume" | { Seek: number } | { SetLoop: boolean }
 
 export type StreamStatus = { is_playing: boolean; position: number; duration: number; is_empty: boolean; is_looping: boolean; path: string | null }
 
