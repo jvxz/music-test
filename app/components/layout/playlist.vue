@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const { folderEntries, playlistData } = usePlaylistData()
 const { selectedTrack } = useTrackSelection()
-const { playTrack } = usePlayingTrack()
+const { playTrack } = usePlayback()
 const { layoutPanels: playlistHeaderPercents } = usePersistentPanels('playlist-columns', [10, 25, 20, 20, 10, 15])
 
 const cols: {
@@ -120,7 +120,7 @@ function handleColumnClick(id3: Id3FrameId) {
         }"
         :style="{ contain: 'strict' }"
         @mousedown.left="handleTrackSelection(entry.data)"
-        @dblclick.left="playTrack(entry.data)"
+        @dblclick.left="playTrack(entry.data.path)"
       >
         <template
           v-for="(col, i) in cols"

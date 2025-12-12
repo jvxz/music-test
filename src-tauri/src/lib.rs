@@ -1,4 +1,4 @@
-use anyhow::Context;
+use rodio::Source;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use serde::Serialize;
 use std::sync::Arc;
@@ -7,8 +7,10 @@ use tauri::{
   tray::TrayIconBuilder,
   AppHandle, Manager, Runtime, WebviewUrl, WebviewWindowBuilder,
 };
+use tokio::sync::{mpsc, oneshot};
 
 use crate::files::read::FileEntry;
+use crate::playback::{AudioHandle, StreamAction, StreamStatus};
 
 mod files {
   pub mod read;
@@ -20,7 +22,12 @@ mod waveform;
 #[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
 trait Api {
   async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String>;
-  async fn play_track(path: String) -> Result<(), String>;
+
+  async fn control_playback<R: Runtime>(
+    app_handle: AppHandle<R>,
+    action: StreamAction,
+  ) -> Result<StreamStatus, String>;
+
   async fn get_waveform<R: Runtime>(
     app_handle: AppHandle<R>,
     path: String,
@@ -41,8 +48,13 @@ impl Api for ApiImpl {
   ) -> Result<Vec<f32>, String> {
     return waveform::get_waveform(app_handle, path, bin_size).await;
   }
-  async fn play_track(self, path: String) -> Result<(), String> {
-    return playback::play_track(path).await;
+
+  async fn control_playback<R: Runtime>(
+    self,
+    app_handle: AppHandle<R>,
+    action: StreamAction,
+  ) -> Result<StreamStatus, String> {
+    return playback::control_playback(app_handle, action).await;
   }
 }
 
@@ -76,9 +88,11 @@ pub async fn run() {
       let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
       let menu = Menu::with_items(app, &[&quit_i])?;
 
-      let stream_handle = rodio::OutputStreamBuilder::open_default_stream()
-        .context("Failed to open default audio stream")?;
-      let sink = rodio::Sink::connect_new(stream_handle.mixer());
+      // setup audio stuff
+      let (tx, rx) = mpsc::channel::<(StreamAction, oneshot::Sender<StreamStatus>)>(32);
+      app.manage(AudioHandle { tx });
+
+      std::thread::spawn(move || audio_thread(rx));
 
       let _tray = TrayIconBuilder::new()
         .menu(&menu)
@@ -110,4 +124,33 @@ pub async fn run() {
     .invoke_handler(taurpc::create_ipc_handler(ApiImpl.into_handler()))
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
+}
+
+fn audio_thread(mut rx: mpsc::Receiver<(StreamAction, oneshot::Sender<StreamStatus>)>) {
+  let stream_handle =
+    rodio::OutputStreamBuilder::open_default_stream().expect("open default audio stream");
+  let sink = rodio::Sink::connect_new(stream_handle.mixer());
+
+  while let Some((action, response_tx)) = rx.blocking_recv() {
+    println!("action: {:?}", action);
+    match action {
+      StreamAction::Play(path) => {
+        println!("playing {}", path);
+        let stream = rodio::Decoder::new(std::fs::File::open(path).unwrap()).unwrap();
+
+        let duration = stream.total_duration().unwrap_or_default().as_secs_f64();
+
+        sink.append(stream);
+        sink.play();
+
+        let _ = response_tx.send(StreamStatus {
+          is_playing: true,
+          position: 0.0,
+          duration,
+          is_empty: false,
+        });
+      }
+      _ => todo!(),
+    }
+  }
 }
