@@ -5,28 +5,37 @@ interface PlayerState {
 
 export const usePlayback = createSharedComposable(() => {
   const { rpc } = useTauri()
-  const playbackStatus = ref<StreamStatus | null>(null)
+
+  // internal
+  const _playbackStatus = ref<StreamStatus | null>(null)
+  // public
+  const playbackStatus = readonly(_playbackStatus)
+
   const playerState = ref<PlayerState>({
     loop: 'single',
     shuffle: false,
   })
-  // const queue = ref<[]>([])
 
   watchEffect(() => {
     console.log('playerState', playerState.value)
     console.log('playbackStatus', playbackStatus.value)
   })
 
-  const playTrack = (path: string) => {
-    console.log('playing', playerState.value.loop === 'single')
+  function playTrack(path: string) {
     rpc.control_playback({
-      Play: [path, playerState.value.loop === 'single'],
-    }).then((status) => {
-      playbackStatus.value = status
-    })
+      Play: path,
+    }).then(status => _playbackStatus.value = status)
+  }
+
+  function setLoop(loop: boolean) {
+    rpc.control_playback({
+      SetLoop: loop,
+    }).then(status => _playbackStatus.value = status)
   }
 
   return {
+    playbackStatus,
     playTrack,
+    setLoop,
   }
 })

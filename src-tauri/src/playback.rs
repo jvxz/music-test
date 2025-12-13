@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use rodio::decoder::DecoderBuilder;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::{AppHandle, Manager, Runtime};
@@ -10,12 +11,13 @@ pub struct AudioHandle {
 
 #[derive(Serialize, Clone, Deserialize, Type, Debug)]
 pub enum StreamAction {
-  Play(String, bool),
+  Play(String),
   Pause,
   Resume,
   Seek(f64),
   Next,
   Previous,
+  SetLoop(bool),
 }
 
 #[derive(Serialize, Clone, Deserialize, Type, Debug)]
@@ -25,6 +27,7 @@ pub struct StreamStatus {
   pub duration: f64,
   pub is_empty: bool,
   pub is_looping: bool,
+  pub path: Option<String>,
 }
 
 #[tauri::command]

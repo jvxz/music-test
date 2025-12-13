@@ -1,4 +1,3 @@
-use rodio::Source;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use serde::Serialize;
 use std::sync::Arc;
@@ -15,6 +14,7 @@ use crate::playback::{AudioHandle, StreamAction, StreamStatus};
 mod files {
   pub mod read;
 }
+mod audio;
 mod cover_protocol;
 mod playback;
 mod waveform;
@@ -92,7 +92,7 @@ pub async fn run() {
       let (tx, rx) = mpsc::channel::<(StreamAction, oneshot::Sender<StreamStatus>)>(32);
       app.manage(AudioHandle { tx });
 
-      std::thread::spawn(move || audio_thread(rx));
+      std::thread::spawn(move || audio::spawn_audio_thread(rx));
 
       let _tray = TrayIconBuilder::new()
         .menu(&menu)
@@ -124,38 +124,4 @@ pub async fn run() {
     .invoke_handler(taurpc::create_ipc_handler(ApiImpl.into_handler()))
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
-}
-
-fn audio_thread(mut rx: mpsc::Receiver<(StreamAction, oneshot::Sender<StreamStatus>)>) {
-  let stream_handle =
-    rodio::OutputStreamBuilder::open_default_stream().expect("open default audio stream");
-  let sink = rodio::Sink::connect_new(stream_handle.mixer());
-
-  while let Some((action, response_tx)) = rx.blocking_recv() {
-    println!("action: {:?}", action);
-    match action {
-      StreamAction::Play(path, should_loop) => {
-        println!("playing {}", path);
-        let stream = rodio::Decoder::new(std::fs::File::open(path).unwrap()).unwrap();
-        let duration = stream.total_duration().unwrap_or_default().as_secs_f64();
-        let is_empty = sink.empty();
-
-        if should_loop {
-          sink.append(stream.repeat_infinite());
-        } else {
-          sink.append(stream);
-        }
-        sink.play();
-
-        let _ = response_tx.send(StreamStatus {
-          is_playing: true,
-          position: 0.0,
-          duration,
-          is_empty,
-          is_looping: should_loop,
-        });
-      }
-      _ => todo!(),
-    }
-  }
 }

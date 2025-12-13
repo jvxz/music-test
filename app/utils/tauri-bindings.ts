@@ -6,9 +6,9 @@ type TAURI_CHANNEL<T> = (response: T) => void
 
 export type FileEntry = { path: string; name: string; tags: Partial<{ [key in string]: string }>; thumbnail_uri: string; full_uri: string }
 
-export type StreamAction = { Play: [string, boolean] } | "Pause" | "Resume" | { Seek: number } | "Next" | "Previous"
+export type StreamAction = { Play: string } | "Pause" | "Resume" | { Seek: number } | "Next" | "Previous" | { SetLoop: boolean }
 
-export type StreamStatus = { is_playing: boolean; position: number; duration: number; is_empty: boolean; is_looping: boolean }
+export type StreamStatus = { is_playing: boolean; position: number; duration: number; is_empty: boolean; is_looping: boolean; path: string | null }
 
 const ARGS_MAP = { '':'{"control_playback":["action"],"get_waveform":["path","bin_size"],"read_folder":["path"]}' }
 export type Router = { "": {control_playback: (action: StreamAction) => Promise<StreamStatus>, 
