@@ -1,3 +1,4 @@
+use anyhow::Context;
 use dashmap::DashMap;
 use log::debug;
 use serde::Serialize;
@@ -18,13 +19,15 @@ pub struct FileEntry {
   pub full_uri: String,
 }
 
-pub static STATE: LazyLock<DashMap<String, Arc<Vec<FileEntry>>>> = LazyLock::new(DashMap::new);
+pub static FOLDER_CACHE: LazyLock<DashMap<String, Arc<Vec<FileEntry>>>> =
+  LazyLock::new(DashMap::new);
+pub static TRACK_CACHE: LazyLock<DashMap<String, Arc<FileEntry>>> = LazyLock::new(DashMap::new);
 
 #[tauri::command]
 pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String> {
   let start = Instant::now();
 
-  if let Some(cached_dir) = STATE.get(&path) {
+  if let Some(cached_dir) = FOLDER_CACHE.get(&path) {
     let data = cached_dir.value();
 
     debug!("Time taken to read cache: {:?}", start.elapsed());
@@ -70,11 +73,57 @@ pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String> {
 
   let data = Arc::new(file_entires);
 
-  STATE.insert(path, data.clone());
+  FOLDER_CACHE.insert(path, data.clone());
 
   return Ok(data);
 }
 
+#[tauri::command]
+pub async fn get_track_data(path: String) -> Result<Arc<FileEntry>, String> {
+  if let Some(cached_track) = TRACK_CACHE.get(&path) {
+    let data = cached_track.value();
+    return Ok(data.clone());
+  }
+
+  let file_entry = get_file_entry(&path).map_err(|e| e.to_string())?;
+
+  TRACK_CACHE.insert(path, file_entry.clone());
+
+  return Ok(file_entry);
+}
+
+fn get_file_entry(path: &str) -> Result<Arc<FileEntry>, String> {
+  let path = std::path::Path::new(path);
+  let tag = id3::Tag::read_from_path(path).map_err(|e| e.to_string())?;
+
+  let mut frames: SerializableTagMap = tag
+    .frames()
+    .map(|f| (f.id().to_string(), f.content().to_string()))
+    .collect();
+
+  if !frames.contains_key("TIT2") {
+    if let Some(file_name) = path.file_name().map(|n| n.to_string_lossy().to_string()) {
+      frames.insert("TIT2".to_string(), file_name);
+    }
+  }
+
+  let name = match path.file_name().map(|n| n.to_string_lossy().to_string()) {
+    Some(name) => name,
+    None => "Unknown title".to_string(),
+  };
+
+  let path_string = path.to_string_lossy().to_string();
+
+  let data = Arc::new(FileEntry {
+    path: path_string.clone(),
+    name,
+    tags: frames,
+    thumbnail_uri: build_cover_uri(path_string.as_str(), "thumbnail"),
+    full_uri: build_cover_uri(path_string.as_str(), "full"),
+  });
+
+  return Ok(data);
+}
 fn build_cover_uri(path: &str, mode: &str) -> String {
   return format!("cover-{mode}://localhost/{path}");
 }

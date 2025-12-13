@@ -103,7 +103,11 @@ pub fn spawn_audio_thread(mut rx: mpsc::Receiver<(StreamAction, oneshot::Sender<
 
         response_tx.send(state.clone());
       }
-      _ => todo!(),
+      StreamAction::Next => todo!(),
+      StreamAction::Pause => todo!(),
+      StreamAction::Resume => todo!(),
+      StreamAction::Seek(_) => todo!(),
+      StreamAction::Previous => todo!(),
     }
   }
 }
