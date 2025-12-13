@@ -69,6 +69,7 @@ pub fn spawn_audio_thread(mut rx: mpsc::Receiver<(StreamAction, oneshot::Sender<
   while let Some((action, response_tx)) = rx.blocking_recv() {
     match action {
       StreamAction::Play(path) => {
+        // refactor this
         let loop_flag = Arc::new(AtomicBool::new(state.is_looping));
         current_loop_flag = Some(loop_flag.clone());
 
@@ -80,6 +81,10 @@ pub fn spawn_audio_thread(mut rx: mpsc::Receiver<(StreamAction, oneshot::Sender<
 
         let duration = stream.total_duration().unwrap_or_default().as_secs_f64();
         let is_empty = sink.empty();
+
+        if !is_empty {
+          sink.clear();
+        }
 
         sink.append(stream);
         sink.play();
