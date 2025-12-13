@@ -17,6 +17,7 @@ mod files {
 mod audio;
 mod cover_protocol;
 mod playback;
+mod test;
 mod waveform;
 
 #[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
@@ -33,6 +34,11 @@ trait Api {
     path: String,
     bin_size: f32,
   ) -> Result<Vec<f32>, String>;
+
+  async fn control_playback_kira<R: Runtime>(
+    app_handle: AppHandle<R>,
+    action: StreamAction,
+  ) -> Result<StreamStatus, String>;
 }
 
 #[taurpc::resolvers]
@@ -60,6 +66,13 @@ impl Api for ApiImpl {
     action: StreamAction,
   ) -> Result<StreamStatus, String> {
     return playback::control_playback(app_handle, action).await;
+  }
+  async fn control_playback_kira<R: Runtime>(
+    self,
+    app_handle: AppHandle<R>,
+    action: StreamAction,
+  ) -> Result<StreamStatus, String> {
+    return playback::control_playback_kira(app_handle, action).await;
   }
 }
 
@@ -97,7 +110,8 @@ pub async fn run() {
       let (tx, rx) = mpsc::channel::<(StreamAction, oneshot::Sender<StreamStatus>)>(32);
       app.manage(AudioHandle { tx });
 
-      std::thread::spawn(move || audio::spawn_audio_thread(rx));
+      std::thread::spawn(move || test::spawn_audio_thread(rx));
+      // std::thread::spawn(move || audio::spawn_audio_thread(rx));
 
       let _tray = TrayIconBuilder::new()
         .menu(&menu)
