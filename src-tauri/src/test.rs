@@ -1,26 +1,52 @@
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
 use crate::playback::{StreamAction, StreamStatus};
 use kira::sound::streaming::StreamingSoundHandle;
 use kira::sound::FromFileError;
 use kira::{
   self, sound::streaming::StreamingSoundData, AudioManager, AudioManagerSettings, DefaultBackend,
 };
+use kira::{Easing, StartTime, Tween};
 use tokio::sync::{mpsc, oneshot};
 
+const TWEEN: Tween = Tween {
+  duration: Duration::from_millis(0),
+  easing: Easing::Linear,
+  start_time: StartTime::Immediate,
+};
+
 pub fn spawn_audio_thread(mut rx: mpsc::Receiver<(StreamAction, oneshot::Sender<StreamStatus>)>) {
-  let audio_manager_settings = AudioManagerSettings::<DefaultBackend>::default();
+  let audio_manager_settings: AudioManagerSettings<DefaultBackend> = AudioManagerSettings {
+    internal_buffer_size: 256,
+    ..Default::default()
+  };
   let mut audio_manager = AudioManager::new(audio_manager_settings)
     .map_err(|e| e.to_string())
     .unwrap();
 
   let mut audio_handle: Option<StreamingSoundHandle<FromFileError>> = None;
 
+  let mut state = StreamStatus {
+    is_playing: false,
+    position: 0.0,
+    duration: 0.0,
+    is_empty: true,
+    is_looping: false,
+    path: None,
+  };
+
   while let Some((action, response_tx)) = rx.blocking_recv() {
     match action {
       StreamAction::Play(path) => {
-        let new_sound_data = StreamingSoundData::from_file(path).unwrap(); // this one
+        let new_sound_data = StreamingSoundData::from_file(&path).unwrap(); // this one
 
         let new_handle = audio_manager.play(new_sound_data).unwrap();
         audio_handle = Some(new_handle);
+
+        state.is_playing = true;
+        state.path = Some(path.clone());
+
+        response_tx.send(state.clone());
       }
       StreamAction::SetLoop(should_loop) => {
         if let Some(handle) = audio_handle.as_mut() {
@@ -28,11 +54,31 @@ pub fn spawn_audio_thread(mut rx: mpsc::Receiver<(StreamAction, oneshot::Sender<
             true => handle.set_loop_region(0.0..),
             false => handle.set_loop_region(None),
           }
+
+          state.is_looping = should_loop;
+
+          response_tx.send(state.clone());
         }
       }
       StreamAction::Next => todo!(),
-      StreamAction::Pause => todo!(),
-      StreamAction::Resume => todo!(),
+      StreamAction::Pause => {
+        if let Some(handle) = audio_handle.as_mut() {
+          handle.pause(TWEEN);
+        }
+
+        state.is_playing = false;
+
+        response_tx.send(state.clone());
+      }
+      StreamAction::Resume => {
+        if let Some(handle) = audio_handle.as_mut() {
+          handle.resume(TWEEN);
+        }
+
+        state.is_playing = true;
+
+        response_tx.send(state.clone());
+      }
       StreamAction::Seek(_) => todo!(),
       StreamAction::Previous => todo!(),
     }
