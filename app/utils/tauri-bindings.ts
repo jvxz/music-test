@@ -12,7 +12,7 @@ export type StreamStatus = { is_playing: boolean; position: number; duration: nu
 
 const ARGS_MAP = { '':'{"control_playback":["action"],"get_track_data":["path"],"get_waveform":["path","bin_size"],"read_folder":["path"]}' }
 export type Router = { "": {control_playback: (action: StreamAction) => Promise<StreamStatus>, 
-get_track_data: (path: string) => Promise<FileEntry>, 
+get_track_data: (path: string) => Promise<FileEntry | null>, 
 get_waveform: (path: string, binSize: number) => Promise<number[]>, 
 read_folder: (path: string) => Promise<FileEntry[]>} };
 

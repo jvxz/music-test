@@ -146,7 +146,7 @@ function handleColumnClick(id3: Id3FrameId) {
             class="shrink-0 grow-0 truncate px-2 text-sm"
             :style="{ flexBasis: `calc( (100% - ${(cols.length - 1)}px) * ${playlistHeaderPercents[i]} / 100 )` }"
           >
-            {{ entry.data.tags[col.id3] }}
+            {{ col.id3 === 'TIT2' ? entry.data.tags[col.id3] ?? entry.data.name : entry.data.tags[col.id3] }}
           </p>
         </template>
       </div>
