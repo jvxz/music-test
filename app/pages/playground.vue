@@ -9,28 +9,28 @@ const ts = useTimestamp()
 <template>
   <div class="flex h-screen flex-col items-center justify-center gap-2">
     <UButton
-      @click="$tauri.rpc.control_playback_kira({
+      @click="$tauri.rpc.control_playback({
         Play: '/rua01.ogg',
       })"
     >
       play rua01
     </UButton>
     <UButton
-      @click="$tauri.rpc.control_playback_kira({
+      @click="$tauri.rpc.control_playback({
         Play: '/rua02.ogg',
       })"
     >
       play rua02
     </UButton>
     <UButton
-      @click="$tauri.rpc.control_playback_kira({
+      @click="$tauri.rpc.control_playback({
         SetLoop: true,
       })"
     >
       enable loop
     </UButton>
     <UButton
-      @click="$tauri.rpc.control_playback_kira({
+      @click="$tauri.rpc.control_playback({
         SetLoop: false,
       })"
     >
