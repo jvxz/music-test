@@ -71,7 +71,8 @@ pub async fn run() {
   #[cfg(debug_assertions)] // only enable instrumentation in development builds
   let devtools = tauri_plugin_devtools::init();
 
-  let mut builder = tauri::Builder::default();
+  let mut builder =
+    tauri::Builder::default().plugin(tauri_plugin_window_state::Builder::new().build());
 
   #[cfg(debug_assertions)]
   {
