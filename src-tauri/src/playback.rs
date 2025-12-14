@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::{AppHandle, Manager, Runtime};
@@ -28,24 +28,6 @@ pub struct StreamStatus {
 
 #[tauri::command]
 pub async fn control_playback<R: Runtime>(
-  app_handle: AppHandle<R>,
-  action: StreamAction,
-) -> Result<StreamStatus, String> {
-  let audio_handle = app_handle.state::<AudioHandle>();
-
-  let (response_tx, response_rx) = oneshot::channel::<StreamStatus>();
-
-  audio_handle.tx.send((action, response_tx)).await;
-
-  let response = response_rx
-    .await
-    .map_err(|_| "failed to get response from audio thread".to_string())?;
-
-  return Ok(response);
-}
-
-#[tauri::command]
-pub async fn control_playback_kira<R: Runtime>(
   app_handle: AppHandle<R>,
   action: StreamAction,
 ) -> Result<StreamStatus, String> {
