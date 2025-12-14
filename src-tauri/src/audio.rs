@@ -42,11 +42,15 @@ pub fn spawn_audio_thread(mut rx: mpsc::Receiver<(StreamAction, oneshot::Sender<
           handle.stop(TWEEN);
         }
 
-        let new_handle = audio_manager.play(new_sound_data).unwrap();
+        let duration = new_sound_data.duration().as_secs_f64();
+
+        let mut new_handle = audio_manager.play(new_sound_data).unwrap();
         audio_handle = Some(new_handle);
 
         state.is_playing = true;
+        state.duration = duration;
         state.path = Some(path.clone());
+        state.position = 0.0;
 
         response_tx.send(state.clone());
       }
@@ -65,18 +69,20 @@ pub fn spawn_audio_thread(mut rx: mpsc::Receiver<(StreamAction, oneshot::Sender<
       StreamAction::Pause => {
         if let Some(handle) = audio_handle.as_mut() {
           handle.pause(TWEEN);
-        }
 
-        state.is_playing = false;
+          state.is_playing = false;
+          state.position = handle.position();
+        }
 
         response_tx.send(state.clone());
       }
       StreamAction::Resume => {
         if let Some(handle) = audio_handle.as_mut() {
           handle.resume(TWEEN);
-        }
 
-        state.is_playing = true;
+          state.is_playing = true;
+          state.position = handle.position();
+        }
 
         response_tx.send(state.clone());
       }

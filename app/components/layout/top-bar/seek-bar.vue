@@ -1,8 +1,5 @@
 <script lang="ts" setup>
 const { currentTrack, playbackStatus } = usePlayback()
-// const { now, pause, resume } = useNow({ controls: true, interval: 100 })
-
-
 </script>
 
 <template>

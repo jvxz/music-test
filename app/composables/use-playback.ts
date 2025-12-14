@@ -1,11 +1,6 @@
-interface PlayerState {
-  loop: 'single' | 'playlist' | false
-  shuffle: boolean
-}
-
 // higher = more accurate, more resource intensive
 // ~150 should be max
-const SEEK_UPDATE_INTERVAL = 50
+const TIMESTAMP_INTERVAL = 50
 
 export const usePlayback = createSharedComposable(() => {
   const { rpc } = useTauri()
@@ -17,35 +12,32 @@ export const usePlayback = createSharedComposable(() => {
   const playbackStatus = readonly(_playbackStatus)
   const currentTrack = readonly(_currentTrack)
 
-  // timestamp for when the playback status position was last updated
-  const playLastChanged = ref(0)
-  const { pause, resume } = useTimestamp({
-    callback: (timestamp) => {
-      if (!playLastChanged.value || !_playbackStatus.value || !_playbackStatus.value?.is_playing)
+  const { pause: pauseDurationTimer, resume: resumeDurationTimer } = useTimestamp({
+    callback: () => {
+      if (!_playbackStatus.value)
         return
 
-      const dur = playbackStatus.value?.duration ?? 0
-      // compensate for tiny delay when sending rpc request
-      const elapsed = Math.max(0, ((timestamp - playLastChanged.value - 150) / 1000))
-
-      if (elapsed >= dur) {
-        _playbackStatus.value.is_playing = false
-      }
-      else {
-        _playbackStatus.value.position = elapsed
-      }
+      _playbackStatus.value.position = _playbackStatus.value?.position + (TIMESTAMP_INTERVAL / 1000)
     },
     controls: true,
-    interval: SEEK_UPDATE_INTERVAL,
+    immediate: true,
+    interval: TIMESTAMP_INTERVAL,
   })
 
   // resume/pause timestamp tracking when playback status changes to save resources
-  watch(() => _playbackStatus.value?.is_playing, isPlaying => isPlaying ? resume() : pause())
+  watch(() => _playbackStatus.value?.is_playing, isPlaying => isPlaying ? resumeDurationTimer() : pauseDurationTimer())
 
-  const _playerState = ref<PlayerState>({
-    loop: 'single',
-    shuffle: false,
+  watch(() => _playbackStatus.value?.position, () => {
+    if (_playbackStatus.value?.is_looping && _playbackStatus.value?.position && _playbackStatus.value?.position >= _playbackStatus.value?.duration) {
+      _playbackStatus.value.position = 0
+    }
   })
+
+  async function playPauseCurrentTrack(action: 'Resume' | 'Pause') {
+    const status = await rpc.control_playback(action)
+    _playbackStatus.value = status
+    return action === 'Pause' ? pauseDurationTimer() : resumeDurationTimer()
+  }
 
   async function playTrack(path: string) {
     const data = await getTrackData(path)
@@ -55,8 +47,7 @@ export const usePlayback = createSharedComposable(() => {
       Play: path,
     })
     _playbackStatus.value = status
-    playLastChanged.value = Date.now()
-    resume()
+    resumeDurationTimer()
   }
 
   function setLoop(loop: boolean) {
@@ -72,6 +63,7 @@ export const usePlayback = createSharedComposable(() => {
   return {
     currentTrack,
     playbackStatus,
+    playPauseCurrentTrack,
     playTrack,
     setLoop,
   }
