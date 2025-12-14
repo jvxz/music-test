@@ -22,7 +22,6 @@ pub struct StreamStatus {
   pub is_playing: bool,
   pub position: f64,
   pub duration: f64,
-  pub is_empty: bool,
   pub is_looping: bool,
   pub path: Option<String>,
 }
