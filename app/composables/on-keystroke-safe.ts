@@ -8,6 +8,10 @@ interface Options extends UseMagicKeysOptions<false> {
    * If not provided, the active element will be detected automatically
    */
   activeElement?: ShallowRef<HTMLElement | null | undefined, HTMLElement | null | undefined>
+  /**
+   * CSS selectors to ignore safety checks
+   */
+  ignore?: string[]
 }
 
 export function onKeyStrokeSafe(keystroke: string, callback: () => void, options?: Options) {
@@ -16,8 +20,9 @@ export function onKeyStrokeSafe(keystroke: string, callback: () => void, options
 
   whenever(() => keys[keystroke]?.value, () => {
     const isInInput = activeElement.value?.tagName.toLowerCase() === 'input' || activeElement.value?.tagName.toLowerCase() === 'textarea'
+    const isInWhitelisted = options?.ignore?.some(selector => activeElement.value?.matches(selector))
 
-    if (isInInput)
+    if (isInInput && !isInWhitelisted)
       return
 
     callback()
