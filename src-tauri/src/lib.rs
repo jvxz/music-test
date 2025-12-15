@@ -97,7 +97,7 @@ pub async fn run() {
       // setup audio stuff
       let (tx, rx) = mpsc::channel::<(StreamAction, oneshot::Sender<StreamStatus>)>(32);
       app.manage(AudioHandle { tx });
-      std::thread::spawn(move || audio::spawn_audio_thread(rx));
+      let _join_handle = std::thread::spawn(move || audio::spawn_audio_thread(rx));
 
       let _tray = TrayIconBuilder::new()
         .menu(&menu)
