@@ -1,5 +1,30 @@
 <script lang="ts" setup>
-const { currentTrack, playbackStatus } = usePlayback()
+const { currentTrack, playbackStatus, seekCurrentTrack } = usePlayback()
+
+const isChangingPosition = ref(false)
+const localPosition = ref([0])
+
+watch(() => playbackStatus.value?.position, () => {
+  if (isChangingPosition.value || !playbackStatus.value || playbackStatus.value.position === undefined)
+    return
+
+  localPosition.value = [playbackStatus.value.position]
+})
+
+function handlePointer(type: 'up' | 'down') {
+  if (type === 'up') {
+    isChangingPosition.value = false
+
+    const [to] = localPosition.value
+    if (to === undefined)
+      return
+
+    seekCurrentTrack(to)
+  }
+  else {
+    isChangingPosition.value = true
+  }
+}
 </script>
 
 <template>
@@ -13,15 +38,23 @@ const { currentTrack, playbackStatus } = usePlayback()
       </p>
     </div>
     <SliderRoot
-      class="relative flex max-h-2 w-full grow bg-muted"
-      :model-value="[playbackStatus?.position ?? 0]"
+      v-model:model-value="localPosition"
       :max="playbackStatus?.duration ?? 0"
+      class="relative flex max-h-2 w-full grow bg-muted"
       :step="0.01"
     >
-      <SliderTrack class="relative h-2 grow overflow-hidden">
+      <SliderTrack
+        class="relative h-2 grow overflow-hidden"
+        @pointerdown="handlePointer('down')"
+        @pointerup="handlePointer('up')"
+      >
         <SliderRange class="absolute h-2 bg-primary/25" />
       </SliderTrack>
-      <SliderThumb class="absolute top-1/2 h-2 w-4 -translate-y-1/2 bg-primary outline-none focus-visible:ring-0" />
+      <SliderThumb
+        class="absolute top-1/2 h-2 w-4 -translate-y-1/2 bg-primary outline-none focus-visible:ring-0"
+        @pointerdown="handlePointer('down')"
+        @pointerup="handlePointer('up')"
+      />
     </SliderRoot>
   </div>
 </template>

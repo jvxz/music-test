@@ -86,7 +86,14 @@ pub fn spawn_audio_thread(mut rx: mpsc::Receiver<(StreamAction, oneshot::Sender<
 
         response_tx.send(state.clone());
       }
-      StreamAction::Seek(_) => todo!(),
+      StreamAction::Seek(to) => {
+        if let Some(handle) = audio_handle.as_mut() {
+          handle.seek_to(to);
+          state.position = handle.position();
+        }
+
+        response_tx.send(state.clone());
+      }
     }
   }
 }

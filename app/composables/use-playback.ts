@@ -17,7 +17,7 @@ export const usePlayback = createSharedComposable(() => {
       if (!_playbackStatus.value)
         return
 
-      _playbackStatus.value.position = _playbackStatus.value?.position + (TIMESTAMP_INTERVAL / 1000)
+      _playbackStatus.value.position = Math.max(0, _playbackStatus.value?.position + (TIMESTAMP_INTERVAL / 1000))
     },
     controls: true,
     immediate: true,
@@ -28,8 +28,14 @@ export const usePlayback = createSharedComposable(() => {
   watch(() => _playbackStatus.value?.is_playing, isPlaying => isPlaying ? resumeDurationTimer() : pauseDurationTimer())
 
   watch(() => _playbackStatus.value?.position, () => {
-    if (_playbackStatus.value?.is_looping && _playbackStatus.value?.position && _playbackStatus.value?.position >= _playbackStatus.value?.duration) {
+    if (_playbackStatus.value?.position && _playbackStatus.value?.position >= _playbackStatus.value?.duration) {
       _playbackStatus.value.position = 0
+      if (!_playbackStatus.value?.is_looping) {
+        _playbackStatus.value.is_playing = false
+        _playbackStatus.value.path = null
+
+        _currentTrack.value = null
+      }
     }
   })
 
@@ -46,7 +52,12 @@ export const usePlayback = createSharedComposable(() => {
     const status = await rpc.control_playback({
       Play: path,
     })
-    _playbackStatus.value = status
+    _playbackStatus.value = {
+      ...status,
+
+      // compensate for tiny audio driver delay
+      position: status.position - 50,
+    }
     resumeDurationTimer()
   }
 
@@ -54,6 +65,20 @@ export const usePlayback = createSharedComposable(() => {
     rpc.control_playback({
       SetLoop: loop,
     }).then(status => _playbackStatus.value = status)
+  }
+
+  async function seekCurrentTrack(to: number) {
+    if (!_playbackStatus.value)
+      return
+
+    const _status = await rpc.control_playback({
+      Seek: to,
+    })
+
+    _playbackStatus.value = {
+      ..._playbackStatus.value,
+      position: to,
+    }
   }
 
   async function getTrackData(path: string) {
@@ -65,6 +90,7 @@ export const usePlayback = createSharedComposable(() => {
     playbackStatus,
     playPauseCurrentTrack,
     playTrack,
+    seekCurrentTrack,
     setLoop,
   }
 })
