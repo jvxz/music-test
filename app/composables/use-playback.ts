@@ -39,7 +39,11 @@ export const usePlayback = createSharedComposable(() => {
     }
   })
 
-  async function playPauseCurrentTrack(action: 'Resume' | 'Pause') {
+  async function playPauseCurrentTrack(action?: 'Resume' | 'Pause') {
+    if (!action) {
+      action = _playbackStatus.value?.is_playing ? 'Pause' : 'Resume'
+    }
+
     _playbackStatus.value = await rpc.control_playback(action)
   }
 
