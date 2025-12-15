@@ -40,9 +40,7 @@ export const usePlayback = createSharedComposable(() => {
   })
 
   async function playPauseCurrentTrack(action: 'Resume' | 'Pause') {
-    const status = await rpc.control_playback(action)
-    _playbackStatus.value = status
-    return action === 'Pause' ? pauseDurationTimer() : resumeDurationTimer()
+    _playbackStatus.value = await rpc.control_playback(action)
   }
 
   async function playTrack(path: string) {
@@ -52,19 +50,18 @@ export const usePlayback = createSharedComposable(() => {
     const status = await rpc.control_playback({
       Play: path,
     })
-    _playbackStatus.value = {
-      ...status,
-
-      // compensate for tiny audio driver delay
-      position: status.position - 50,
-    }
+    _playbackStatus.value = status
     resumeDurationTimer()
   }
 
-  function setLoop(loop: boolean) {
-    rpc.control_playback({
+  async function setLoop(loop: boolean) {
+    await rpc.control_playback({
       SetLoop: loop,
-    }).then(status => _playbackStatus.value = status)
+    })
+
+    if (_playbackStatus.value) {
+      _playbackStatus.value.is_looping = loop
+    }
   }
 
   async function seekCurrentTrack(to: number) {
@@ -74,11 +71,7 @@ export const usePlayback = createSharedComposable(() => {
     const _status = await rpc.control_playback({
       Seek: to,
     })
-
-    _playbackStatus.value = {
-      ..._playbackStatus.value,
-      position: to,
-    }
+    _playbackStatus.value = _status
   }
 
   async function getTrackData(path: string) {

@@ -189,7 +189,6 @@ pub fn spawn_audio_thread(
             audio_handle.resume();
 
             state.is_playing = true;
-            state.position = audio_handle.position();
 
             response_tx.send(state.clone());
           }
@@ -204,6 +203,9 @@ pub fn spawn_audio_thread(
                   // swap to static sound data
                   let mut new_handle = audio_manager.play(static_data.clone()).unwrap();
                   new_handle.seek_to(to);
+                  if !state.is_playing {
+                    new_handle.pause(TWEEN);
+                  }
 
                   // retain looping state
                   if state.is_looping {
@@ -220,6 +222,7 @@ pub fn spawn_audio_thread(
             }
 
             audio_handle.seek_to(to);
+
             state.position = to;
 
             response_tx.send(state.clone());
