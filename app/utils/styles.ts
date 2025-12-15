@@ -45,6 +45,7 @@ const popoverStyles = {
 }
 
 const overlayStyles
-  = 'duration-150 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 fixed inset-0 z-50 bg-overlay backdrop-blur-xs'
+  // = 'duration-150 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 fixed inset-0 z-50 bg-overlay backdrop-blur-xs'
+  = 'duration-150 fixed inset-0 z-50 bg-overlay '
 
 export { interactiveStyles, overlayStyles, popoverStyles, staticStyles }

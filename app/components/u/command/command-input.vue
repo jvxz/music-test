@@ -10,6 +10,8 @@ defineOptions({
 
 const props = defineProps<ListboxFilterProps & {
   class?: HTMLAttributes['class']
+  icon?: string
+  placeholder?: string
 }>()
 
 const delegatedProps = reactiveOmit(props, 'class')
@@ -20,13 +22,15 @@ const { filterState } = useCommand()
 </script>
 
 <template>
-  <div class="flex h-12 items-center gap-2 border-b px-4" cmdk-input-wrapper>
-    <Icon name="tabler:search" class="size-4 shrink-0 subpixel-antialiased opacity-50" />
+  <div class="flex h-12 items-center gap-2 border-b px-4 shrink-0" cmdk-input-wrapper>
+    <Icon :name="props.icon ?? 'tabler:search'" class="size-4 shrink-0 opacity-50" />
+
     <ListboxFilter
       v-bind="{ ...forwardedProps, ...$attrs }"
       v-model="filterState.search"
+      data-slot="command-input"
       auto-focus
-      :class="cn('mr-6 flex w-full text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50', props.class)"
+      :class="cn('flex w-full text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50', props.class)"
     />
   </div>
 </template>

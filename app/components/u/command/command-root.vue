@@ -4,7 +4,8 @@ import type { HTMLAttributes } from 'vue'
 import { useFilter, useForwardPropsEmits } from 'reka-ui'
 import { provideCommandContext } from '.'
 
-const props = withDefaults(defineProps<ListboxRootProps & { class?: HTMLAttributes['class'] }>(), {
+const props = withDefaults(defineProps<ListboxRootProps & { class?: HTMLAttributes['class'], doFiltering?: boolean }>(), {
+  doFiltering: true,
   modelValue: '',
 })
 
@@ -28,6 +29,15 @@ const filterState = reactive({
 })
 
 function filterItems() {
+  if (!props.doFiltering) {
+    filterState.filtered.count = allItems.value.size
+    filterState.filtered.groups = new Set(allGroups.value.keys())
+    for (const [id] of allItems.value) {
+      filterState.filtered.items.set(id, 1)
+    }
+    return
+  }
+
   if (!filterState.search) {
     filterState.filtered.count = allItems.value.size
     return
@@ -55,7 +65,7 @@ function filterItems() {
   filterState.filtered.count = itemCount
 }
 
-watch(() => filterState.search, () => {
+watch(() => [filterState.search, props.doFiltering], () => {
   filterItems()
 })
 
