@@ -2,9 +2,33 @@
 const open = ref(false)
 const input = ref('')
 
+const playlistData = usePlaylistData()
+
 onKeyStrokeSafe('meta_p', () => {
   open.value = !open.value
-}, { ignore: ['[data-slot="command-input"]'] })
+}, {
+  ignore: ['[data-slot="command-input"]'],
+})
+
+watch(open, () => {
+  if (!open.value) {
+    const activeElement = document.activeElement as HTMLElement
+
+    if (activeElement && activeElement !== document.body) {
+      activeElement.blur()
+    }
+  }
+})
+
+function handleEnter() {
+  if (input.value) {
+    open.value = false
+    playlistData.value = {
+      ...playlistData.value,
+      path: input.value,
+    }
+  }
+}
 </script>
 
 <template>
@@ -15,6 +39,7 @@ onKeyStrokeSafe('meta_p', () => {
         icon="tabler:folder"
         placeholder="Enter a playlist, folder, or file"
         class="me-7"
+        @keydown.enter="handleEnter"
       />
       <UButton
         :disabled="!input"
@@ -26,7 +51,11 @@ onKeyStrokeSafe('meta_p', () => {
       </UButton>
       <UCommandList>
         <UCommandGroup heading="Recents">
-          <UCommandItem v-for="i in 10" :key="i" value="test">
+          <UCommandItem
+            v-for="i in 10"
+            :key="i"
+            value="test"
+          >
             Test
           </UCommandItem>
         </UCommandGroup>
