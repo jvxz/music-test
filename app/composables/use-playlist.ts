@@ -1,18 +1,22 @@
-export function usePlaylistData() {
-  const nuxtApp = useNuxtApp()
-  const { rpc } = useTauri()
-  const playlistData = shallowRef<{
+type SortBy = keyof typeof ID3_MAP
+type SortOrder = 'asc' | 'desc'
+
+export const usePlaylistData = createSharedComposable(() => {
+  return shallowRef<{
     path: string
     sortBy: SortBy
     sortOrder: SortOrder
   }>({
-    path: '/Users/jamie/Downloads',
+    path: '',
     sortBy: 'TYER',
     sortOrder: 'asc',
   })
+})
 
-  type SortBy = keyof typeof ID3_MAP
-  type SortOrder = 'asc' | 'desc'
+export function usePlaylist() {
+  const nuxtApp = useNuxtApp()
+  const { rpc } = useTauri()
+  const playlistData = usePlaylistData()
 
   const key = computed(() => `${playlistData.value.path}-${playlistData.value.sortBy}-${playlistData.value.sortOrder}`)
   const { data: folderEntries } = useAsyncData(key, async () => {

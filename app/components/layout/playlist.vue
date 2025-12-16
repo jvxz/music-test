@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { folderEntries, playlistData } = usePlaylistData()
+const { folderEntries, playlistData } = usePlaylist()
 const { selectedTrack } = useTrackSelection()
 const { playTrack } = usePlayback()
 const { layoutPanels: playlistHeaderPercents } = usePersistentPanels('playlist-columns', [10, 25, 20, 20, 10, 15])
