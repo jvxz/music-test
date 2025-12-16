@@ -8,5 +8,11 @@ export default defineNuxtPlugin({
 
     // play/pause
     onKeyStrokeSafe('space', () => usePlayback().playPauseCurrentTrack(), { activeElement })
+
+    useEventListener('keydown', (e) => {
+      if (e.key === ' ' && e.target === document.body) {
+        e.preventDefault()
+      }
+    })
   },
 })
