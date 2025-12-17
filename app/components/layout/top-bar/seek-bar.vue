@@ -28,7 +28,7 @@ function handlePointer(type: 'up' | 'down') {
 </script>
 
 <template>
-  <div class="flex grow -translate-y-2 flex-col items-center gap-1 *:shrink-0">
+  <div class="flex w-1/2 grow -translate-y-3 flex-col items-center gap-1 *:shrink-0">
     <div class="flex h-9 flex-col text-center">
       <p class="truncate text-sm">
         {{ currentTrack?.name }}
