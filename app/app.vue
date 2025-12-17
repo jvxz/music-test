@@ -2,7 +2,7 @@
   <NuxtRouteAnnouncer />
   <NuxtLayout>
     <NuxtPage />
-    <ModalFolderSelect />
+    <ModalItemSearch />
   </NuxtLayout>
   <DevOnly>
     <DebugFps />
