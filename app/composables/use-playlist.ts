@@ -1,16 +1,26 @@
 type SortBy = keyof typeof ID3_MAP
 type SortOrder = 'asc' | 'desc'
 
+interface PlaylistData {
+  path: string
+  sortBy: SortBy
+  sortOrder: SortOrder
+}
+
+const defaultData: PlaylistData = {
+  path: '',
+  sortBy: 'TIT2',
+  sortOrder: 'asc',
+}
+
 export const usePlaylistData = createSharedComposable(() => {
-  return shallowRef<{
-    path: string
-    sortBy: SortBy
-    sortOrder: SortOrder
-  }>({
-    path: '',
-    sortBy: 'TYER',
-    sortOrder: 'asc',
+  const { $tauri } = useNuxtApp()
+
+  const data = refWithControl($tauri.prefs.get('playlist-directory') as PlaylistData ?? defaultData, {
+    onChanged: newData => $tauri.store.set('playlist-directory', newData),
   })
+
+  return data
 })
 
 export function usePlaylist() {
@@ -41,7 +51,7 @@ export function usePlaylist() {
     default: () => [],
     getCachedData: key => nuxtApp.payload.data?.[key] || nuxtApp.static?.data?.[key] || undefined,
     immediate: true,
-    watch: [playlistData],
+    watch: [computed(() => playlistData.value.path)],
   })
 
   return {
