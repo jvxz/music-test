@@ -11,6 +11,7 @@ export { default as CommandRoot } from './command-root.vue'
 export { default as CommandShortcut } from './command-shortcut.vue'
 
 export const [useCommand, provideCommandContext] = createContext<{
+  persistentItems: Ref<Map<string, string>>
   allItems: Ref<Map<string, string>>
   allGroups: Ref<Map<string, Set<string>>>
   filterState: {

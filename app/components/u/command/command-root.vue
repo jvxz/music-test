@@ -15,6 +15,7 @@ const delegatedProps = reactiveOmit(props, 'class')
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits)
 
+const persistentItems = ref<Map<string, string>>(new Map())
 const allItems = ref<Map<string, string>>(new Map())
 const allGroups = ref<Map<string, Set<string>>>(new Map())
 
@@ -46,6 +47,11 @@ function filterItems() {
   filterState.filtered.groups = new Set()
   let itemCount = 0
 
+  for (const [id] of persistentItems.value) {
+    filterState.filtered.items.set(id, 1)
+    itemCount++
+  }
+
   for (const [id, value] of allItems.value) {
     const score = contains(value, filterState.search)
     filterState.filtered.items.set(id, score ? 1 : 0)
@@ -73,6 +79,7 @@ provideCommandContext({
   allGroups,
   allItems,
   filterState,
+  persistentItems,
 })
 </script>
 
