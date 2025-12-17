@@ -1,60 +1,62 @@
 <script lang="ts" setup>
 const { folderEntries, playlistData } = usePlaylist()
 const { selectedTrack } = useTrackSelection()
-const { playTrack } = usePlayback()
-const { layoutPanels: playlistHeaderPercents } = usePersistentPanels('playlist-columns', [10, 25, 20, 20, 10, 15])
+const { playbackStatus, playTrack } = usePlayback()
+const { layoutPanels: playlistHeaderPercents } = usePersistentPanels('playlist-columns', [5, 5, 25, 20, 20, 10, 15])
 
 const cols: {
-  id3: Id3FrameId
+  id3?: Id3FrameId
   key: string
   label: string
-  width: number
   default?: keyof FileEntry
 }[] = [
   {
     id3: 'APIC',
     key: 'cover',
     label: '',
-    width: 48,
+  },
+
+  {
+    key: 'playing',
+    label: '',
   },
   {
     default: 'name',
     id3: 'TIT2',
     key: 'title',
     label: 'Title',
-    width: 100,
   },
   {
     id3: 'TPE1',
     key: 'artist',
     label: 'Artist',
-    width: 100,
   },
   {
     id3: 'TALB',
     key: 'album',
     label: 'Album',
-    width: 100,
   },
   {
     id3: 'TYER',
     key: 'year',
     label: 'Year',
-    width: 100,
   },
   {
     id3: 'TCON',
     key: 'genre',
     label: 'Genre',
-    width: 100,
   },
   {
     id3: 'TRCK',
     key: 'track',
     label: 'Track',
-    width: 100,
   },
 ] as const
+
+const columnMinSizeMap: Record<typeof cols[number]['key'], number> = {
+  cover: 3,
+  playing: 1.5,
+}
 
 const { containerProps, list, scrollTo, wrapperProps } = useVirtualList(folderEntries, {
   itemHeight: 34,
@@ -63,14 +65,16 @@ const { containerProps, list, scrollTo, wrapperProps } = useVirtualList(folderEn
 
 watch(() => playlistData.value.path, () => scrollTo(0))
 
+onClickOutside(containerProps.ref, () => selectedTrack.value = null)
+
 function handleTrackSelection(track: FileEntry) {
   if (selectedTrack.value?.path !== track.path) {
     selectedTrack.value = track
   }
 }
 
-function handleColumnClick(id3: Id3FrameId) {
-  if (id3 === 'APIC')
+function handleColumnClick(id3?: Id3FrameId) {
+  if (id3 === 'APIC' || !id3)
     return
 
   const sortOrder = id3 === playlistData.value.sortBy ? playlistData.value.sortOrder === 'asc' ? 'desc' : 'asc' : 'asc'
@@ -97,7 +101,7 @@ function handleColumnClick(id3: Id3FrameId) {
         <SplitterResizeHandle v-if="cols.indexOf(col) !== 0" class="h-8 w-px bg-muted" />
         <SplitterPanel
           :default-size="playlistHeaderPercents[cols.indexOf(col)]"
-          :min-size="2"
+          :min-size="columnMinSizeMap[col.key] ?? 4"
           class="flex h-8 items-center"
           @click="handleColumnClick(col.id3)"
         >
@@ -114,7 +118,7 @@ function handleColumnClick(id3: Id3FrameId) {
       <div
         v-for="entry in list"
         :key="entry.index"
-        v-memo="[selectedTrack?.path, playlistHeaderPercents, list]"
+        v-memo="[selectedTrack?.path, playlistHeaderPercents, list, playbackStatus?.path]"
         class="flex size-full h-8 items-center"
         :class="{
           'bg-primary/25': selectedTrack?.path === entry.data.path,
@@ -129,9 +133,10 @@ function handleColumnClick(id3: Id3FrameId) {
           :key="col.key"
         >
           <template v-if="col.key === 'cover'">
-            <div v-if="!entry.data.tags.APIC" class="mx-auto grid size-8 place-items-center">
+            <div v-if="!entry.data.tags.APIC" class="mx-auto grid place-items-center">
               -
             </div>
+
             <img
               v-else
               :src="entry.data.thumbnail_uri"
@@ -143,12 +148,23 @@ function handleColumnClick(id3: Id3FrameId) {
               decoding="async"
             />
           </template>
+          <div
+            v-else-if="col.key === 'playing'"
+            class="flex shrink-0 grow-0 items-center justify-center"
+            :style="{ flexBasis: `calc( (100% - ${(cols.length - 6)}px) * ${playlistHeaderPercents[i]} / 100 )` }"
+          >
+            <Icon
+              v-if="playbackStatus?.path === entry.data.path"
+              name="tabler:player-play"
+              class="size-3!"
+            />
+          </div>
           <p
             v-else
             class="shrink-0 grow-0 truncate px-2 text-sm"
-            :style="{ flexBasis: `calc( (100% - ${(cols.length - 1)}px) * ${playlistHeaderPercents[i]} / 100 )` }"
+            :style="{ flexBasis: `calc( (100% - ${(cols.length - 6)}px) * ${playlistHeaderPercents[i]} / 100 )` }"
           >
-            {{ col.id3 === 'TIT2' ? entry.data.tags[col.id3] ?? entry.data.name : entry.data.tags[col.id3] }}
+            {{ col.id3 === 'TIT2' ? entry.data.tags[col.id3] ?? entry.data.name : entry.data.tags[col.id3 ?? ''] }}
           </p>
         </template>
       </div>
