@@ -56,10 +56,12 @@ const cols: {
   },
 ] as const
 
-const { containerProps, list, wrapperProps } = useVirtualList(folderEntries, {
+const { containerProps, list, scrollTo, wrapperProps } = useVirtualList(folderEntries, {
   itemHeight: 34,
   overscan: 8,
 })
+
+watch(() => playlistData.value.path, () => scrollTo(0))
 
 function handleTrackSelection(track: FileEntry) {
   if (selectedTrack.value?.path !== track.path) {
@@ -112,7 +114,7 @@ function handleColumnClick(id3: Id3FrameId) {
       <div
         v-for="entry in list"
         :key="entry.index"
-        v-memo="[playlistData.sortBy, playlistData.sortOrder, selectedTrack?.path, playlistHeaderPercents]"
+        v-memo="[selectedTrack?.path, playlistHeaderPercents, list]"
         class="flex size-full h-8 items-center"
         :class="{
           'bg-primary/25': selectedTrack?.path === entry.data.path,
