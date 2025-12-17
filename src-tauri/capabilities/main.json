@@ -31,6 +31,12 @@
         }
       ]
     },
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "$HOME/**" }
+      ]
+    },
     "notification:default",
     "os:allow-platform",
     "os:allow-arch",
@@ -42,6 +48,7 @@
     "fs:scope-download-recursive",
     "store:default",
     "core:webview:allow-create-webview",
-    "core:webview:allow-create-webview-window"
+    "core:webview:allow-create-webview-window",
+    "fs:allow-exists"
   ]
 }
