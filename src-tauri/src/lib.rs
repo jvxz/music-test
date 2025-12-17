@@ -4,7 +4,7 @@ use std::sync::Arc;
 use tauri::{
   menu::{Menu, MenuItem},
   tray::TrayIconBuilder,
-  AppHandle, Manager, Runtime, WebviewUrl, WebviewWindowBuilder,
+  AppHandle, LogicalPosition, Manager, Position, Runtime, WebviewUrl, WebviewWindowBuilder,
 };
 use tokio::sync::{mpsc, oneshot};
 
@@ -84,7 +84,9 @@ pub async fn run() {
       let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
         .title("swim")
         .inner_size(800.0, 600.0)
-        .focused(false);
+        .title_bar_style(tauri::TitleBarStyle::Overlay)
+        .decorations(true)
+        .traffic_light_position(Position::Logical(LogicalPosition::new(8.0, 8.0)));
 
       let cache_dir = app.app_handle().path().app_cache_dir().unwrap();
       std::fs::create_dir_all(&cache_dir).unwrap();
