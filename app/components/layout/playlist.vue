@@ -118,7 +118,13 @@ function handleColumnClick(id3?: Id3FrameId) {
       <div
         v-for="entry in list"
         :key="entry.index"
-        v-memo="[selectedTrack?.path, playlistHeaderPercents, list, playbackStatus?.path]"
+        v-memo="[
+          entry.data,
+          playlistHeaderPercents,
+          selectedTrack?.path === entry.data.path,
+          playbackStatus?.path === entry.data.path,
+          entry.index % 2,
+        ]"
         class="flex size-full h-8 items-center"
         :class="{
           'bg-primary/25': selectedTrack?.path === entry.data.path,
