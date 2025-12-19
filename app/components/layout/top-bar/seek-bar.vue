@@ -31,7 +31,7 @@ function handlePointer(type: 'up' | 'down') {
   <div class="flex w-1/2 grow -translate-y-3 flex-col items-center gap-1 *:shrink-0">
     <div class="flex h-9 flex-col text-center">
       <p class="truncate text-sm">
-        {{ currentTrack?.name }}
+        {{ currentTrack?.tags.TIT2 ?? currentTrack?.name }}
       </p>
       <p class="relative w-full text-xs text-muted-foreground">
         {{ currentTrack?.tags.TPE1 }}
