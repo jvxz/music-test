@@ -4,10 +4,10 @@ const props = defineProps<{
   class?: string
 }>()
 
-const canvasRef = ref<HTMLCanvasElement | null>(null)
+const canvasRef = shallowRef<HTMLCanvasElement | null>(null)
 const canvasContainer = useParentElement(canvasRef)
 const canvasContainerSize = useElementSize(canvasContainer)
-const waveformGroups = ref<number[][]>([])
+const waveformGroups = shallowRef<number[][]>([])
 
 const HEIGHT_RATIO = 0.7
 const TARGET_BINS = canvasContainerSize.width
@@ -15,6 +15,7 @@ const TARGET_BINS = canvasContainerSize.width
 const { rpc } = useTauri()
 const { execute: getWaveform, state: waveformData } = useAsyncState(async () => props.path && rpc.get_waveform(props.path, TARGET_BINS.value), [], {
   immediate: true,
+  shallow: true,
 })
 
 onMounted(() => {
