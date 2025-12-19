@@ -3,18 +3,19 @@
 const TIMESTAMP_INTERVAL = 50
 
 export const usePlayback = createSharedComposable(() => {
-  const { rpc } = useTauri()
+  const { prefs, rpc, store } = useTauri()
 
   // internal
-  const _playbackStatus = ref<StreamStatus | null>(null)
-  const _currentTrack = shallowRef<FileEntry | null>(null)
+  const _playbackStatus = ref<StreamStatus | null>(prefs.get('playback-status') as StreamStatus | null)
+  const _currentTrack = shallowRef<FileEntry | null>(prefs.get('current-track') as FileEntry | null)
+
   // public
   const playbackStatus = readonly(_playbackStatus)
   const currentTrack = readonly(_currentTrack)
 
   const { pause: pauseDurationTimer, resume: resumeDurationTimer } = useTimestamp({
     callback: () => {
-      if (!_playbackStatus.value)
+      if (!_playbackStatus.value || !_playbackStatus.value.is_playing)
         return
 
       _playbackStatus.value.position = Math.max(0, _playbackStatus.value?.position + (TIMESTAMP_INTERVAL / 1000))
@@ -78,9 +79,34 @@ export const usePlayback = createSharedComposable(() => {
     _playbackStatus.value = _status
   }
 
+  async function setVolume(volume: number) {
+    if (_playbackStatus.value?.is_muted) {
+      toggleMute()
+    }
+
+    await rpc.control_playback({
+      SetVolume: volume,
+    })
+
+    if (_playbackStatus.value) {
+      _playbackStatus.value.volume = volume
+    }
+  }
+
+  async function toggleMute() {
+    await rpc.control_playback('ToggleMute')
+
+    if (_playbackStatus.value) {
+      _playbackStatus.value.is_muted = !_playbackStatus.value.is_muted
+    }
+  }
+
   async function getTrackData(path: string) {
     return await rpc.get_track_data(path)
   }
+
+  watchDebounced(_playbackStatus, () => store.set('playback-status', _playbackStatus.value), { debounce: 500 })
+  watchDebounced(currentTrack, () => store.set('current-track', currentTrack.value), { debounce: 500 })
 
   return {
     currentTrack,
@@ -89,5 +115,7 @@ export const usePlayback = createSharedComposable(() => {
     playTrack,
     seekCurrentTrack,
     setLoop,
+    setVolume,
+    toggleMute,
   }
 })

@@ -20,15 +20,7 @@ function handlePlayPause() {
         <Icon name="tabler:player-skip-forward-filled" class="size-6!" />
       </button>
     </div>
-    <div class="flex -translate-y-[3px] items-center gap-2">
-      <Icon name="mdi:volume-source" class="size-5!" />
-      <SliderRoot class="relative h-[2px] w-24 bg-muted-foreground/50">
-        <SliderTrack>
-          <SliderRange />
-        </SliderTrack>
-        <SliderThumb class="absolute top-1/2 h-3 w-1 -translate-y-1/2 bg-foreground outline-none focus-visible:ring-0" />
-      </SliderRoot>
-    </div>
+    <LayoutTopBarVolume/>
     <LayoutTopBarSeekBar />
     <div class="w-86.75"></div>
   </div>
