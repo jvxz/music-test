@@ -22,6 +22,6 @@ function handlePlayPause() {
     </div>
     <LayoutTopBarVolume/>
     <LayoutTopBarSeekBar />
-    <div class="w-86.75"></div>
+    <div class="flex-1"></div>
   </div>
 </template>

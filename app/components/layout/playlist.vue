@@ -138,12 +138,12 @@ function handleColumnClick(col: typeof cols[number]) {
       <div
         v-for="entry in list"
         :key="entry.index"
-        class="flex size-full h-8 items-center"
+        class="flex size-full h-8 items-center not-last:border-b"
+        :style="{ contain: 'strict' }"
         :class="{
           'bg-primary/25': selectedTrack?.path === entry.data.path,
-          'bg-muted/50': selectedTrack?.path !== entry.data.path && entry.index % 2 === 0,
+          // 'bg-muted/50': selectedTrack?.path !== entry.data.path && entry.index % 2 === 0,
         }"
-        :style="{ contain: 'strict' }"
         @mousedown.left="handleTrackSelection(entry.data)"
         @dblclick.left="playTrack(entry.data.path)"
       >
