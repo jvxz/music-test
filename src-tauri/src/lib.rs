@@ -6,6 +6,7 @@ use tauri::{
   tray::TrayIconBuilder,
   AppHandle, LogicalPosition, Manager, Position, Runtime, WebviewUrl, WebviewWindowBuilder,
 };
+use tauri_plugin_store::StoreExt;
 use tokio::sync::{mpsc, oneshot};
 
 use crate::files::read::FileEntry;
@@ -16,6 +17,7 @@ mod files {
 }
 mod audio;
 mod cover_protocol;
+mod hooks;
 mod playback;
 mod waveform;
 
@@ -99,7 +101,9 @@ pub async fn run() {
       // setup audio stuff
       let (tx, rx) = mpsc::channel::<(StreamAction, oneshot::Sender<StreamStatus>)>(32);
       app.manage(AudioHandle { tx });
-      let _join_handle = std::thread::spawn(move || audio::spawn_audio_thread(rx));
+
+      let initial_state = get_initial_state(app.app_handle());
+      let _join_handle = std::thread::spawn(move || audio::spawn_audio_thread(rx, initial_state));
 
       let _tray = TrayIconBuilder::new()
         .menu(&menu)
@@ -129,6 +133,17 @@ pub async fn run() {
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_store::Builder::new().build())
     .invoke_handler(taurpc::create_ipc_handler(ApiImpl.into_handler()))
+    .on_window_event(hooks::window_event::handle_window_event)
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
+}
+
+fn get_initial_state<R: Runtime>(app_handle: &AppHandle<R>) -> Option<StreamStatus> {
+  let initial_state = match app_handle.store("prefs.json") {
+    Ok(store) => store,
+    Err(_) => return None,
+  };
+  let initial_state = initial_state.get("playback-status").unwrap_or_default();
+  let initial_state: StreamStatus = serde_json::from_value(initial_state).unwrap();
+  return Some(initial_state);
 }

@@ -1,11 +1,11 @@
 use crate::playback::{StreamAction, StreamStatus};
 use kira::sound::static_sound::{StaticSoundData, StaticSoundHandle};
-use kira::sound::streaming::StreamingSoundHandle;
-use kira::sound::FromFileError;
+use kira::sound::streaming::{StreamingSoundHandle, StreamingSoundSettings};
+use kira::sound::{FromFileError, PlaybackPosition, Region};
 use kira::{
   self, sound::streaming::StreamingSoundData, AudioManager, AudioManagerSettings, DefaultBackend,
 };
-use kira::{Easing, StartTime, Tween};
+use kira::{Decibels, Easing, StartTime, Tween, Value};
 use std::thread;
 use std::time::Duration;
 use tokio::sync::{mpsc, oneshot};
@@ -71,6 +71,18 @@ impl CurrentHandle {
     }
   }
 
+  fn set_volume(&mut self, mut volume: f32, is_muted: bool) {
+    if is_muted {
+      volume = -60.0;
+    }
+
+    match self {
+      CurrentHandle::None => {}
+      CurrentHandle::Streaming(h) => h.set_volume(Decibels::from(volume), TWEEN),
+      CurrentHandle::Static(h) => h.set_volume(Decibels::from(volume), TWEEN),
+    }
+  }
+
   fn set_loop(&mut self, should_loop: bool) {
     match self {
       CurrentHandle::None => {}
@@ -94,6 +106,7 @@ impl CurrentHandle {
 
 pub fn spawn_audio_thread(
   mut ui_rx: mpsc::Receiver<(StreamAction, oneshot::Sender<StreamStatus>)>,
+  initial_state: Option<StreamStatus>,
 ) -> anyhow::Result<()> {
   let (event_tx, mut event_rx) = mpsc::channel::<InternalEvent>(32);
 
@@ -128,13 +141,38 @@ pub fn spawn_audio_thread(
     }
   });
 
-  let mut state = StreamStatus {
+  let mut state = initial_state.unwrap_or(StreamStatus {
     is_playing: false,
     position: 0.0,
     duration: 0.0,
     is_looping: false,
     path: None,
-  };
+    volume: -10.0,
+    is_muted: false,
+  });
+
+  // load track if initial state has path
+  if let Some(path) = &state.path {
+    static_sound_id += 1;
+    pending_static_data = None;
+    loader_tx.send((static_sound_id, path.to_string()));
+
+    let new_sound_data = StreamingSoundData::from_file(path).unwrap();
+    let mut new_handle = audio_manager
+      .play(new_sound_data.with_settings(StreamingSoundSettings {
+        loop_region: if state.is_looping {
+          Some(Region::from(0.0..))
+        } else {
+          None
+        },
+        volume: Value::from(Decibels::from(state.volume)),
+        start_position: PlaybackPosition::Seconds(state.position),
+        ..Default::default()
+      }))
+      .unwrap();
+    new_handle.pause(TWEEN);
+    audio_handle = CurrentHandle::Streaming(new_handle);
+  }
 
   // main event loop
   while let Some(event) = event_rx.blocking_recv() {
@@ -162,6 +200,7 @@ pub fn spawn_audio_thread(
             audio_handle = CurrentHandle::Streaming(new_handle);
 
             audio_handle.set_loop(state.is_looping);
+            audio_handle.set_volume(state.volume, state.is_muted);
 
             state.duration = duration;
             state.is_playing = true;
@@ -200,8 +239,12 @@ pub fn spawn_audio_thread(
                   // stop streaming sound
                   streaming_sound_handle.stop(TWEEN);
 
+                  let volume = if state.is_muted { -60.0 } else { state.volume };
+
                   // swap to static sound data
-                  let mut new_handle = audio_manager.play(static_data.clone()).unwrap();
+                  let mut new_handle = audio_manager
+                    .play(static_data.clone().volume(volume))
+                    .unwrap();
                   new_handle.seek_to(to);
                   if !state.is_playing {
                     new_handle.pause(TWEEN);
@@ -227,6 +270,19 @@ pub fn spawn_audio_thread(
 
             response_tx.send(state.clone());
           }
+          StreamAction::SetVolume(volume) => {
+            audio_handle.set_volume(volume, state.is_muted);
+
+            state.volume = volume;
+            response_tx.send(state.clone());
+          }
+          StreamAction::ToggleMute => {
+            state.is_muted = !state.is_muted;
+
+            audio_handle.set_volume(state.volume, state.is_muted);
+
+            response_tx.send(state.clone());
+          }
         }
       }
       InternalEvent::LoadFinished { id, data } => {
@@ -240,20 +296,3 @@ pub fn spawn_audio_thread(
 
   Ok(())
 }
-
-// pub fn monitor_audio_thread(
-//   audio_thread: thread::JoinHandle<anyhow::Result<()>>,
-// ) -> anyhow::Result<()> {
-//   return match audio_thread.join() {
-//     Ok(result) => match result {
-//       Ok(_) => todo!(),
-//       Err(err) => {
-//         println!("audio thread errored: {:?}", err);
-//         Err(err)
-//       }
-//     },
-//     Err(panic) => {
-//       unreachable!("audio thread panicked: {:?}", panic);
-//     }
-//   };
-// }
