@@ -7,7 +7,6 @@ const listBoxHighlightedItem = ref<{ ref: HTMLElement, value: AcceptableValue } 
 const commandRootValue = ref<AcceptableValue | AcceptableValue[] | undefined>()
 
 const { store } = useTauri()
-const playlistData = usePlaylistData()
 
 onKeyStrokeSafe('meta_p', () => {
   open.value = !open.value
@@ -38,10 +37,6 @@ function handleEnter(manualInput?: string) {
 
   if (inputToUse) {
     open.value = false
-    playlistData.value = {
-      ...playlistData.value,
-      path: inputToUse,
-    }
 
     const newRecents = recents.value ?? []
 
@@ -60,6 +55,13 @@ function handleEnter(manualInput?: string) {
     reloadRecents()
 
     pathExists.value = false
+
+    return navigateTo({
+      name: 'folder-path',
+      params: {
+        path: encodeURIComponent(inputToUse),
+      },
+    })
   }
 }
 

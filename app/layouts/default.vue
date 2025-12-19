@@ -1,5 +1,18 @@
 <script lang="ts" setup>
 const { layoutPanels } = usePersistentPanels('main', [12.5, 35, 12.5])
+const router = useRouter()
+const { $tauri } = useNuxtApp()
+
+onBeforeMount(async () => {
+  const lastUrl = await $tauri.store.get<string>('last-url')
+
+  if (lastUrl) {
+    router.push(lastUrl)
+  }
+  router.afterEach((to) => {
+    $tauri.store.set('last-url', to.fullPath)
+  })
+})
 </script>
 
 <template>
@@ -21,6 +34,7 @@ const { layoutPanels } = usePersistentPanels('main', [12.5, 35, 12.5])
       <SplitterResizeHandle />
       <SplitterPanel class="flex-1">
         <slot />
+        <LayoutWaveform />
       </SplitterPanel>
       <SplitterResizeHandle />
       <SplitterPanel

@@ -23,14 +23,23 @@ export const usePlaylistData = createSharedComposable(() => {
   return data
 })
 
-export function usePlaylist() {
+interface Params {
+  type: 'folder' | 'playlist'
+  path: string
+}
+
+export function usePlaylist(params: Params) {
+  const { path } = params
+
   const nuxtApp = useNuxtApp()
   const { rpc } = useTauri()
   const playlistData = usePlaylistData()
 
-  const key = computed(() => `${playlistData.value.path}-${playlistData.value.sortBy}-${playlistData.value.sortOrder}`)
+  playlistData.value.path = path
+
+  const key = computed(() => `${path}-${playlistData.value.sortBy}-${playlistData.value.sortOrder}`)
   const { data: folderEntries } = useAsyncData(key, async () => {
-    const data = await rpc.read_folder(playlistData.value.path)
+    const data = await rpc.read_folder(path)
 
     const sorted = data.toSorted((a, b) => {
       const type = typeof a.tags[playlistData.value.sortBy]
@@ -51,7 +60,7 @@ export function usePlaylist() {
     default: () => [],
     getCachedData: key => nuxtApp.payload.data?.[key] || nuxtApp.static?.data?.[key] || undefined,
     immediate: true,
-    watch: [computed(() => playlistData.value.path)],
+    watch: [playlistData],
   })
 
   return {

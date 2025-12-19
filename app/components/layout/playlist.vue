@@ -1,5 +1,13 @@
 <script lang="ts" setup>
-const { folderEntries, playlistData } = usePlaylist()
+const props = defineProps<{
+  type: 'folder' | 'playlist'
+  path: string
+}>()
+
+const { folderEntries, playlistData } = usePlaylist({
+  path: props.path,
+  type: props.type,
+})
 const { selectedTrack } = useTrackSelection()
 const { playbackStatus, playTrack } = usePlayback()
 const { layoutPanels: playlistHeaderPercents } = usePersistentPanels('playlist-columns', [5, 5, 25, 20, 20, 10, 15])
