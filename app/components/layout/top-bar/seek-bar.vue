@@ -2,7 +2,7 @@
 const { currentTrack, playbackStatus, seekCurrentTrack } = usePlayback()
 
 const isChangingPosition = ref(false)
-const localPosition = ref([0])
+const localPosition = ref([playbackStatus.value?.position ?? 0])
 
 watch(() => playbackStatus.value?.position, () => {
   if (isChangingPosition.value || !playbackStatus.value || playbackStatus.value.position === undefined)
@@ -33,8 +33,9 @@ function handlePointer(type: 'up' | 'down') {
       <p class="truncate text-sm">
         {{ currentTrack?.name }}
       </p>
-      <p class="text-xs text-muted-foreground">
+      <p class="relative w-full text-xs text-muted-foreground">
         {{ currentTrack?.tags.TPE1 }}
+        <span class="absolute right-0">test</span>
       </p>
     </div>
     <SliderRoot
