@@ -38,33 +38,31 @@ export function usePlaylist(params: Params) {
   playlistData.value.path = path
 
   const key = computed(() => `${path}-${playlistData.value.sortBy}-${playlistData.value.sortOrder}`)
-  const { data: folderEntries } = useAsyncData(key, async () => {
-    const data = await rpc.read_folder(path)
-
-    const sorted = data.toSorted((a, b) => {
-      const type = typeof a.tags[playlistData.value.sortBy]
-
-      if (type === 'string') {
-        return a.tags[playlistData.value.sortBy]!.localeCompare(b.tags[playlistData.value.sortBy]!) * (playlistData.value.sortOrder === 'asc' ? 1 : -1)
-      }
-
-      if (type === 'number') {
-        return (Number(a.tags[playlistData.value.sortBy]!) - Number(b.tags[playlistData.value.sortBy]!)) * (playlistData.value.sortOrder === 'asc' ? 1 : -1)
-      }
-
-      return 0
-    })
-
-    return sorted
-  }, {
+  const { data: folderEntries, execute: refreshReadFolder } = useAsyncData(key, async () => rpc.read_folder(path, {
+    key: playlistData.value.sortBy,
+    order: playlistData.value.sortOrder === 'asc' ? 'Asc' : 'Desc',
+  }), {
     default: () => [],
     getCachedData: key => nuxtApp.payload.data?.[key] || nuxtApp.static?.data?.[key] || undefined,
     immediate: true,
-    watch: [playlistData],
   })
+
+  function sortBy(opts: {
+    key: SortBy
+    order: SortOrder
+  }) {
+    playlistData.value = {
+      path: playlistData.value.path,
+      sortBy: opts.key,
+      sortOrder: opts.order,
+    }
+
+    refreshReadFolder()
+  }
 
   return {
     folderEntries,
     playlistData,
+    sortBy,
   }
 }

@@ -23,7 +23,6 @@ pub async fn get_waveform<R: Runtime>(
     bin_size: f32,
   ) -> Result<Vec<f32>, AnyhowError> {
     let cache_dir = app_handle.app_handle().path().app_cache_dir()?;
-    println!("cache_dir: {:?}", cache_dir);
 
     let cache_path = build_cache_path(&path, &cache_dir);
     if let Ok(cached_waveform) = std::fs::read(&cache_path) {

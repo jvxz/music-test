@@ -4,7 +4,7 @@ const props = defineProps<{
   path: string
 }>()
 
-const { folderEntries, playlistData } = usePlaylist({
+const { folderEntries, playlistData, sortBy } = usePlaylist({
   path: props.path,
   type: props.type,
 })
@@ -17,44 +17,52 @@ const cols: {
   key: string
   label: string
   default?: keyof FileEntry
+  canSort: boolean
 }[] = [
   {
+    canSort: false,
     id3: 'APIC',
     key: 'cover',
     label: '',
   },
-
   {
+    canSort: false,
     key: 'playing',
     label: '',
   },
   {
+    canSort: true,
     default: 'name',
     id3: 'TIT2',
     key: 'title',
     label: 'Title',
   },
   {
+    canSort: true,
     id3: 'TPE1',
     key: 'artist',
     label: 'Artist',
   },
   {
+    canSort: true,
     id3: 'TALB',
     key: 'album',
     label: 'Album',
   },
   {
+    canSort: true,
     id3: 'TYER',
     key: 'year',
     label: 'Year',
   },
   {
+    canSort: true,
     id3: 'TCON',
     key: 'genre',
     label: 'Genre',
   },
   {
+    canSort: true,
     id3: 'TRCK',
     key: 'track',
     label: 'Track',
@@ -81,17 +89,16 @@ function handleTrackSelection(track: FileEntry) {
   }
 }
 
-function handleColumnClick(id3?: Id3FrameId) {
-  if (id3 === 'APIC' || !id3)
+function handleColumnClick(col: typeof cols[number]) {
+  if (!col.canSort || !col.id3)
     return
 
-  const sortOrder = id3 === playlistData.value.sortBy ? playlistData.value.sortOrder === 'asc' ? 'desc' : 'asc' : 'asc'
+  const sortOrder = col.id3 === playlistData.value.sortBy ? playlistData.value.sortOrder === 'asc' ? 'desc' : 'asc' : 'asc'
 
-  playlistData.value = {
-    path: playlistData.value.path,
-    sortBy: id3,
-    sortOrder,
-  }
+  sortBy({
+    key: col.id3,
+    order: sortOrder,
+  })
 }
 </script>
 
@@ -103,19 +110,24 @@ function handleColumnClick(id3?: Id3FrameId) {
       @layout="playlistHeaderPercents = $event"
     >
       <template
-        v-for="col in cols"
+        v-for="(col, index) in cols"
         :key="col.key"
       >
-        <SplitterResizeHandle v-if="cols.indexOf(col) !== 0" class="h-8 w-px bg-muted" />
+        <SplitterResizeHandle v-if="index !== 0" class="h-8 w-px bg-muted" />
         <SplitterPanel
-          :default-size="playlistHeaderPercents[cols.indexOf(col)]"
+          :default-size="playlistHeaderPercents[index]"
           :min-size="columnMinSizeMap[col.key] ?? 4"
           class="flex h-8 items-center"
-          @click="handleColumnClick(col.id3)"
+          @pointerdown="handleColumnClick(col)"
         >
           <p class="truncate px-2 text-sm">
             {{ col.label }}
           </p>
+          <Icon
+            v-if="col.canSort"
+            :name="playlistData.sortBy === col.id3 ? (playlistData.sortOrder === 'asc' ? 'tabler:sort-descending' : 'tabler:sort-ascending') : ''"
+            class="size-3!"
+          />
         </SplitterPanel>
       </template>
     </SplitterGroup>
@@ -126,13 +138,6 @@ function handleColumnClick(id3?: Id3FrameId) {
       <div
         v-for="entry in list"
         :key="entry.index"
-        v-memo="[
-          entry.data,
-          playlistHeaderPercents,
-          selectedTrack?.path === entry.data.path,
-          playbackStatus?.path === entry.data.path,
-          entry.index % 2,
-        ]"
         class="flex size-full h-8 items-center"
         :class="{
           'bg-primary/25': selectedTrack?.path === entry.data.path,
@@ -157,9 +162,7 @@ function handleColumnClick(id3?: Id3FrameId) {
               :alt="entry.data.name"
               width="32"
               height="32"
-              class="mx-auto h-full object-contain"
-              loading="lazy"
-              decoding="async"
+              class="mx-auto h-full"
             />
           </template>
           <div

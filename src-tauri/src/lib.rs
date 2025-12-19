@@ -9,7 +9,7 @@ use tauri::{
 use tauri_plugin_store::StoreExt;
 use tokio::sync::{mpsc, oneshot};
 
-use crate::files::read::FileEntry;
+use crate::files::read::{FileEntry, SortMethod};
 use crate::playback::{AudioHandle, StreamAction, StreamStatus};
 
 mod files {
@@ -23,7 +23,10 @@ mod waveform;
 
 #[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
 trait Api {
-  async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String>;
+  async fn read_folder(
+    path: String,
+    sort_method: Option<SortMethod>,
+  ) -> Result<Arc<Vec<FileEntry>>, String>;
   async fn get_track_data(path: String) -> Result<Option<FileEntry>, String>;
   async fn control_playback<R: Runtime>(
     app_handle: AppHandle<R>,
@@ -39,8 +42,12 @@ trait Api {
 
 #[taurpc::resolvers]
 impl Api for ApiImpl {
-  async fn read_folder(self, path: String) -> Result<Arc<Vec<FileEntry>>, String> {
-    return files::read::read_folder(path).await;
+  async fn read_folder(
+    self,
+    path: String,
+    sort_method: Option<SortMethod>,
+  ) -> Result<Arc<Vec<FileEntry>>, String> {
+    return files::read::read_folder(path, sort_method).await;
   }
 
   async fn get_track_data(self, path: String) -> Result<Option<FileEntry>, String> {

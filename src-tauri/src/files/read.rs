@@ -1,6 +1,7 @@
 use dashmap::DashMap;
 use id3::v1v2::read_from_path;
 use id3::ErrorKind;
+use serde::Deserialize;
 use serde::Serialize;
 use specta::Type;
 use std::collections::HashMap;
@@ -24,26 +25,57 @@ pub static FOLDER_CACHE: LazyLock<DashMap<String, Arc<Vec<FileEntry>>>> =
   LazyLock::new(DashMap::new);
 pub static TRACK_CACHE: LazyLock<DashMap<String, FileEntry>> = LazyLock::new(DashMap::new);
 
+#[derive(Serialize, Type, Clone, Deserialize, Debug, PartialEq)]
+pub enum SortOrder {
+  Asc,
+  Desc,
+}
+
+#[derive(Serialize, Type, Clone, Deserialize, Debug, PartialEq)]
+pub struct SortMethod {
+  pub key: String,
+  pub order: SortOrder,
+}
+
 #[tauri::command]
-pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String> {
+pub async fn read_folder(
+  path: String,
+  sort_method: Option<SortMethod>,
+) -> Result<Arc<Vec<FileEntry>>, String> {
   if let Some(cached_dir) = FOLDER_CACHE.get(&path) {
     let data = cached_dir.value();
+
+    if let Some(sort_method) = sort_method {
+      return Ok(to_sorted(data.clone(), sort_method));
+    }
 
     return Ok(data.clone());
   };
 
   let entires = read_dir(&path).expect("Failed to read folder");
 
-  let file_entries = entires
+  let mut file_entries = entires
     .filter_map(|result| result.ok())
     .filter(|dir_entry| dir_entry.path().is_file())
     .filter(|dir_entry| is_supported(dir_entry.path()))
     .map(|dir_entry| file_entry_from_path(dir_entry.path()))
     .collect::<Vec<FileEntry>>();
 
+  if let Some(sort_method) = sort_method.clone() {
+    file_entries.sort_by(|a, b| {
+      let a_value = a.tags.get(&sort_method.key).unwrap_or(&a.name);
+      let b_value = b.tags.get(&sort_method.key).unwrap_or(&b.name);
+      a_value.cmp(b_value)
+    });
+  }
+
   let data = Arc::new(file_entries);
 
   FOLDER_CACHE.insert(path, data.clone());
+
+  if let Some(sort_method) = sort_method {
+    return Ok(to_sorted(data.clone(), sort_method));
+  }
 
   return Ok(data);
 }
@@ -125,4 +157,32 @@ fn is_supported(path: impl AsRef<Path>) -> bool {
 
 fn build_cover_uri(path: impl AsRef<str>, mode: impl AsRef<str>) -> String {
   return format!("cover-{}://localhost/{}", mode.as_ref(), path.as_ref());
+}
+
+fn to_sorted(file_entries: Arc<Vec<FileEntry>>, sort_method: SortMethod) -> Arc<Vec<FileEntry>> {
+  let mut file_entries = file_entries.to_vec();
+  file_entries.sort_by(|a, b| {
+    let mut a_value = a.tags.get(&sort_method.key);
+    if sort_method.key == "TIT2" {
+      a_value = Some(a_value.unwrap_or(&a.name));
+    }
+
+    let mut b_value = b.tags.get(&sort_method.key);
+    if sort_method.key == "TIT2" {
+      b_value = Some(b_value.unwrap_or(&b.name));
+    }
+
+    let res = match (a_value, b_value) {
+      (Some(a_value), Some(b_value)) => a_value.to_lowercase().cmp(&b_value.to_lowercase()),
+      (None, None) => std::cmp::Ordering::Equal,
+      (None, Some(_)) => std::cmp::Ordering::Greater,
+      (Some(_), None) => std::cmp::Ordering::Less,
+    };
+
+    return match sort_method.order {
+      SortOrder::Asc => res,
+      SortOrder::Desc => res.reverse(),
+    };
+  });
+  return Arc::new(file_entries);
 }
