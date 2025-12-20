@@ -28,14 +28,13 @@ function handlePointer(type: 'up' | 'down') {
 </script>
 
 <template>
-  <div class="flex w-1/2 grow -translate-y-3 flex-col items-center gap-1 *:shrink-0">
+  <div class="flex w-[45%] grow -translate-y-3 flex-col items-center gap-1 *:shrink-0">
     <div class="flex h-9 flex-col text-center">
       <p class="truncate text-sm">
         {{ currentTrack?.tags.TIT2 ?? currentTrack?.name }}
       </p>
       <p class="relative w-full text-xs text-muted-foreground">
         {{ currentTrack?.tags.TPE1 }}
-        <span class="absolute right-0">test</span>
       </p>
     </div>
     <SliderRoot

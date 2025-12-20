@@ -60,7 +60,7 @@
 :root {
   --spacing: 0.265rem;
   --overlay: hsl(0 0% 0% / 0.4);
-  --radius: 0.35rem;
+  --radius: 0.25rem;
 
   --background: hsl(from var(--primary) h calc(s * 0.1) calc(l * 1.7));
   --foreground: hsl(from var(--primary) h calc(s * 0.15) calc(l * 0.362));
@@ -95,7 +95,7 @@
   --primary-foreground: hsl(0 0% 100%);
   --secondary: hsl(0 0% 23.1373%);
   --secondary-foreground: var(--foreground);
-  --muted: hsl(from var(--background) h s calc(l * 3.65));
+  --muted: hsl(from var(--background) h s calc(l * 2.75));
   --muted-foreground: hsl(from var(--foreground) h calc(s * 0) calc(l * 0.7));
   --accent-foreground: hsl(0 0% 100%);
   --danger: hsl(352.6829 50.014% 50.0392%);

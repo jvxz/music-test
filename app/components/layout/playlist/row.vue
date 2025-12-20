@@ -40,8 +40,8 @@ const classes = 'flex items-center'
           v-else
           :src="entry.thumbnail_uri"
           :alt="entry.name"
-          width="32"
-          height="32"
+          width="38"
+          height="38"
           class="mx-auto h-full"
         />
       </template>
@@ -62,6 +62,7 @@ const classes = 'flex items-center'
         v-else
         :class="classes"
         class="truncate px-2 text-sm"
+        :title="col.id3 === 'TIT2' ? entry.tags[col.id3] ?? entry.name : entry.tags[col.id3 ?? '']"
       >
         {{ col.id3 === 'TIT2' ? entry.tags[col.id3] ?? entry.name : entry.tags[col.id3 ?? ''] }}
       </p>

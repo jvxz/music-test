@@ -23,7 +23,8 @@ const shouldVirtualize = computed(() => folderEntries.value.length >= VIRTUALIZA
 
 <template>
   <div class="h-full flex-1 cursor-default select-none">
-    <LayoutPlaylistHeader
+    <LayoutPlaylistHeader :path :track-count="folderEntries.length" />
+    <LayoutPlaylistColumns
       :playlist-data="playlistData"
       @sort-update="(by, order) => sortBy({ key: by, order })"
     />
@@ -37,8 +38,8 @@ const shouldVirtualize = computed(() => folderEntries.value.length >= VIRTUALIZA
           class="grid h-full"
           v-bind="wrapperProps"
           :style="{
-            gridTemplateColumns: playlistHeaderPercents.map(p => `${p}%`).join(' '),
-            gridAutoRows: '34px',
+            gridTemplateColumns: playlistHeaderPercents.map((p, i) => `${p}%`).join(' '),
+            gridAutoRows: '38px',
           }"
         >
           <LayoutPlaylistRow
@@ -65,8 +66,8 @@ const shouldVirtualize = computed(() => folderEntries.value.length >= VIRTUALIZA
       <div
         class="grid"
         :style="{
-          gridTemplateColumns: playlistHeaderPercents.map(p => `${p}%`).join(' '),
-          gridAutoRows: '34px',
+          gridTemplateColumns: playlistHeaderPercents.map((p, i) => `${p}%`).join(' '),
+          gridAutoRows: '38px',
         }"
       >
         <LayoutPlaylistRow

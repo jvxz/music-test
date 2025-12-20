@@ -8,20 +8,24 @@ function handlePlayPause() {
 </script>
 
 <template>
-  <div class="flex h-32 items-center gap-32 border-b px-16 *:h-8 *:shrink-0">
-    <div class="flex items-center gap-2 *:active:text-muted-foreground">
-      <button class="">
-        <Icon name="tabler:player-skip-back-filled" class="size-6!" />
-      </button>
-      <button @click="handlePlayPause()">
-        <Icon :name="playbackStatus?.is_playing ? 'tabler:player-pause-filled' : 'tabler:player-play-filled'" class="size-8!" />
-      </button>
-      <button>
-        <Icon name="tabler:player-skip-forward-filled" class="size-6!" />
-      </button>
+  <div class="flex h-32 items-center gap-24 border-b px-16 *:h-8 *:shrink-0">
+    <div class="flex flex-1 items-center  justify-between *:active:text-muted-foreground">
+      <div class="flex items-center gap-1">
+        <button>
+          <Icon name="tabler:player-skip-back-filled" class="size-6!" />
+        </button>
+        <button @click="handlePlayPause()">
+          <Icon :name="playbackStatus?.is_playing ? 'tabler:player-pause-filled' : 'tabler:player-play-filled'" class="size-8!" />
+        </button>
+        <button>
+          <Icon name="tabler:player-skip-forward-filled" class="size-6!" />
+        </button>
+      </div>
+      <LayoutTopBarVolume />
     </div>
-    <LayoutTopBarVolume/>
     <LayoutTopBarSeekBar />
-    <div class="flex-1"></div>
+    <div class="flex flex-1 items-center justify-between">
+      <LayoutTopBarRepeat />
+    </div>
   </div>
 </template>
