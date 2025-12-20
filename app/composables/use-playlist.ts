@@ -1,7 +1,6 @@
-type SortBy = keyof typeof ID3_MAP
-type SortOrder = 'asc' | 'desc'
+export type SortBy = keyof typeof ID3_MAP
 
-interface PlaylistData {
+export interface PlaylistData {
   path: string
   sortBy: SortBy
   sortOrder: SortOrder
@@ -10,8 +9,66 @@ interface PlaylistData {
 const defaultData: PlaylistData = {
   path: '',
   sortBy: 'TIT2',
-  sortOrder: 'asc',
+  sortOrder: 'Asc',
 }
+
+export const VIRTUALIZATION_THRESHOLD = 500
+export const PLAYLIST_COLUMNS: {
+  id3?: Id3FrameId
+  key: string
+  label: string
+  default?: keyof FileEntry
+  canSort: boolean
+}[] = [
+  {
+    canSort: false,
+    id3: 'APIC',
+    key: 'cover',
+    label: '',
+  },
+  {
+    canSort: false,
+    key: 'playing',
+    label: '',
+  },
+  {
+    canSort: true,
+    default: 'name',
+    id3: 'TIT2',
+    key: 'title',
+    label: 'Title',
+  },
+  {
+    canSort: true,
+    id3: 'TPE1',
+    key: 'artist',
+    label: 'Artist',
+  },
+  {
+    canSort: true,
+    id3: 'TALB',
+    key: 'album',
+    label: 'Album',
+  },
+  {
+    canSort: true,
+    id3: 'TYER',
+    key: 'year',
+    label: 'Year',
+  },
+  {
+    canSort: true,
+    id3: 'TCON',
+    key: 'genre',
+    label: 'Genre',
+  },
+  {
+    canSort: true,
+    id3: 'TRCK',
+    key: 'track',
+    label: 'Track',
+  },
+] as const
 
 export const usePlaylistData = createSharedComposable(() => {
   const { $tauri } = useNuxtApp()
@@ -40,7 +97,7 @@ export function usePlaylist(params: Params) {
   const key = computed(() => `${path}-${playlistData.value.sortBy}-${playlistData.value.sortOrder}`)
   const { data: folderEntries, execute: refreshReadFolder } = useAsyncData(key, async () => rpc.read_folder(path, {
     key: playlistData.value.sortBy,
-    order: playlistData.value.sortOrder === 'asc' ? 'Asc' : 'Desc',
+    order: playlistData.value.sortOrder,
   }), {
     default: () => [],
     getCachedData: key => nuxtApp.payload.data?.[key] || nuxtApp.static?.data?.[key] || undefined,
