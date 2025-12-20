@@ -154,7 +154,7 @@ function handleCmdItemMount(item: VNode) {
             :value="recentItem"
             @select="handleEnter(recentItem)"
           >
-            {{ recentItem }}
+            <p class="w-full truncate">{{ recentItem }}</p>
           </UCommandItem>
         </UCommandGroup>
       </UCommandList>
