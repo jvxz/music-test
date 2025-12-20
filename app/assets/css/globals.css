@@ -58,25 +58,18 @@
 }
 
 :root {
-  /* --spacing: 0.235rem; */
-  /* --spacing: 0.275rem; */
   --spacing: 0.265rem;
-  /* --spacing: 0.3rem; */
   --overlay: hsl(0 0% 0% / 0.4);
   --radius: 0.35rem;
-  /* --radius: 0.5rem; */
 
-  /* --background: hsl(0 0% 96%); */
-  /* --background: hsl(from var(--primary) h calc(s * 0.1) calc(l * 1.575)); */
   --background: hsl(from var(--primary) h calc(s * 0.1) calc(l * 1.7));
-  /* --foreground: hsl(0 0% 20%); */
   --foreground: hsl(from var(--primary) h calc(s * 0.15) calc(l * 0.362));
+  --border: hsl(from var(--background) h s calc(l / 1.2));
   --card: hsl(from var(--background) h s calc(l * 1.4));
   --card-foreground: var(--foreground);
   --popover: hsl(0 0% 100%);
-  /* --popover-foreground: hsl(0 0% 26.6667%); */
   --popover-foreground: hsl(from var(--primary) h calc(s * 0.2) calc(l * 0.362));
-  --primary: hsl(196, 53%, 59%);
+  --primary: hsl(157, 23%, 46%);
   --primary-foreground: hsl(0 0% 100%);
   --secondary: hsl(0 0% 92.1569%);
   --secondary-foreground: var(--foreground);
@@ -87,34 +80,27 @@
   --accent-foreground: hsl(0 0% 8%);
   --danger: hsl(352.6829 50.014% 50.0392%);
   --danger-foreground: var(--foreground);
-  --border: hsl(from var(--background) h s calc(l / 1.2));
   --input: hsl(0 0% 80%);
   --ring: hsl(196, 66%, 68%);
 }
 
 .dark {
-  /* --background: hsl(242, 0%, 3.2%); */
-  --background: hsl(from var(--primary) h calc(s * 0) calc(l * 0.035));
-  /* --foreground: hsl(0 0% 95%); */
-  --foreground: hsl(from var(--primary) h calc(s * 0) calc(l * 1.45));
-  --card: hsl(from var(--background) h s calc(l * 1.85));
+  --background: hsl(from var(--primary) h calc(s * 0) calc(l * 0.1));
+  --foreground: hsl(from var(--primary) h calc(s * 0) calc(l * 1.7));
+  --border: hsl(from var(--background) h calc(s * 0.5) calc(l * 2.5));
+  --card: hsl(from var(--background) h s calc(l * 1.25));
   --card-foreground: var(--foreground);
   --popover: hsl(0 0% 3.1373%);
   --popover-foreground: hsl(0 0% 63.5294%);
-  /* --primary: hsl(242, 70%, 64%); */
   --primary-foreground: hsl(0 0% 100%);
   --secondary: hsl(0 0% 23.1373%);
   --secondary-foreground: var(--foreground);
   --muted: hsl(from var(--background) h s calc(l * 3.65));
-  /* --muted-foreground: hsl(0 0% 74.1176%); */
   --muted-foreground: hsl(from var(--foreground) h calc(s * 0) calc(l * 0.7));
-  /* --accent: hsl(242, 80%, 65%); */
   --accent-foreground: hsl(0 0% 100%);
   --danger: hsl(352.6829 50.014% 50.0392%);
   --danger-foreground: hsl(0 0% 100%);
-  --border: hsl(from var(--background) h calc(s * 0.5) calc(l * 4.85));
   --input: hsl(0 0% 21.9608%);
-  /* --ring: hsl(242, 80%, 65%); */
 }
 
 @utility scrollbar-fancy {
