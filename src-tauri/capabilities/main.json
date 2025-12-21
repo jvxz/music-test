@@ -34,7 +34,9 @@
     {
       "identifier": "fs:scope",
       "allow": [
-        { "path": "$HOME/**" }
+        {
+          "path": "$HOME/**"
+        }
       ]
     },
     "notification:default",
@@ -49,6 +51,8 @@
     "store:default",
     "core:webview:allow-create-webview",
     "core:webview:allow-create-webview-window",
-    "fs:allow-exists"
+    "fs:allow-exists",
+    "sql:default",
+    "sql:allow-execute"
   ]
 }
