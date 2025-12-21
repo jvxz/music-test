@@ -19,7 +19,8 @@
     "tauri": "tauri",
     "dev": "tauri dev",
     "tauri:build": "tauri build",
-    "tauri:build:debug": "tauri build --debug"
+    "tauri:build:debug": "tauri build --debug",
+    "db:types": "kysely-codegen --out-file ./types/db.d.ts --dialect sqlite"
   },
   "dependencies": {
     "@iconify-json/tabler": "^1.2.24",
@@ -36,9 +37,11 @@
     "@tauri-apps/plugin-sql": "~2",
     "@tauri-apps/plugin-store": "^2.4.1",
     "@tauri-apps/plugin-window-state": "~2.4.1",
+    "better-sqlite3": "^12.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "kysely": "^0.28.9",
+    "kysely-dialect-tauri": "^1.2.1",
     "nuxt": "^4.2.2",
     "nuxt-icons": "4.0.0",
     "tailwind-merge": "^3.4.0",
@@ -67,6 +70,7 @@
   "trustedDependencies": [
     "@parcel/watcher",
     "@tailwindcss/oxide",
-    "unrs-resolver"
+    "unrs-resolver",
+    "better-sqlite3"
   ]
 }

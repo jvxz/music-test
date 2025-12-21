@@ -3,39 +3,19 @@ definePageMeta({
   layout: false,
 })
 
-const ts = useTimestamp()
+function handleClick() {
+  $db().insertInto('playlists').values({
+    name: 'My new playlist',
+  }).execute()
+}
 </script>
 
 <template>
   <div class="flex h-screen flex-col items-center justify-center gap-2">
     <UButton
-      @click="$tauri.rpc.control_playback({
-        Play: '/rua01.ogg',
-      })"
+      @click="handleClick"
     >
-      play rua01
+      test
     </UButton>
-    <UButton
-      @click="$tauri.rpc.control_playback({
-        Play: '/rua02.ogg',
-      })"
-    >
-      play rua02
-    </UButton>
-    <UButton
-      @click="$tauri.rpc.control_playback({
-        SetLoop: true,
-      })"
-    >
-      enable loop
-    </UButton>
-    <UButton
-      @click="$tauri.rpc.control_playback({
-        SetLoop: false,
-      })"
-    >
-      disable loop
-    </UButton>
-    <pre>{{ ts }}</pre>
   </div>
 </template>
