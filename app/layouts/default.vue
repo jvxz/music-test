@@ -10,6 +10,9 @@ onBeforeMount(async () => {
     router.push(lastUrl)
   }
   router.afterEach((to) => {
+    if (to.fullPath === '/playground')
+      return
+
     $tauri.store.set('last-url', to.fullPath)
   })
 })
