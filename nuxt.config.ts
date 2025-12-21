@@ -58,6 +58,12 @@ export default defineNuxtConfig({
         ],
       },
       {
+        from: 'kysely',
+        imports: [
+          { name: 'Selectable', type: true },
+        ],
+      },
+      {
         from: 'zod',
         imports: [
           'z',

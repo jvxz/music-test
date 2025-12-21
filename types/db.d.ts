@@ -19,8 +19,8 @@ export interface _SqlxMigrations {
 }
 
 export interface Playlists {
-  created_at: Generated<string | null>;
-  id: Generated<number | null>;
+  created_at: Generated<string>;
+  id: Generated<number>;
   name: string;
 }
 
