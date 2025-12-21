@@ -39,8 +39,8 @@ const popoverStyles = {
   item: [
     interactiveStyles.base,
     interactiveStyles.variant.ghost,
-    interactiveStyles.size.sm,
-    'duration-0 focus:bg-muted focus:text-accent-foreground [&_svg:not([class*=\'text-\'])]:text-muted-foreground [&_svg:not([class*=\'size-\'])]:size-12 data-[variant=danger]:text-danger-foreground data-[variant=danger]:focus:bg-danger/10 data-[variant=danger]:focus:text-danger-foreground data-[variant=danger]:*:[svg]:!text-danger-foreground dark:data-[variant=danger]:focus:bg-danger/40 relative flex cursor-default items-center p-1 px-2 text-xs outline-hidden transition-all select-none focus-visible:ring-0 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+    interactiveStyles.size.default,
+    'duration-0 focus:bg-muted focus:text-accent-foreground text-foreground [&_svg:not([class*=\'text-\'])]:text-muted-foreground [&_svg:not([class*=\'size-\'])]:size-12 data-[variant=danger]:text-danger-foreground data-[variant=danger]:focus:bg-danger/10 data-[variant=danger]:focus:text-danger-foreground data-[variant=danger]:*:[svg]:!text-danger-foreground dark:data-[variant=danger]:focus:bg-danger/40 relative flex cursor-default items-center p-1 px-2 outline-hidden transition-all select-none focus-visible:ring-0 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0',
   ],
 }
 
