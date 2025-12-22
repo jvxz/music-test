@@ -155,14 +155,7 @@
     @apply bg-background text-foreground font-sans antialiased text-pretty min-h-screen underline-offset-2;
     font-optical-sizing: auto !important;
     letter-spacing: 0.01em;
-  }
-
-  body[style*='font-sans'] {
     font-weight: 450;
-  }
-
-  body[style*='font-display'] {
-    letter-spacing: -0.02em;
   }
 
   body[style*='padding-right'] {
