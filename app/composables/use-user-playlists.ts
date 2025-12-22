@@ -1,5 +1,6 @@
 export function useUserPlaylists() {
-  const { execute: refreshPlaylists, state: playlists } = useAsyncState<Selectable<DB['playlists']>[]>(() => $db().selectFrom('playlists').selectAll().execute(), [], {
+  const { data: playlists, refresh: refreshPlaylists } = useAsyncData<Selectable<DB['playlists']>[]>('playlists', () => $db().selectFrom('playlists').selectAll().execute(), {
+    default: () => [],
     immediate: true,
   })
 
@@ -25,9 +26,30 @@ export function useUserPlaylists() {
     refreshPlaylists()
   }
 
+  async function getPlaylistTracks(playlistId: number) {
+    const playlistTracks = await $db().selectFrom('playlist_tracks').where('playlist_id', '=', playlistId).selectAll().execute()
+    const fileEntries = await Promise.all(playlistTracks.map(async (track) => {
+      const fileEntry = await useTauri().rpc.get_track_data(track.path)
+      return fileEntry
+    }).filter(Boolean))
+    return fileEntries as FileEntry[]
+  }
+
+  function addTrackToPlaylist(playlistId: number, track: FileEntry) {
+    $db().insertInto('playlist_tracks').values({
+      name: track.name,
+      path: track.path,
+      playlist_id: playlistId,
+    }).execute()
+
+    refreshPlaylists()
+  }
+
   return {
+    addTrackToPlaylist,
     createPlaylist,
     deletePlaylist,
+    getPlaylistTracks,
     playlists,
     renamePlaylist,
   }
