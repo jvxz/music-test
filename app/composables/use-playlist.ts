@@ -98,7 +98,7 @@ export function usePlaylist(params: Params) {
   playlistData.value.path = path
 
   const key = computed(() => `${path}-${playlistData.value.sortBy}-${playlistData.value.sortOrder}`)
-  const { data: folderEntries, execute: refreshReadFolder } = useAsyncData<FileEntry[]>(key, async () => {
+  const { data: folderEntries, execute: refreshReadFolder, pending: isLoadingPlaylistData } = useAsyncData<FileEntry[]>(key, async () => {
     if (type === 'folder') {
       return rpc.read_folder(path, {
         key: playlistData.value.sortBy,
@@ -129,6 +129,7 @@ export function usePlaylist(params: Params) {
 
   return {
     folderEntries,
+    isLoadingPlaylistData,
     playlistData,
     sortBy,
   }

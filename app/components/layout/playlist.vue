@@ -4,7 +4,7 @@ const props = defineProps<{
   path: string
 }>()
 
-const { folderEntries, playlistData, sortBy } = usePlaylist({
+const { folderEntries, isLoadingPlaylistData, playlistData, sortBy } = usePlaylist({
   path: props.path,
   type: props.type,
 })
@@ -25,7 +25,7 @@ const contextMenuEntry = shallowRef<FileEntry | null>(null)
 
 <template>
   <div class="h-full flex-1 cursor-default select-none">
-    <LayoutPlaylistHeader :path :track-count="folderEntries.length" />
+    <LayoutPlaylistHeader :path :type :track-count="folderEntries.length" :is-loading="isLoadingPlaylistData" />
     <LayoutPlaylistColumns
       :playlist-data="playlistData"
       @sort-update="(by, order) => sortBy({ key: by, order })"

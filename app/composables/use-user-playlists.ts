@@ -45,10 +45,15 @@ export function useUserPlaylists() {
     refreshPlaylists()
   }
 
+  function getPlaylistName(playlistId: number) {
+    return playlists.value.find(playlist => playlist.id === playlistId)?.name
+  }
+
   return {
     addTrackToPlaylist,
     createPlaylist,
     deletePlaylist,
+    getPlaylistName,
     getPlaylistTracks,
     playlists,
     renamePlaylist,
