@@ -1,127 +1,24 @@
-<script setup lang="ts">
-defineOptions({ name: 'Spinner' })
-const props = defineProps<{
-  invert?: boolean
-}>()
-
-const colorMode = useColorMode()
-
-const stroke = computed(() => {
-  if (colorMode.value === 'dark') {
-    return props.invert ? 'var(--primary-foreground)' : 'var(--muted-foreground)'
-  }
-
-  return props.invert ? 'var(--muted-foreground)' : 'var(--primary-foreground)'
-})
-</script>
-
 <template>
   <svg
-    viewBox="0 0 100 100"
     xmlns="http://www.w3.org/2000/svg"
-    v-bind="$attrs"
-    :style="{ '--spinner-stroke': stroke }"
+    width="1em"
+    height="1em"
+    viewBox="0 0 24 24"
   >
-    <title>Loading...</title>
+    <!-- Icon from SVG Spinners by Utkarsh Verma - https://github.com/n3r4zzurr0/svg-spinners/blob/main/LICENSE -->
     <path
-      class="spinner-line"
-      stroke-width="6"
-      :style="{ animationDelay: '0s' }"
-      d="M50 22v11"
+      fill="currentColor"
+      d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
+      opacity=".25"
     />
-    <path
-      class="spinner-line"
-      stroke-width="6"
-      :style="{ animationDelay: '-.1s' }"
-      transform="rotate(-30 50 50)"
-      d="M50 22v11"
-    />
-    <path
-      class="spinner-line"
-      stroke-width="6"
-      :style="{ animationDelay: '-.2s' }"
-      transform="rotate(-60 50 50)"
-      d="M50 22v11"
-    />
-    <path
-      class="spinner-line"
-      stroke-width="6"
-      :style="{ animationDelay: '-.3s' }"
-      transform="rotate(-90 50 50)"
-      d="M50 22v11"
-    />
-    <path
-      class="spinner-line"
-      stroke-width="6"
-      :style="{ animationDelay: '-.4s' }"
-      transform="rotate(-120 50 50)"
-      d="M50 22v11"
-    />
-    <path
-      class="spinner-line"
-      stroke-width="6"
-      :style="{ animationDelay: '-.5s' }"
-      transform="rotate(-150 50 50)"
-      d="M50 22v11"
-    />
-    <path
-      class="spinner-line"
-      stroke-width="6"
-      :style="{ animationDelay: '-.6s' }"
-      transform="rotate(-180 50 50)"
-      d="M50 22v11"
-    />
-    <path
-      class="spinner-line"
-      stroke-width="6"
-      :style="{ animationDelay: '-.7s' }"
-      transform="rotate(-210 50 50)"
-      d="M50 22v11"
-    />
-    <path
-      class="spinner-line"
-      stroke-width="6"
-      :style="{ animationDelay: '-.8s' }"
-      transform="rotate(-240 50 50)"
-      d="M50 22v11"
-    />
-    <path
-      class="spinner-line"
-      stroke-width="6"
-      :style="{ animationDelay: '-.9s' }"
-      transform="rotate(-270 50 50)"
-      d="M50 22v11"
-    />
-    <path
-      class="spinner-line"
-      stroke-width="6"
-      :style="{ animationDelay: '-1s' }"
-      transform="rotate(-300 50 50)"
-      d="M50 22v11"
-    />
-    <path
-      class="spinner-line"
-      stroke-width="6"
-      :style="{ animationDelay: '-1.1s' }"
-      transform="rotate(-330 50 50)"
-      d="M50 22v11"
-    />
+    <path fill="currentColor" d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z">
+      <animateTransform
+        attributeName="transform"
+        dur="0.75s"
+        repeatCount="indefinite"
+        type="rotate"
+        values="0 12 12;360 12 12"
+      />
+    </path>
   </svg>
 </template>
-
-<style scoped>
-@keyframes spinner-fade {
-  0% {
-    opacity: 1;
-  }
-  to {
-    opacity: 0.1;
-  }
-}
-
-.spinner-line {
-  animation: spinner-fade 1.2s linear infinite;
-  stroke: var(--spinner-stroke);
-  stroke-linecap: round;
-}
-</style>
