@@ -22,6 +22,7 @@ const emits = defineEmits<{
           variant="ghost"
           class="group w-full justify-start text-foreground"
           :class="isEditing ? 'bg-transparent!' : ''"
+          @click="navigateTo(`/playlist/${playlist.id}`)"
         >
           <EditableArea>
             <EditablePreview as-child>
