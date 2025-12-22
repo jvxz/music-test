@@ -1,68 +1,46 @@
 <script lang="ts" setup>
-const libraryButtons = [
-  {
-    icon: 'tabler:playlist',
-    name: 'Playlists',
-    slug: 'playlists',
-  },
-  {
-    icon: 'tabler:music',
-    name: 'Tracks',
-    slug: 'tracks',
-  },
-  {
-    icon: 'tabler:user',
-    name: 'Artists',
-    slug: 'artists',
-  },
-] as const
+const { createPlaylist, deletePlaylist, playlists, renamePlaylist } = useUserPlaylists()
+
+function handleRenameSubmit(playlistId: number, name: string | null | undefined) {
+  if (!name) {
+    return
+  }
+
+  renamePlaylist(playlistId, name)
+}
 </script>
 
 <template>
-  <div class="flex size-full flex-col gap-1">
-    <UContextMenu
-      v-for="button in libraryButtons"
-      :key="button.slug"
-    >
+  <div v-if="playlists" class="flex size-full flex-col gap-1">
+    <UContextMenu>
       <UContextMenuTrigger as-child>
         <CollapsibleRoot>
           <CollapsibleTrigger as-child>
             <UButton
               variant="ghost"
-              class="group w-full justify-start"
+              class="group w-full justify-start text-foreground"
             >
               <Icon name="tabler:chevron-right" class="size-4 group-data-[state=open]:rotate-90" />
-              <Icon
-                name="tabler:folder"
-                class="size-4"
-              />
-              <span>{{ button.name }}</span>
+              Playlists
             </UButton>
           </CollapsibleTrigger>
-          <CollapsibleContent class="overflow-hidden pl-4.5 data-[state=closed]:animate-slide-up data-[state=open]:animate-slide-down">
-            <div class="p-1">
-              <UButton
-                v-for="i in 3"
-                :key="i"
-                variant="ghost"
-                class="w-full justify-start"
-              >
-                <Icon :name="button.icon" class="size-4" />
-                {{ button.name }}
-              </UButton>
-            </div>
+          <CollapsibleContent class="ml-3.5 space-y-px overflow-hidden border-l pl-1.5">
+            <LayoutLibraryListFolderItem
+              v-for="playlist in playlists"
+              :key="playlist.id"
+              :playlist="playlist"
+              @submit-rename="handleRenameSubmit(playlist.id, $event)"
+              @delete-playlist="deletePlaylist(playlist.id)"
+            />
           </CollapsibleContent>
         </CollapsibleRoot>
       </UContextMenuTrigger>
       <UContextMenuContent>
-        <UContextMenuItem>
-          Delete
-        </UContextMenuItem>
-        <UContextMenuItem>
-          Rename
-        </UContextMenuItem>
-        <UContextMenuItem>
-          Duplicate
+        <UContextMenuLabel>
+          Playlists
+        </UContextMenuLabel>
+        <UContextMenuItem @click="createPlaylist({ name: 'New playlist' })">
+          New playlist
         </UContextMenuItem>
       </UContextMenuContent>
     </UContextMenu>

@@ -1,3 +1,5 @@
+use crate::files::read::{FileEntry, SortMethod};
+use crate::playback::{AudioHandle, StreamAction, StreamStatus};
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use serde::Serialize;
 use std::sync::Arc;
@@ -6,11 +8,9 @@ use tauri::{
   tray::TrayIconBuilder,
   AppHandle, LogicalPosition, Manager, Position, Runtime, WebviewUrl, WebviewWindowBuilder,
 };
+use tauri_plugin_sql::{Migration, MigrationKind};
 use tauri_plugin_store::StoreExt;
 use tokio::sync::{mpsc, oneshot};
-
-use crate::files::read::{FileEntry, SortMethod};
-use crate::playback::{AudioHandle, StreamAction, StreamStatus};
 
 mod files {
   pub mod read;
@@ -80,8 +80,28 @@ pub async fn run() {
   #[cfg(debug_assertions)] // only enable instrumentation in development builds
   let devtools = tauri_plugin_devtools::init();
 
-  let mut builder =
-    tauri::Builder::default().plugin(tauri_plugin_window_state::Builder::new().build());
+  let migrations: Vec<Migration> = vec![
+    Migration {
+        kind: MigrationKind::Up,
+        description: "create playlists table",
+        sql: "create table playlists (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);",
+        version: 1,
+      },
+      Migration {
+        kind: MigrationKind::Up,
+        description: "create playlist_tracks table",
+        sql: "create table playlist_tracks (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, path TEXT NOT NULL, added_at DATETIME DEFAULT CURRENT_TIMESTAMP, playlist_id INTEGER NOT NULL, FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE) ;",
+        version: 2,
+      }
+  ];
+
+  let mut builder = tauri::Builder::default()
+    .plugin(
+      tauri_plugin_sql::Builder::default()
+        .add_migrations("sqlite:swim.db", migrations)
+        .build(),
+    )
+    .plugin(tauri_plugin_window_state::Builder::new().build());
 
   #[cfg(debug_assertions)]
   {

@@ -52,6 +52,18 @@ export default defineNuxtConfig({
   imports: {
     presets: [
       {
+        from: '~~/types/db',
+        imports: [
+          { name: 'DB', type: true },
+        ],
+      },
+      {
+        from: 'kysely',
+        imports: [
+          { name: 'Selectable', type: true },
+        ],
+      },
+      {
         from: 'zod',
         imports: [
           'z',

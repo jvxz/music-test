@@ -28,13 +28,17 @@
   "build": {
     "beforeBuildCommand": "bun run generate",
     "frontendDist": "../dist",
-    "beforeDevCommand": "bun run nuxt:dev",
+    "beforeDevCommand": "bun run db:types && bun run nuxt:dev",
     "devUrl": "http://localhost:3000"
   },
   "productName": "swim",
   "version": "1.5.0",
   "identifier": "com.jvxz.swim",
-  "plugins": {},
+  "plugins": {
+    "sql": {
+      "preload": ["sqlite:swim.db"]
+    }
+  },
   "app": {
     "security": {
       "csp": null
