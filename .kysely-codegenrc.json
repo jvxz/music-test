@@ -1,0 +1,28 @@
+{
+  "camelCase": false,
+  "customImports": {},
+  "dateParser": "timestamp",
+  "defaultSchemas": [],
+  "dialect": "sqlite",
+  "domains": true,
+  "excludePattern": null,
+  "includePattern": null,
+  "numericParser": "string",
+  "outFile": "./types/db.d.ts",
+  "overrides": {
+    "columns": {
+      "playlists.id": "Generated<number>",
+      "playlists.created_at": "Generated<string>",
+      "playlist_tracks.id": "Generated<number>",
+      "playlist_tracks.added_at": "Generated<string>"
+    }
+  },
+  "partitions": false,
+  "print": false,
+  "runtimeEnums": false,
+  "singularize": false,
+  "typeMapping": {},
+  "typeOnlyImports": true,
+  "url": "env(DATABASE_URL)",
+  "verify": false
+}

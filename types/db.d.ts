@@ -24,7 +24,16 @@ export interface Playlists {
   name: string;
 }
 
+export interface PlaylistTracks {
+  added_at: Generated<string>;
+  id: Generated<number>;
+  name: string;
+  path: string;
+  playlist_id: number;
+}
+
 export interface DB {
   _sqlx_migrations: _SqlxMigrations;
+  playlist_tracks: PlaylistTracks;
   playlists: Playlists;
 }

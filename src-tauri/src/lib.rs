@@ -80,12 +80,20 @@ pub async fn run() {
   #[cfg(debug_assertions)] // only enable instrumentation in development builds
   let devtools = tauri_plugin_devtools::init();
 
-  let migrations: Vec<Migration> = vec![Migration {
+  let migrations: Vec<Migration> = vec![
+    Migration {
         kind: MigrationKind::Up,
-        description: "create tables",
+        description: "create playlists table",
         sql: "create table playlists (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);",
         version: 1,
-      }];
+      },
+      Migration {
+        kind: MigrationKind::Up,
+        description: "create playlist_tracks table",
+        sql: "create table playlist_tracks (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, path TEXT NOT NULL, added_at DATETIME DEFAULT CURRENT_TIMESTAMP, playlist_id INTEGER NOT NULL, FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE) ;",
+        version: 2,
+      }
+  ];
 
   let mut builder = tauri::Builder::default()
     .plugin(

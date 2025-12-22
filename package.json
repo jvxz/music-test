@@ -20,7 +20,7 @@
     "dev": "tauri dev",
     "tauri:build": "tauri build",
     "tauri:build:debug": "tauri build --debug",
-    "db:types": "kysely-codegen --out-file ./types/db.d.ts --dialect sqlite --overrides '{\"columns\": {\"playlists.id\": \"Generated<number>\", \"playlists.created_at\": \"Generated<string>\"}}'"
+    "db:types": "kysely-codegen"
   },
   "dependencies": {
     "@iconify-json/tabler": "^1.2.24",
