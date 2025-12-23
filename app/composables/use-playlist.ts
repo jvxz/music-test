@@ -134,3 +134,12 @@ export function usePlaylist(params: Params) {
     sortBy,
   }
 }
+
+export function refreshPlaylist(playlistId: number) {
+  const { payload } = useNuxtApp()
+
+  const payloadData = payload.data as Record<string, unknown>
+  const keysToClear = Object.keys(payloadData).filter(key => key.startsWith(`${playlistId}-`))
+
+  clearNuxtData(keysToClear)
+}

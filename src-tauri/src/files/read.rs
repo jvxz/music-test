@@ -81,7 +81,25 @@ pub async fn read_folder(
 }
 
 #[tauri::command]
-pub async fn get_track_data(path_string: impl AsRef<str>) -> Result<Option<FileEntry>, String> {
+pub async fn get_track_data(path_string: impl AsRef<str>) -> Option<FileEntry> {
+  return _get_track_data(path_string).unwrap_or(None);
+}
+
+#[tauri::command]
+pub async fn get_tracks_data(paths: Vec<String>) -> Vec<FileEntry> {
+  let tracks = paths.into_iter().map(_get_track_data);
+
+  let tracks = tracks
+    .filter_map(|result| match result {
+      Ok(Some(entry)) => Some(entry),
+      _ => None,
+    })
+    .collect::<Vec<FileEntry>>();
+
+  return tracks;
+}
+
+fn _get_track_data(path_string: impl AsRef<str>) -> Result<Option<FileEntry>, String> {
   if let Some(cached_track) = TRACK_CACHE.get(path_string.as_ref()) {
     let data = cached_track.value().clone();
     return Ok(Some(data));

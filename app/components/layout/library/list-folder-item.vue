@@ -1,12 +1,20 @@
 <script lang="ts" setup>
-defineProps<{
+const props = defineProps<{
   playlist: Selectable<DB['playlists']>
 }>()
 
 const emits = defineEmits<{
   submitRename: [name: string | null | undefined]
   deletePlaylist: []
+  addTracksToPlaylist: [itemPaths: string[]]
 }>()
+
+const { addToPlaylist } = useUserPlaylists()
+
+async function handleDrop(itemPaths: string[]) {
+  const tracks = await useTauri().rpc.get_tracks_data(itemPaths)
+  addToPlaylist(props.playlist.id, tracks)
+}
 </script>
 
 <template>
@@ -18,19 +26,21 @@ const emits = defineEmits<{
   >
     <UContextMenu>
       <UContextMenuTrigger as-child :disabled="isEditing">
-        <UButton
-          variant="ghost"
-          class="group w-full justify-start text-foreground"
-          :class="isEditing ? 'bg-transparent!' : ''"
-          @click="navigateTo(`/playlist/${playlist.id}`)"
-        >
-          <EditableArea>
-            <EditablePreview as-child>
-              <span>{{ playlist.name }}</span>
-            </EditablePreview>
-            <EditableInput class="-mx-1 bg-card p-1 outline-none" @keydown.enter="submit" />
-          </EditableArea>
-        </UButton>
+        <TauriDragoverProvider @drop="handleDrop">
+          <UButton
+            variant="ghost"
+            class="group w-full justify-start text-foreground data-drag-over:bg-muted"
+            :class="isEditing ? 'bg-transparent!' : ''"
+            @click="navigateTo(`/playlist/${playlist.id}`)"
+          >
+            <EditableArea>
+              <EditablePreview as-child>
+                <span>{{ playlist.name }}</span>
+              </EditablePreview>
+              <EditableInput class="-mx-1 bg-card p-1 outline-none" @keydown.enter="submit" />
+            </EditableArea>
+          </UButton>
+        </TauriDragoverProvider>
       </UContextMenuTrigger>
       <UContextMenuContent class="w-52">
         <UContextMenuLabel class="truncate">

@@ -27,7 +27,8 @@ trait Api {
     path: String,
     sort_method: Option<SortMethod>,
   ) -> Result<Arc<Vec<FileEntry>>, String>;
-  async fn get_track_data(path: String) -> Result<Option<FileEntry>, String>;
+  async fn get_track_data(path: String) -> Option<FileEntry>;
+  async fn get_tracks_data(paths: Vec<String>) -> Vec<FileEntry>;
   async fn control_playback<R: Runtime>(
     app_handle: AppHandle<R>,
     action: StreamAction,
@@ -50,8 +51,12 @@ impl Api for ApiImpl {
     return files::read::read_folder(path, sort_method).await;
   }
 
-  async fn get_track_data(self, path: String) -> Result<Option<FileEntry>, String> {
+  async fn get_track_data(self, path: String) -> Option<FileEntry> {
     return files::read::get_track_data(path).await;
+  }
+
+  async fn get_tracks_data(self, paths: Vec<String>) -> Vec<FileEntry> {
+    return files::read::get_tracks_data(paths).await;
   }
 
   async fn get_waveform<R: Runtime>(

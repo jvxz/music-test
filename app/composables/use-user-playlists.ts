@@ -1,5 +1,5 @@
 export function useUserPlaylists() {
-  const { data: playlists, refresh: refreshPlaylists } = useAsyncData<Selectable<DB['playlists']>[]>('playlists', () => $db().selectFrom('playlists').selectAll().execute(), {
+  const { data: playlists, refresh: refreshPlaylistList } = useAsyncData<Selectable<DB['playlists']>[]>('playlists', () => $db().selectFrom('playlists').selectAll().execute(), {
     default: () => [],
     immediate: true,
   })
@@ -9,7 +9,7 @@ export function useUserPlaylists() {
       name: opts.name,
     }).execute()
 
-    refreshPlaylists()
+    refreshPlaylistList()
   }
 
   function renamePlaylist(playlistId: number, name: string) {
@@ -17,13 +17,14 @@ export function useUserPlaylists() {
       name,
     }).where('id', '=', playlistId).execute()
 
-    refreshPlaylists()
+    refreshPlaylistList()
   }
 
   function deletePlaylist(playlistId: number) {
     $db().deleteFrom('playlists').where('id', '=', playlistId).execute()
 
-    refreshPlaylists()
+    refreshPlaylist(playlistId)
+    refreshPlaylistList()
   }
 
   async function getPlaylistTracks(playlistId: number) {
@@ -35,14 +36,14 @@ export function useUserPlaylists() {
     return fileEntries as FileEntry[]
   }
 
-  function addTrackToPlaylist(playlistId: number, track: FileEntry) {
-    $db().insertInto('playlist_tracks').values({
+  function addToPlaylist(playlistId: number, tracks: FileEntry[]) {
+    $db().insertInto('playlist_tracks').values(tracks.map(track => ({
       name: track.name,
       path: track.path,
       playlist_id: playlistId,
-    }).execute()
+    }))).execute()
 
-    refreshPlaylists()
+    refreshPlaylistList()
   }
 
   function getPlaylistName(playlistId: number) {
@@ -50,7 +51,7 @@ export function useUserPlaylists() {
   }
 
   return {
-    addTrackToPlaylist,
+    addToPlaylist,
     createPlaylist,
     deletePlaylist,
     getPlaylistName,
