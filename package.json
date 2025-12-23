@@ -23,6 +23,7 @@
     "db:types": "kysely-codegen"
   },
   "dependencies": {
+    "@crabnebula/tauri-plugin-drag": "^2.1.0",
     "@iconify-json/tabler": "^1.2.24",
     "@nuxt/fonts": "0.12.1",
     "@nuxt/icon": "2.1.1",

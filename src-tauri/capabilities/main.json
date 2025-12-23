@@ -53,6 +53,8 @@
     "core:webview:allow-create-webview-window",
     "fs:allow-exists",
     "sql:default",
-    "sql:allow-execute"
+    "sql:allow-execute",
+    "drag:allow-start-drag",
+    "drag:default"
   ]
 }

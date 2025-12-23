@@ -19,6 +19,7 @@ const classes = 'flex items-center'
     :class="{
       'bg-primary/25': isSelected,
     }"
+    v-bind="$attrs"
     @dblclick.left="emits('playTrack', entry.path)"
     @mousedown.left="emits('selectTrack', entry)"
   >

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { resolveResource } from '@tauri-apps/api/path'
+
 const props = defineProps<{
   type: 'folder' | 'playlist'
   path: string
@@ -21,11 +23,26 @@ function handleTrackSelection(track: FileEntry) {
 const shouldVirtualize = computed(() => folderEntries.value.length >= VIRTUALIZATION_THRESHOLD)
 
 const contextMenuEntry = shallowRef<FileEntry | null>(null)
+
+async function handleDragStart(track: FileEntry) {
+  const { value: colorMode } = useColorMode()
+  const icon = await resolveResource(`icons/${colorMode === 'light' ? 'file-dark.svg' : 'file-light.svg'}`)
+
+  await startDrag({
+    icon,
+    item: [track.path],
+  })
+}
 </script>
 
 <template>
   <div class="h-full flex-1 cursor-default select-none">
-    <LayoutPlaylistHeader :path :type :track-count="folderEntries.length" :is-loading="isLoadingPlaylistData" />
+    <LayoutPlaylistHeader
+      :path
+      :type
+      :track-count="folderEntries.length"
+      :is-loading="isLoadingPlaylistData"
+    />
     <LayoutPlaylistColumns
       :playlist-data="playlistData"
       @sort-update="(by, order) => sortBy({ key: by, order })"
@@ -56,9 +73,11 @@ const contextMenuEntry = shallowRef<FileEntry | null>(null)
               :entry="entry.data"
               :is-selected="selectedTrack?.path === entry.data.path"
               :is-playing="playbackStatus?.path === entry.data.path"
+              draggable="true"
               @play-track="playTrack(entry.data.path)"
               @select-track="handleTrackSelection(entry.data)"
               @click.right="contextMenuEntry = entry.data"
+              @dragstart.prevent="handleDragStart(entry.data)"
             />
           </div>
         </LayoutPlaylistRowContextMenu>
@@ -87,9 +106,11 @@ const contextMenuEntry = shallowRef<FileEntry | null>(null)
             :entry="entry"
             :is-selected="selectedTrack?.path === entry.path"
             :is-playing="playbackStatus?.path === entry.path"
+            draggable="true"
             @play-track="playTrack(entry.path)"
             @select-track="handleTrackSelection(entry)"
             @click.right="contextMenuEntry = entry"
+            @dragstart.prevent="handleDragStart(entry)"
           />
         </div>
       </LayoutPlaylistRowContextMenu>

@@ -58,6 +58,12 @@ export default defineNuxtConfig({
         ],
       },
       {
+        from: '@crabnebula/tauri-plugin-drag',
+        imports: [
+          'startDrag',
+        ],
+      },
+      {
         from: 'kysely',
         imports: [
           { name: 'Selectable', type: true },
@@ -91,9 +97,6 @@ export default defineNuxtConfig({
     },
   },
   ssr: false,
-  svgo: {
-    autoImportPath: '@/assets/',
-  },
   vite: {
     clearScreen: false,
     envPrefix: ['VITE_', 'TAURI_'],
