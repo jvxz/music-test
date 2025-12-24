@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="h-6 bg-card border-t text-xs flex items-center justify-between px-2 font-mono">
+  <div class="flex h-6 items-center justify-between border-t bg-card px-2 font-mono text-xs">
     <span>swim</span>
   </div>
 </template>

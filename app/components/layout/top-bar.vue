@@ -9,7 +9,7 @@ function handlePlayPause() {
 
 <template>
   <div class="flex h-32 items-center gap-24 border-b px-16 *:h-8 *:shrink-0">
-    <div class="flex flex-1 items-center  justify-between *:active:text-muted-foreground">
+    <div class="flex flex-1 items-center justify-between *:active:text-muted-foreground">
       <div class="flex items-center gap-1">
         <button>
           <Icon name="tabler:player-skip-back-filled" class="size-6!" />

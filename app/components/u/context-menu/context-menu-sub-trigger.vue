@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { ContextMenuSubTriggerProps } from 'reka-ui';
-import type { HTMLAttributes } from 'vue';
-import { useForwardProps } from 'reka-ui';
+import type { ContextMenuSubTriggerProps } from 'reka-ui'
+import type { HTMLAttributes } from 'vue'
+import { useForwardProps } from 'reka-ui'
 
 const props = defineProps<ContextMenuSubTriggerProps & { class?: HTMLAttributes['class'], inset?: boolean }>()
 

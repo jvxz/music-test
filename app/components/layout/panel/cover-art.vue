@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  const { currentTrack } = usePlayback()
+const { currentTrack } = usePlayback()
 </script>
 
 <template>

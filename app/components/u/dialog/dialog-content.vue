@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { DialogContentEmits, DialogContentProps } from 'reka-ui';
-import type { HTMLAttributes } from 'vue';
-import { useForwardPropsEmits } from 'reka-ui';
+import type { DialogContentEmits, DialogContentProps } from 'reka-ui'
+import type { HTMLAttributes } from 'vue'
+import { useForwardPropsEmits } from 'reka-ui'
 
 const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>()
 const emits = defineEmits<DialogContentEmits>()

@@ -16,7 +16,7 @@ const forwardedProps = useForwardProps(delegatedProps)
     :class="cn(
       interactiveStyles.base,
       interactiveStyles.variant.ghost,
-      'relative inline-flex flex-1 size-full cursor-default items-center justify-center border-0 bg-transparent text-sm text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-foreground',
+      'relative inline-flex size-full flex-1 cursor-default items-center justify-center border-0 bg-transparent text-sm text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-foreground',
       props.class,
     )"
   >

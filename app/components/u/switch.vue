@@ -18,7 +18,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
     :class="cn(
       staticStyles.base,
       staticStyles.variant.default,
-      'inline-flex h-5 w-9 items-center shadow-none rounded-full border-2 border-muted bg-muted p-0 transition-all duration-150 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:glow-primary',
+      'inline-flex h-5 w-9 items-center rounded-full border-2 border-muted bg-muted p-0 shadow-none transition-all duration-150 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:glow-primary',
       props.class,
     )"
   >

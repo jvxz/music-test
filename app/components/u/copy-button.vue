@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { Transition } from 'motion-v';
-import { motion } from 'motion-v';
+import type { Transition } from 'motion-v'
+import { motion } from 'motion-v'
 
 const props = defineProps<{
   value: MaybeRefOrGetter<string | undefined>

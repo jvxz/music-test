@@ -8,7 +8,7 @@ const props = defineProps<{
 <template>
   <kbd
     :class="cn(
-      'inline-flex font-sans size-fit gap-0.5 items-center justify-center rounded-sm bg-muted p-0 px-0.5 text-xs text-muted-foreground *:[text-box:_trim-both_cap_alphabetic]',
+      'inline-flex size-fit items-center justify-center gap-0.5 rounded-sm bg-muted p-0 px-0.5 font-sans text-xs text-muted-foreground *:[text-box:_trim-both_cap_alphabetic]',
       props.class,
     )"
   >
