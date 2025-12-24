@@ -1,19 +1,19 @@
 export type SortBy = keyof typeof ID3_MAP
 
-export interface PlaylistData {
+export interface TrackListData {
   path: string
   sortBy: SortBy
   sortOrder: SortOrder
 }
 
-const defaultData: PlaylistData = {
+const defaultData: TrackListData = {
   path: '',
   sortBy: 'TIT2',
   sortOrder: 'Asc',
 }
 
-export const VIRTUALIZATION_THRESHOLD = 500
-export const PLAYLIST_COLUMNS: {
+export const TRACK_LIST_VIRTUALIZATION_THRESHOLD = 500
+export const TRACK_LIST_COLUMNS: {
   id3?: Id3FrameId
   key: string
   label: string
@@ -70,11 +70,13 @@ export const PLAYLIST_COLUMNS: {
   },
 ] as const
 
-export const usePlaylistData = createSharedComposable(() => {
+export const useTrackListData = createSharedComposable(() => {
   const { $tauri } = useNuxtApp()
 
-  const data = refWithControl($tauri.prefs.get('playlist-directory') as PlaylistData ?? defaultData, {
-    onChanged: newData => $tauri.store.set('playlist-directory', newData),
+  const newData = $tauri.prefs.get('track-list-directory') as TrackListData | undefined
+
+  const data = refWithControl(newData ?? defaultData, {
+    onChanged: newData => $tauri.store.set('track-list-directory', newData),
   })
 
   return data
@@ -88,21 +90,21 @@ interface Params {
   path: string
 }
 
-export function usePlaylist(params: Params) {
+export function useTrackList(params: Params) {
   const { path, type } = params
 
   const nuxtApp = useNuxtApp()
   const { rpc } = useTauri()
-  const playlistData = usePlaylistData()
+  const trackListData = useTrackListData()
 
-  playlistData.value.path = path
+  trackListData.value.path = path
 
-  const key = computed(() => `${path}-${playlistData.value.sortBy}-${playlistData.value.sortOrder}`)
+  const key = computed(() => `${path}-${trackListData.value.sortBy}-${trackListData.value.sortOrder}`)
   const { data: folderEntries, execute: refreshReadFolder, pending: isLoadingPlaylistData } = useAsyncData<FileEntry[]>(key, async () => {
     if (type === 'folder') {
       return rpc.read_folder(path, {
-        key: playlistData.value.sortBy,
-        order: playlistData.value.sortOrder,
+        key: trackListData.value.sortBy,
+        order: trackListData.value.sortOrder,
       })
     }
     else {
@@ -118,8 +120,8 @@ export function usePlaylist(params: Params) {
     key: SortBy
     order: SortOrder
   }) {
-    playlistData.value = {
-      path: playlistData.value.path,
+    trackListData.value = {
+      path: trackListData.value.path,
       sortBy: opts.key,
       sortOrder: opts.order,
     }
@@ -130,12 +132,12 @@ export function usePlaylist(params: Params) {
   return {
     folderEntries,
     isLoadingPlaylistData,
-    playlistData,
+    playlistData: trackListData,
     sortBy,
   }
 }
 
-export function refreshPlaylist(playlistId: number) {
+export function refreshTrackListForPlaylist(playlistId: number) {
   const { payload } = useNuxtApp()
 
   const payloadData = payload.data as Record<string, unknown>

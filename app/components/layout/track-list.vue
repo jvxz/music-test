@@ -6,13 +6,13 @@ const props = defineProps<{
   path: string
 }>()
 
-const { folderEntries, isLoadingPlaylistData, playlistData, sortBy } = usePlaylist({
+const { folderEntries, isLoadingPlaylistData, playlistData, sortBy } = useTrackList({
   path: props.path,
   type: props.type,
 })
 const { selectedTrack } = useTrackSelection()
 const { playbackStatus, playTrack } = usePlayback()
-const { layoutPanels: playlistHeaderPercents } = usePlaylistColumns()
+const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
 
 function handleTrackSelection(track: FileEntry) {
   if (selectedTrack.value?.path !== track.path) {
@@ -20,7 +20,7 @@ function handleTrackSelection(track: FileEntry) {
   }
 }
 
-const shouldVirtualize = computed(() => folderEntries.value.length >= VIRTUALIZATION_THRESHOLD)
+const shouldVirtualize = computed(() => folderEntries.value.length >= TRACK_LIST_VIRTUALIZATION_THRESHOLD)
 
 const contextMenuEntry = shallowRef<FileEntry | null>(null)
 
@@ -37,23 +37,23 @@ async function handleDragStart(track: FileEntry) {
 
 <template>
   <div class="h-full flex-1 cursor-default select-none">
-    <LayoutPlaylistHeader
+    <LayoutTrackListHeader
       :path
       :type
       :track-count="folderEntries.length"
       :is-loading="isLoadingPlaylistData"
     />
-    <LayoutPlaylistColumns
-      :playlist-data="playlistData"
+    <LayoutTrackListColumns
+      :track-list-data="playlistData"
       @sort-update="(by, order) => sortBy({ key: by, order })"
     />
-    <LayoutPlaylistVirtualProvider
+    <LayoutTrackListVirtualProvider
       v-if="shouldVirtualize"
       v-slot="{ containerProps, list, wrapperProps }"
       :entries="folderEntries"
     >
       <div class="h-full flex-1 cursor-default select-none" v-bind="containerProps">
-        <LayoutPlaylistRowContextMenu :entry="contextMenuEntry">
+        <LayoutTrackListRowContextMenu :entry="contextMenuEntry">
           <div
             class="grid h-full"
             v-bind="wrapperProps"
@@ -62,7 +62,7 @@ async function handleDragStart(track: FileEntry) {
               gridAutoRows: '38px',
             }"
           >
-            <LayoutPlaylistRow
+            <LayoutTrackListRow
               v-for="entry in list"
               :key="entry.data.path"
               v-memo="[
@@ -80,14 +80,14 @@ async function handleDragStart(track: FileEntry) {
               @dragstart.prevent="handleDragStart(entry.data)"
             />
           </div>
-        </LayoutPlaylistRowContextMenu>
+        </LayoutTrackListRowContextMenu>
       </div>
-    </LayoutPlaylistVirtualProvider>
+    </LayoutTrackListVirtualProvider>
     <div
       v-else
       class="h-full flex-1 overflow-y-auto"
     >
-      <LayoutPlaylistRowContextMenu :entry="contextMenuEntry">
+      <LayoutTrackListRowContextMenu :entry="contextMenuEntry">
         <div
           class="grid"
           :style="{
@@ -95,7 +95,7 @@ async function handleDragStart(track: FileEntry) {
             gridAutoRows: '38px',
           }"
         >
-          <LayoutPlaylistRow
+          <LayoutTrackListRow
             v-for="entry in folderEntries"
             :key="entry.path"
             v-memo="[
@@ -113,7 +113,7 @@ async function handleDragStart(track: FileEntry) {
             @dragstart.prevent="handleDragStart(entry)"
           />
         </div>
-      </LayoutPlaylistRowContextMenu>
+      </LayoutTrackListRowContextMenu>
     </div>
   </div>
 </template>

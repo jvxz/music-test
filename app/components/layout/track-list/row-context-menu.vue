@@ -3,7 +3,7 @@ defineProps<{
   entry: FileEntry | null
 }>()
 
-const { addTrackToPlaylist, playlists } = useUserPlaylists()
+const { addToPlaylist, playlists } = useUserPlaylists()
 </script>
 
 <template>
@@ -23,7 +23,7 @@ const { addTrackToPlaylist, playlists } = useUserPlaylists()
           <UContextMenuItem
             v-for="playlist in playlists"
             :key="playlist.id"
-            @click="addTrackToPlaylist(playlist.id, entry)"
+            @click="addToPlaylist(playlist.id, [entry])"
           >
             {{ playlist.name }}
           </UContextMenuItem>

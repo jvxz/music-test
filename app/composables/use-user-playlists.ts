@@ -23,7 +23,7 @@ export function useUserPlaylists() {
   function deletePlaylist(playlistId: number) {
     $db().deleteFrom('playlists').where('id', '=', playlistId).execute()
 
-    refreshPlaylist(playlistId)
+    refreshTrackListForPlaylist(playlistId)
     refreshPlaylistList()
   }
 

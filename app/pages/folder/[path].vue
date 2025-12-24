@@ -4,7 +4,7 @@ const path: string = 'path' in route.params ? decodeURIComponent(route.params.pa
 </script>
 
 <template>
-  <LayoutPlaylist
+  <LayoutTrackList
     type="folder"
     :path="path"
   />

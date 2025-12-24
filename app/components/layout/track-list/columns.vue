@@ -1,24 +1,24 @@
 <script lang="ts" setup>
 const props = defineProps<{
-  playlistData: PlaylistData
+  trackListData: TrackListData
 }>()
 
 const emit = defineEmits<{
   sortUpdate: [key: SortBy, order: SortOrder]
 }>()
 
-const { layoutPanels: playlistColumnPercents } = usePlaylistColumns()
+const { layoutPanels: playlistColumnPercents } = useTrackListColumns()
 
-const columnMinSizeMap: Record<typeof PLAYLIST_COLUMNS[number]['key'], number> = {
+const columnMinSizeMap: Record<typeof TRACK_LIST_COLUMNS[number]['key'], number> = {
   cover: 3,
   playing: 1.5,
 }
 
-function handleColumnClick(col: typeof PLAYLIST_COLUMNS[number]) {
+function handleColumnClick(col: typeof TRACK_LIST_COLUMNS[number]) {
   if (!col.canSort || !col.id3)
     return
 
-  const sortOrder = col.id3 === props.playlistData.sortBy ? props.playlistData.sortOrder === 'Asc' ? 'Desc' : 'Asc' : 'Asc'
+  const sortOrder = col.id3 === props.trackListData.sortBy ? props.trackListData.sortOrder === 'Asc' ? 'Desc' : 'Asc' : 'Asc'
 
   emit('sortUpdate', col.id3, sortOrder)
 }
@@ -27,14 +27,14 @@ function handleColumnClick(col: typeof PLAYLIST_COLUMNS[number]) {
 <template>
   <SplitterGroup
     direction="horizontal"
-    class=" z-20 h-8! bg-background group"
+    class="group z-20 h-8! bg-background"
     @layout="playlistColumnPercents = $event"
   >
     <template
-      v-for="(col, index) in PLAYLIST_COLUMNS"
+      v-for="(col, index) in TRACK_LIST_COLUMNS"
       :key="col.key"
     >
-      <SplitterResizeHandle v-if="index !== 0" class="h-8 w-px bg-muted group-hover:visible invisible" />
+      <SplitterResizeHandle v-if="index !== 0" class="invisible h-8 w-px bg-muted group-hover:visible" />
       <SplitterPanel
         :default-size="playlistColumnPercents[index]"
         :min-size="columnMinSizeMap[col.key] ?? 4"
@@ -46,7 +46,7 @@ function handleColumnClick(col: typeof PLAYLIST_COLUMNS[number]) {
         </p>
         <Icon
           v-if="col.canSort"
-          :name="playlistData.sortBy === col.id3 ? (playlistData.sortOrder === 'Asc' ? 'tabler:sort-ascending' : 'tabler:sort-descending') : ''"
+          :name="trackListData.sortBy === col.id3 ? (trackListData.sortOrder === 'Asc' ? 'tabler:sort-ascending' : 'tabler:sort-descending') : ''"
           class="size-3!"
         />
       </SplitterPanel>

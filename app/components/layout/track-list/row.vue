@@ -24,7 +24,7 @@ const classes = 'flex items-center'
     @mousedown.left="emits('selectTrack', entry)"
   >
     <template
-      v-for="col in PLAYLIST_COLUMNS"
+      v-for="col in TRACK_LIST_COLUMNS"
       :key="col.key"
     >
       <!-- cover column -->

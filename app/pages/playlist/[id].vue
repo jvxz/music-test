@@ -25,7 +25,7 @@ const { data: playlistFileEntries } = useAsyncData(computed(() => `playlist-trac
 
 <template>
   <div v-if="playlistFileEntries">
-    <LayoutPlaylist
+    <LayoutTrackList
       type="playlist"
       :path="id.toString()"
     />
