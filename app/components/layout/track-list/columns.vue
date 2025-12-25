@@ -1,13 +1,10 @@
 <script lang="ts" setup>
-const props = defineProps<{
-  trackListData: TrackListData
-}>()
-
 const emit = defineEmits<{
   sortUpdate: [key: SortBy, order: SortOrder]
 }>()
 
 const { layoutPanels: playlistColumnPercents } = useTrackListColumns()
+const trackListInput = useTrackListInput()
 
 const columnMinSizeMap: Record<typeof TRACK_LIST_COLUMNS[number]['key'], number> = {
   cover: 3,
@@ -18,7 +15,7 @@ function handleColumnClick(col: typeof TRACK_LIST_COLUMNS[number]) {
   if (!col.canSort || !col.id3)
     return
 
-  const sortOrder = col.id3 === props.trackListData.sortBy ? props.trackListData.sortOrder === 'Asc' ? 'Desc' : 'Asc' : 'Asc'
+  const sortOrder = col.id3 === trackListInput.value.sortBy ? trackListInput.value.sortOrder === 'Asc' ? 'Desc' : 'Asc' : 'Asc'
 
   emit('sortUpdate', col.id3, sortOrder)
 }
@@ -46,7 +43,7 @@ function handleColumnClick(col: typeof TRACK_LIST_COLUMNS[number]) {
         </p>
         <Icon
           v-if="col.canSort"
-          :name="trackListData.sortBy === col.id3 ? (trackListData.sortOrder === 'Asc' ? 'tabler:sort-ascending' : 'tabler:sort-descending') : ''"
+          :name="trackListInput.sortBy === col.id3 ? (trackListInput.sortOrder === 'Asc' ? 'tabler:sort-ascending' : 'tabler:sort-descending') : ''"
           class="size-3!"
         />
       </SplitterPanel>

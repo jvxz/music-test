@@ -4,12 +4,13 @@ export function useUserPlaylists() {
     immediate: true,
   })
 
-  function createPlaylist(opts: { name: string }) {
-    $db().insertInto('playlists').values({
+  async function createPlaylist(opts: { name: string }) {
+    const playlist = await $db().insertInto('playlists').values({
       name: opts.name,
-    }).execute()
+    }).returningAll().executeTakeFirstOrThrow()
 
     refreshPlaylistList()
+    refreshTrackListForPlaylist(playlist.id)
   }
 
   function renamePlaylist(playlistId: number, name: string) {
@@ -18,6 +19,7 @@ export function useUserPlaylists() {
     }).where('id', '=', playlistId).execute()
 
     refreshPlaylistList()
+    refreshTrackListForPlaylist(playlistId)
   }
 
   function deletePlaylist(playlistId: number) {
@@ -44,6 +46,7 @@ export function useUserPlaylists() {
     }))).execute()
 
     refreshPlaylistList()
+    refreshTrackListForPlaylist(playlistId)
   }
 
   function getPlaylistName(playlistId: number) {
