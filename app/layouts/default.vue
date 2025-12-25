@@ -35,7 +35,7 @@ onBeforeMount(async () => {
         <LayoutSidebarLeft />
       </SplitterPanel>
       <SplitterResizeHandle />
-      <SplitterPanel class="flex-1">
+      <SplitterPanel class="h-full flex-1 flex flex-col">
         <slot />
         <LayoutWaveform />
       </SplitterPanel>

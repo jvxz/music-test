@@ -6,7 +6,7 @@ const trackListInput = useTrackListInput()
 </script>
 
 <template>
-  <div v-if="id">
+  <div v-if="id" class="flex-1">
     <LayoutTrackList
       v-bind="trackListInput"
       type="playlist"

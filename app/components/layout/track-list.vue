@@ -34,7 +34,7 @@ async function handleDragStart(track: FileEntry) {
 </script>
 
 <template>
-  <div class="h-full flex-1 cursor-default select-none">
+  <div class="h-full flex-1 cursor-default select-none flex flex-col">
     <LayoutTrackListHeader
       :path
       :type

@@ -14,7 +14,7 @@ const defaultData: TrackListInput = {
   type: 'folder',
 }
 
-export const TRACK_LIST_VIRTUALIZATION_THRESHOLD = 500
+export const TRACK_LIST_VIRTUALIZATION_THRESHOLD = 750
 export const TRACK_LIST_COLUMNS: {
   id3?: Id3FrameId
   key: string
