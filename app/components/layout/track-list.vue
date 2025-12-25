@@ -1,18 +1,16 @@
 <script lang="ts" setup>
+import type { TrackListInput } from '@/composables/use-track-list'
 import { resolveResource } from '@tauri-apps/api/path'
 
-const props = defineProps<{
-  type: 'folder' | 'playlist'
-  path: string
-}>()
+const props = defineProps<TrackListInput>()
 
-const { folderEntries, isLoadingPlaylistData, playlistData, sortBy } = useTrackList({
-  path: props.path,
-  type: props.type,
-})
+const trackListInput = useTrackListInput()
+const { getTrackList } = useTrackList()
 const { selectedTrack } = useTrackSelection()
 const { playbackStatus, playTrack } = usePlayback()
 const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
+
+const { data: folderEntries, pending: isLoadingPlaylistData } = getTrackList(toRef(props))
 
 function handleTrackSelection(track: FileEntry) {
   if (selectedTrack.value?.path !== track.path) {
@@ -44,8 +42,11 @@ async function handleDragStart(track: FileEntry) {
       :is-loading="isLoadingPlaylistData"
     />
     <LayoutTrackListColumns
-      :track-list-data="playlistData"
-      @sort-update="(by, order) => sortBy({ key: by, order })"
+      v-bind="props"
+      @sort-update="(by, order) => {
+        trackListInput.sortBy = by
+        trackListInput.sortOrder = order
+      }"
     />
     <LayoutTrackListVirtualProvider
       v-if="shouldVirtualize"
