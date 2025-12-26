@@ -40,15 +40,17 @@ function handlePointer(type: 'up' | 'down') {
     <SliderRoot
       v-model:model-value="localPosition"
       :max="playbackStatus?.duration ?? 0"
-      class="relative flex max-h-2 w-full grow bg-muted"
+      class="relative flex h-4 w-full grow"
       :step="0.01"
     >
       <SliderTrack
-        class="relative h-2 grow overflow-hidden"
+        class="h-2 grow bg-muted w-full absolute top-1/2 -translate-y-1/2"
         @pointerdown="handlePointer('down')"
         @pointerup="handlePointer('up')"
       >
-        <SliderRange class="absolute h-2 bg-primary/25" />
+        <SliderRange
+          class="absolute top-1/2 h-2 -translate-y-1/2 bg-primary/25"
+        />
       </SliderTrack>
       <SliderThumb
         class="absolute top-1/2 h-2 w-4 -translate-y-1/2 bg-primary outline-none focus-visible:ring-0"
