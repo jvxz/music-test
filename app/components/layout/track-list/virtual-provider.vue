@@ -4,7 +4,7 @@ const props = defineProps<{
 }>()
 
 const { containerProps, list, wrapperProps } = useVirtualList(computed(() => props.entries), {
-  itemHeight: 38,
+  itemHeight: TRACK_LIST_ITEM_HEIGHT,
   overscan: 8,
 })
 </script>

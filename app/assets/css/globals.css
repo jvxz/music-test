@@ -5,6 +5,14 @@
 
 @theme inline {
   --duration: 0.125s;
+  --text-multiplier: 1.175;
+  --text-xl: calc(var(--text-lg) * var(--text-multiplier));
+  --text-lg: calc(var(--text-base) * var(--text-multiplier));
+  --text-base: 1rem;
+  --text-sm: calc(var(--text-base) / var(--text-multiplier));
+  --text-xs: calc(var(--text-sm) / var(--text-multiplier));
+
+  --spacing: calc(var(--text-base) / 4);
 
   --font-sans: system-ui, -apple-system, 'Inter', sans-serif;
   --font-mono: 'Paper Mono', monospace;
@@ -58,7 +66,6 @@
 }
 
 :root {
-  --spacing: 0.265rem;
   --overlay: hsl(0 0% 0% / 0.4);
   --radius: 0.25rem;
 
@@ -85,7 +92,7 @@
 }
 
 .dark {
-  --background: hsl(from var(--primary) h calc(s * 0) calc(l * 0.1));
+  --background: hsl(from var(--primary) h calc(s * 0) calc(l * 0.07));
   --foreground: hsl(from var(--primary) h calc(s * 0) calc(l * 1.7));
   --border: hsl(from var(--background) h calc(s * 0.5) calc(l * 2.5));
   --card: hsl(from var(--background) h s calc(l * 1.25));

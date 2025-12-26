@@ -41,8 +41,8 @@ const classes = 'flex items-center'
           v-else
           :src="entry.thumbnail_uri"
           :alt="entry.name"
-          width="38"
-          height="38"
+          :width="TRACK_LIST_ITEM_HEIGHT"
+          :height="TRACK_LIST_ITEM_HEIGHT"
           class="mx-auto h-full"
         />
       </template>

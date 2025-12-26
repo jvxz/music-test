@@ -53,7 +53,7 @@ async function handleDragStart(track: FileEntry) {
             v-bind="wrapperProps"
             :style="{
               gridTemplateColumns: playlistHeaderPercents.map((p) => `${p}%`).join(' '),
-              gridAutoRows: '38px',
+              gridAutoRows: `${TRACK_LIST_ITEM_HEIGHT}px`,
             }"
           >
             <LayoutTrackListRow
@@ -86,7 +86,7 @@ async function handleDragStart(track: FileEntry) {
           class="grid"
           :style="{
             gridTemplateColumns: playlistHeaderPercents.map((p) => `${p}%`).join(' '),
-            gridAutoRows: '38px',
+            gridAutoRows: `${TRACK_LIST_ITEM_HEIGHT}px`,
           }"
         >
           <LayoutTrackListRow

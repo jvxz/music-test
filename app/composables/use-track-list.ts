@@ -1,5 +1,7 @@
 export type SortBy = keyof typeof ID3_MAP
 
+export const TRACK_LIST_ITEM_HEIGHT = 34
+
 export interface TrackListInput {
   path: string
   sortBy: SortBy
