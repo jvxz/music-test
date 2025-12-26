@@ -42,11 +42,11 @@ function handlePointer(type: 'up' | 'down') {
       :max="playbackStatus?.duration ?? 0"
       class="relative flex h-4 w-full grow"
       :step="0.01"
+      @pointerdown="handlePointer('down')"
+      @pointerup="handlePointer('up')"
     >
       <SliderTrack
-        class="h-2 grow bg-muted w-full absolute top-1/2 -translate-y-1/2"
-        @pointerdown="handlePointer('down')"
-        @pointerup="handlePointer('up')"
+        class="absolute top-1/2 h-2 w-full grow -translate-y-1/2 bg-muted"
       >
         <SliderRange
           class="absolute top-1/2 h-2 -translate-y-1/2 bg-primary/25"
