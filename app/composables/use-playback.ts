@@ -1,7 +1,3 @@
-// higher = more accurate, more resource intensive
-// ~150 should be max
-const TIMESTAMP_INTERVAL = 50
-
 export const usePlayback = createSharedComposable(() => {
   const { prefs, rpc, store } = useTauri()
 
@@ -13,20 +9,25 @@ export const usePlayback = createSharedComposable(() => {
   const playbackStatus = readonly(_playbackStatus)
   const currentTrack = readonly(_currentTrack)
 
-  const { pause: pauseDurationTimer, resume: resumeDurationTimer } = useTimestamp({
-    callback: () => {
-      if (!_playbackStatus.value || !_playbackStatus.value.is_playing)
-        return
+  let lastTimestamp = performance.now()
+  const { pause: pauseDurationTimer, resume: resumeDurationTimer } = useRafFn(() => {
+    if (!_playbackStatus.value || !_playbackStatus.value.is_playing)
+      return
 
-      _playbackStatus.value.position = Math.max(0, _playbackStatus.value?.position + (TIMESTAMP_INTERVAL / 1000))
-    },
-    controls: true,
-    immediate: true,
-    interval: TIMESTAMP_INTERVAL,
+    const currentTimestamp = performance.now()
+    const deltaTime = currentTimestamp - lastTimestamp
+    lastTimestamp = currentTimestamp
+
+    _playbackStatus.value.position = Math.max(0, _playbackStatus.value?.position + (deltaTime / 1000))
   })
 
-  // resume/pause timestamp tracking when playback status changes to save resources
-  watch(() => _playbackStatus.value?.is_playing, isPlaying => isPlaying ? resumeDurationTimer() : pauseDurationTimer())
+  watch(() => _playbackStatus.value?.is_playing, (isPlaying) => {
+    if (isPlaying) {
+      lastTimestamp = performance.now()
+      resumeDurationTimer()
+    }
+    else { pauseDurationTimer() }
+  })
 
   watch(() => _playbackStatus.value?.position, () => {
     if (_playbackStatus.value?.position && _playbackStatus.value?.position >= _playbackStatus.value?.duration) {
