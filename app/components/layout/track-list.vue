@@ -4,7 +4,6 @@ import { resolveResource } from '@tauri-apps/api/path'
 
 const props = defineProps<TrackListInput>()
 
-const trackListInput = useTrackListInput()
 const { getTrackList } = useTrackList()
 const { selectedTrack } = useTrackSelection()
 const { playbackStatus, playTrack } = usePlayback()
@@ -34,20 +33,14 @@ async function handleDragStart(track: FileEntry) {
 </script>
 
 <template>
-  <div class="h-full flex-1 cursor-default select-none flex flex-col">
+  <div class="flex h-full flex-1 cursor-default flex-col select-none">
     <LayoutTrackListHeader
       :path
       :type
       :track-count="folderEntries.length"
       :is-loading="isLoadingPlaylistData"
     />
-    <LayoutTrackListColumns
-      v-bind="props"
-      @sort-update="(by, order) => {
-        trackListInput.sortBy = by
-        trackListInput.sortOrder = order
-      }"
-    />
+    <LayoutTrackListColumns v-bind="props" />
     <LayoutTrackListVirtualProvider
       v-if="shouldVirtualize"
       v-slot="{ containerProps, list, wrapperProps }"

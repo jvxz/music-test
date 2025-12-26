@@ -38,16 +38,9 @@ pub struct SortMethod {
 }
 
 #[tauri::command]
-pub async fn read_folder(
-  path: String,
-  sort_method: Option<SortMethod>,
-) -> Result<Arc<Vec<FileEntry>>, String> {
+pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String> {
   if let Some(cached_dir) = FOLDER_CACHE.get(&path) {
     let data = cached_dir.value();
-
-    if let Some(sort_method) = sort_method {
-      return Ok(to_sorted(data.clone(), sort_method));
-    }
 
     return Ok(data.clone());
   };
@@ -61,21 +54,17 @@ pub async fn read_folder(
     .map(|dir_entry| file_entry_from_path(dir_entry.path()))
     .collect::<Vec<FileEntry>>();
 
-  if let Some(sort_method) = sort_method.clone() {
-    file_entries.sort_by(|a, b| {
-      let a_value = a.tags.get(&sort_method.key).unwrap_or(&a.name);
-      let b_value = b.tags.get(&sort_method.key).unwrap_or(&b.name);
-      a_value.cmp(b_value)
-    });
-  }
+  // if let Some(sort_method) = sort_method.clone() {
+  //   file_entries.sort_by(|a, b| {
+  //     let a_value = a.tags.get(&sort_method.key).unwrap_or(&a.name);
+  //     let b_value = b.tags.get(&sort_method.key).unwrap_or(&b.name);
+  //     a_value.cmp(b_value)
+  //   });
+  // }
 
   let data = Arc::new(file_entries);
 
   FOLDER_CACHE.insert(path, data.clone());
-
-  if let Some(sort_method) = sort_method {
-    return Ok(to_sorted(data.clone(), sort_method));
-  }
 
   return Ok(data);
 }
@@ -177,30 +166,30 @@ fn build_cover_uri(path: impl AsRef<str>, mode: impl AsRef<str>) -> String {
   return format!("cover-{}://localhost/{}", mode.as_ref(), path.as_ref());
 }
 
-fn to_sorted(file_entries: Arc<Vec<FileEntry>>, sort_method: SortMethod) -> Arc<Vec<FileEntry>> {
-  let mut file_entries = file_entries.to_vec();
-  file_entries.sort_by(|a, b| {
-    let mut a_value = a.tags.get(&sort_method.key);
-    if sort_method.key == "TIT2" {
-      a_value = Some(a_value.unwrap_or(&a.name));
-    }
+// fn to_sorted(file_entries: Arc<Vec<FileEntry>>, sort_method: SortMethod) -> Arc<Vec<FileEntry>> {
+//   let mut file_entries = file_entries.to_vec();
+//   file_entries.sort_by(|a, b| {
+//     let mut a_value = a.tags.get(&sort_method.key);
+//     if sort_method.key == "TIT2" {
+//       a_value = Some(a_value.unwrap_or(&a.name));
+//     }
 
-    let mut b_value = b.tags.get(&sort_method.key);
-    if sort_method.key == "TIT2" {
-      b_value = Some(b_value.unwrap_or(&b.name));
-    }
+//     let mut b_value = b.tags.get(&sort_method.key);
+//     if sort_method.key == "TIT2" {
+//       b_value = Some(b_value.unwrap_or(&b.name));
+//     }
 
-    let res = match (a_value, b_value) {
-      (Some(a_value), Some(b_value)) => a_value.to_lowercase().cmp(&b_value.to_lowercase()),
-      (None, None) => std::cmp::Ordering::Equal,
-      (None, Some(_)) => std::cmp::Ordering::Greater,
-      (Some(_), None) => std::cmp::Ordering::Less,
-    };
+//     let res = match (a_value, b_value) {
+//       (Some(a_value), Some(b_value)) => a_value.to_lowercase().cmp(&b_value.to_lowercase()),
+//       (None, None) => std::cmp::Ordering::Equal,
+//       (None, Some(_)) => std::cmp::Ordering::Greater,
+//       (Some(_), None) => std::cmp::Ordering::Less,
+//     };
 
-    return match sort_method.order {
-      SortOrder::Asc => res,
-      SortOrder::Desc => res.reverse(),
-    };
-  });
-  return Arc::new(file_entries);
-}
+//     return match sort_method.order {
+//       SortOrder::Asc => res,
+//       SortOrder::Desc => res.reverse(),
+//     };
+//   });
+//   return Arc::new(file_entries);
+// }

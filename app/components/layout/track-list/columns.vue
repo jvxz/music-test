@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-const emit = defineEmits<{
-  sortUpdate: [key: SortBy, order: SortOrder]
-}>()
-
 const { layoutPanels: playlistColumnPercents } = useTrackListColumns()
 const trackListInput = useTrackListInput()
 
@@ -17,7 +13,11 @@ function handleColumnClick(col: typeof TRACK_LIST_COLUMNS[number]) {
 
   const sortOrder = col.id3 === trackListInput.value.sortBy ? trackListInput.value.sortOrder === 'Asc' ? 'Desc' : 'Asc' : 'Asc'
 
-  emit('sortUpdate', col.id3, sortOrder)
+  trackListInput.set({
+    ...trackListInput.value,
+    sortBy: col.id3,
+    sortOrder,
+  })
 }
 </script>
 

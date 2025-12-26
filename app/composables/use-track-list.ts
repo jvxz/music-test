@@ -3,7 +3,7 @@ export type SortBy = keyof typeof ID3_MAP
 export interface TrackListInput {
   path: string
   sortBy: SortBy
-  sortOrder: SortOrder
+  sortOrder: 'Asc' | 'Desc'
   type: 'folder' | 'playlist'
 }
 
@@ -14,7 +14,7 @@ const defaultData: TrackListInput = {
   type: 'folder',
 }
 
-export const TRACK_LIST_VIRTUALIZATION_THRESHOLD = 750
+export const TRACK_LIST_VIRTUALIZATION_THRESHOLD = 400
 export const TRACK_LIST_COLUMNS: {
   id3?: Id3FrameId
   key: string
@@ -84,25 +84,29 @@ export const useTrackListInput = createSharedComposable(() => {
   return data
 })
 
+const useTrackListCache = () => useState<Map<string, FileEntry[]>>('track-list-cache', () => new Map())
+
 export function useTrackList() {
-  const nuxtApp = useNuxtApp()
   const { rpc } = useTauri()
   const trackListInput = useTrackListInput()
+  const trackListCache = useTrackListCache()
 
   function getTrackList(input: Ref<TrackListInput>) {
     const asyncData = useAsyncData<FileEntry[]>(computed(() => createTrackListInputKey(input.value)), async () => {
-      if (input.value.type === 'folder') {
-        return rpc.read_folder(input.value.path, {
-          key: trackListInput.value.sortBy,
-          order: trackListInput.value.sortOrder,
-        })
+      const cachedData = trackListCache.value.get(createTrackListInputKey(input.value))
+      if (cachedData) {
+        return cachedData
       }
-      else {
-        return useUserPlaylists().getPlaylistTracks(Number(input.value.path))
-      }
+
+      const data = input.value.type === 'folder'
+        ? await rpc.read_folder(input.value.path)
+        : await useUserPlaylists().getPlaylistTracks(Number(input.value.path))
+
+      const sortedData = sortTrackList(data, input.value.sortBy, input.value.sortOrder)
+      trackListCache.value.set(createTrackListInputKey(input.value), sortedData)
+      return sortedData
     }, {
       default: () => [],
-      getCachedData: key => nuxtApp.payload.data?.[key] || nuxtApp.static?.data?.[key] || undefined,
       immediate: true,
       watch: [input],
     })
@@ -116,10 +120,10 @@ export function useTrackList() {
   }
 }
 
-export function createTrackListInputKey(input: { type: 'folder' | 'playlist', path: string }) {
-  return `${input.type}-${input.path}`
+export function createTrackListInputKey(input: { type: 'folder' | 'playlist', path: string, sortBy: SortBy, sortOrder: 'Asc' | 'Desc' }) {
+  return `${input.type}-${input.path}-${input.sortBy}-${input.sortOrder}`
 }
 
-export function refreshTrackListForPlaylist(playlistId: number) {
-  clearNuxtData(createTrackListInputKey({ path: playlistId.toString(), type: 'playlist' }))
+export function refreshTrackListForPlaylist(trackListInput: TrackListInput) {
+  clearNuxtData(createTrackListInputKey(trackListInput))
 }

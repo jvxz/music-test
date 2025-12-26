@@ -23,10 +23,7 @@ mod waveform;
 
 #[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
 trait Api {
-  async fn read_folder(
-    path: String,
-    sort_method: Option<SortMethod>,
-  ) -> Result<Arc<Vec<FileEntry>>, String>;
+  async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String>;
   async fn get_track_data(path: String) -> Option<FileEntry>;
   async fn get_tracks_data(paths: Vec<String>) -> Vec<FileEntry>;
   async fn control_playback<R: Runtime>(
@@ -43,12 +40,8 @@ trait Api {
 
 #[taurpc::resolvers]
 impl Api for ApiImpl {
-  async fn read_folder(
-    self,
-    path: String,
-    sort_method: Option<SortMethod>,
-  ) -> Result<Arc<Vec<FileEntry>>, String> {
-    return files::read::read_folder(path, sort_method).await;
+  async fn read_folder(self, path: String) -> Result<Arc<Vec<FileEntry>>, String> {
+    return files::read::read_folder(path).await;
   }
 
   async fn get_track_data(self, path: String) -> Option<FileEntry> {
