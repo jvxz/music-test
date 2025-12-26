@@ -12,7 +12,7 @@
   --text-sm: calc(var(--text-base) / var(--text-multiplier));
   --text-xs: calc(var(--text-sm) / var(--text-multiplier));
 
-  --spacing: calc(var(--text-base) / 4);
+  --spacing: calc(var(--text-base) / 4.1);
 
   --font-sans: system-ui, -apple-system, 'Inter', sans-serif;
   --font-mono: 'Paper Mono', monospace;
@@ -94,8 +94,8 @@
 .dark {
   --background: hsl(from var(--primary) h calc(s * 0) calc(l * 0.07));
   --foreground: hsl(from var(--primary) h calc(s * 0) calc(l * 1.7));
-  --border: hsl(from var(--background) h calc(s * 0.5) calc(l * 2.5));
-  --card: hsl(from var(--background) h s calc(l * 1.25));
+  --border: hsl(from var(--background) h calc(s * 0.5) calc(l * 2.8));
+  --card: hsl(from var(--background) h s calc(l * 1.75));
   --card-foreground: var(--foreground);
   --popover: hsl(0 0% 3.1373%);
   --popover-foreground: hsl(0 0% 63.5294%);
