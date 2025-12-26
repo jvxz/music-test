@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 defineProps<{
-  entry: FileEntry
+  entry: TrackListEntry
   isSelected: boolean
   isPlaying: boolean
 }>()
 
 const emits = defineEmits<{
-  selectTrack: [track: FileEntry]
-  playTrack: [path: string]
+  selectTrack: [track: TrackListEntry]
+  playTrack: [track: TrackListEntry]
 }>()
 
 const classes = 'flex items-center'
@@ -20,7 +20,7 @@ const classes = 'flex items-center'
       'bg-primary/25': isSelected,
     }"
     v-bind="$attrs"
-    @dblclick.left="emits('playTrack', entry.path)"
+    @dblclick.left="emits('playTrack', entry)"
     @mousedown.left="emits('selectTrack', entry)"
   >
     <template

@@ -1,7 +1,7 @@
 const GREATER = 1
 const LESSER = -1
 
-export const sortTrackList = createUnrefFn((trackList: FileEntry[], sortBy: SortBy, sortOrder: 'Asc' | 'Desc') => {
+export const sortTrackList = createUnrefFn((trackList: TrackListEntry[], sortBy: TrackListSortByFrame, sortOrder: TrackListSortOrder) => {
   const sortedTrackList = trackList.toSorted((a, b) => {
     let aValue: string | undefined
     let bValue: string | undefined

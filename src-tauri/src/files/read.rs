@@ -19,6 +19,7 @@ pub struct FileEntry {
   pub tags: SerializableTagMap,
   pub thumbnail_uri: String,
   pub full_uri: String,
+  pub is_playlist_track: bool,
 }
 
 pub static FOLDER_CACHE: LazyLock<DashMap<String, Arc<Vec<FileEntry>>>> =
@@ -123,6 +124,7 @@ fn file_entry_from_path(path: impl AsRef<Path>) -> FileEntry {
     thumbnail_uri,
     path: path.to_string_lossy().to_string(),
     name,
+    is_playlist_track: false,
   };
 }
 

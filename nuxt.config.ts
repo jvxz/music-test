@@ -50,13 +50,14 @@ export default defineNuxtConfig({
     },
   },
   imports: {
+    dirs: ['types'],
     presets: [
-      {
-        from: '~~/types/db',
-        imports: [
-          { name: 'DB', type: true },
-        ],
-      },
+      // {
+      //   from: '~~/types/db',
+      //   imports: [
+      //     { name: 'DB', type: true },
+      //   ],
+      // },
       {
         from: '@crabnebula/tauri-plugin-drag',
         imports: [

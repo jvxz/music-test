@@ -3,7 +3,7 @@ export const usePlayback = createSharedComposable(() => {
 
   // internal
   const _playbackStatus = ref<StreamStatus | null>(prefs.get('playback-status') as StreamStatus | null)
-  const _currentTrack = shallowRef<FileEntry | null>(prefs.get('current-track') as FileEntry | null)
+  const _currentTrack = shallowRef<TrackListEntry | null>(prefs.get('current-track') as TrackListEntry | null)
 
   // public
   const playbackStatus = readonly(_playbackStatus)
@@ -49,12 +49,12 @@ export const usePlayback = createSharedComposable(() => {
     _playbackStatus.value = await rpc.control_playback(action)
   }
 
-  async function playTrack(path: string) {
-    const data = await getTrackData(path)
+  async function playTrack(entry: TrackListEntry) {
+    const data = await getTrackData(entry)
     _currentTrack.value = data
 
     const status = await rpc.control_playback({
-      Play: path,
+      Play: entry.path,
     })
     _playbackStatus.value = status
     resumeDurationTimer()
@@ -102,8 +102,15 @@ export const usePlayback = createSharedComposable(() => {
     }
   }
 
-  async function getTrackData(path: string) {
-    return await rpc.get_track_data(path)
+  async function getTrackData(entry: TrackListEntry): Promise<TrackListEntry | null> {
+    const res = await rpc.get_track_data(entry.path)
+    if (!res)
+      return null
+
+    return {
+      ...res,
+      ...entry,
+    }
   }
 
   watchDebounced(_playbackStatus, () => store.set('playback-status', _playbackStatus.value), { debounce: 500 })

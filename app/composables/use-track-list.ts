@@ -1,13 +1,4 @@
-export type SortBy = keyof typeof ID3_MAP
-
 export const TRACK_LIST_ITEM_HEIGHT = 34
-
-export interface TrackListInput {
-  path: string
-  sortBy: SortBy
-  sortOrder: 'Asc' | 'Desc'
-  type: 'folder' | 'playlist'
-}
 
 const defaultData: TrackListInput = {
   path: '',
@@ -21,7 +12,7 @@ export const TRACK_LIST_COLUMNS: {
   id3?: Id3FrameId
   key: string
   label: string
-  default?: keyof FileEntry
+  default?: keyof TrackListEntry
   canSort: boolean
 }[] = [
   {
@@ -86,7 +77,7 @@ export const useTrackListInput = createSharedComposable(() => {
   return data
 })
 
-const useTrackListCache = () => useState<Map<string, FileEntry[]>>('track-list-cache', () => new Map())
+const useTrackListCache = () => useState<Map<string, TrackListEntry[]>>('track-list-cache', () => new Map())
 
 export function useTrackList() {
   const { rpc } = useTauri()
@@ -94,14 +85,15 @@ export function useTrackList() {
   const trackListCache = useTrackListCache()
 
   function getTrackList(input: Ref<TrackListInput>) {
-    const asyncData = useAsyncData<FileEntry[]>(computed(() => createTrackListInputKey(input.value)), async () => {
+    const asyncData = useAsyncData<TrackListEntry[]>(computed(() => createTrackListInputKey(input.value)), async () => {
       const cachedData = trackListCache.value.get(createTrackListInputKey(input.value))
       if (cachedData) {
         return cachedData
       }
 
-      const data = input.value.type === 'folder'
-        ? await rpc.read_folder(input.value.path)
+      const data: TrackListEntry[] = input.value.type === 'folder'
+      //                                            ↓ cast because the rpc always returns with the is_playlist_track flag set to false
+        ? (await rpc.read_folder(input.value.path)) as FolderEntry[]
         : await useUserPlaylists().getPlaylistTracks(Number(input.value.path))
 
       const sortedData = sortTrackList(data, input.value.sortBy, input.value.sortOrder)
@@ -122,10 +114,10 @@ export function useTrackList() {
   }
 }
 
-export function createTrackListInputKey(input: { type: 'folder' | 'playlist', path: string, sortBy: SortBy, sortOrder: 'Asc' | 'Desc' }) {
+export function createTrackListInputKey(input: TrackListInput) {
   return `${input.type}-${input.path}-${input.sortBy}-${input.sortOrder}`
 }
-
+//                                                          ↓ playlist id or folder path
 export function refreshTrackListForPlaylist(trackListInput: string | number) {
   const trackListCache = useTrackListCache()
 
