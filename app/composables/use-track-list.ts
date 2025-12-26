@@ -126,6 +126,12 @@ export function createTrackListInputKey(input: { type: 'folder' | 'playlist', pa
   return `${input.type}-${input.path}-${input.sortBy}-${input.sortOrder}`
 }
 
-export function refreshTrackListForPlaylist(trackListInput: TrackListInput) {
-  clearNuxtData(createTrackListInputKey(trackListInput))
+export function refreshTrackListForPlaylist(trackListInput: string | number) {
+  const trackListCache = useTrackListCache()
+
+  trackListCache.value.forEach((_, key, map) => {
+    if (key.includes(`playlist-${trackListInput}`)) {
+      map.delete(key)
+    }
+  })
 }
