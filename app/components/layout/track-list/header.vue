@@ -23,7 +23,7 @@ const title = computed(() => {
     </p>
     <USpinner v-if="isLoading" class="h-[20px]" />
     <p v-else class="text-sm text-muted-foreground">
-      {{ trackCount }} tracks
+      {{ trackCount }} {{ checkPlural(trackCount, 'tracks', 'track') }}
     </p>
   </div>
 </template>
