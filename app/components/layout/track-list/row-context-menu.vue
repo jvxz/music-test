@@ -1,9 +1,14 @@
 <script lang="ts" setup>
 defineProps<{
-  entry: FileEntry | null
+  entry: TrackListEntry | null
 }>()
 
-const { addToPlaylist, playlists } = useUserPlaylists()
+const { addToPlaylist, playlists, removeFromPlaylist } = useUserPlaylists()
+
+async function handleRemove(entry: PlaylistEntry) {
+  await removeFromPlaylist(entry.playlist_id, entry.id)
+  useTrackListRefresh.trigger()
+}
 </script>
 
 <template>
@@ -12,9 +17,10 @@ const { addToPlaylist, playlists } = useUserPlaylists()
       <slot />
     </UContextMenuTrigger>
     <UContextMenuContent v-if="entry" class="w-52">
-      <UContextMenuLabel class="truncate" :title="entry.name">
+      <!-- <UContextMenuLabel class="truncate" :title="entry.name">
         {{ entry.name }}
-      </UContextMenuLabel>
+      </UContextMenuLabel> -->
+
       <UContextMenuSub>
         <UContextMenuSubTrigger>
           Add to playlist
@@ -29,6 +35,13 @@ const { addToPlaylist, playlists } = useUserPlaylists()
           </UContextMenuItem>
         </UContextMenuSubContent>
       </UContextMenuSub>
+      <UContextMenuItem
+        v-if="entry.is_playlist_track"
+        class="focus-visible:bg-red-400/20"
+        @click="handleRemove(entry)"
+      >
+        Remove from playlist
+      </UContextMenuItem>
     </UContextMenuContent>
   </UContextMenu>
 </template>

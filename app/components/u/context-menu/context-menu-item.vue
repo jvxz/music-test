@@ -18,6 +18,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
     :class="cn(
       popoverStyles.item,
       'has-[svg]:px-1.5 [&_.iconify]:!size-4 [&_svg]:!text-foreground',
+      props.class,
     )"
   >
     <slot />

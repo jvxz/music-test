@@ -79,6 +79,8 @@ export const useTrackListInput = createSharedComposable(() => {
 
 const useTrackListCache = () => useState<Map<string, TrackListEntry[]>>('track-list-cache', () => new Map())
 
+export const useTrackListRefresh = createEventHook()
+
 export function useTrackList() {
   const { rpc } = useTauri()
   const trackListInput = useTrackListInput()
@@ -104,6 +106,8 @@ export function useTrackList() {
       immediate: true,
       watch: [input],
     })
+
+    useTrackListRefresh.on(() => asyncData.refresh())
 
     return asyncData
   }
