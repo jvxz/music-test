@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const props = defineProps<{
   path: string
-  type: 'folder' | 'playlist'
+  type: TrackListEntryType
   trackCount: number
   isLoading: boolean
 }>()
@@ -17,6 +17,9 @@ onMounted(() => {
 })
 
 const title = computed(() => {
+  if (props.type === 'library')
+    return 'Library'
+
   if (props.type === 'folder')
     return props.path
 
@@ -61,6 +64,11 @@ const title = computed(() => {
           <template v-else-if="type === 'playlist'">
             <UDropdownMenuItem @click="deletePlaylist(Number(path))">
               Delete playlist
+            </UDropdownMenuItem>
+          </template>
+          <template v-else-if="type === 'library'">
+            <UDropdownMenuItem>
+              Add folder to library...
             </UDropdownMenuItem>
           </template>
         </UDropdownMenuContent>

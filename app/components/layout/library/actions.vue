@@ -1,10 +1,15 @@
 <template>
-  <div class="flex items-center gap-2">
-    <UInput
-      placeholder="Search library"
-    />
-    <UButton size="icon" variant="soft">
-      <Icon name="tabler:plus" />
+  <div>
+    <UButton
+      class="w-full justify-start text-foreground data-drag-over:bg-muted"
+      variant="ghost"
+      @click="navigateTo('/library')"
+    >
+      <Icon
+        name="tabler:folder"
+        class="size-4"
+      />
+      Library
     </UButton>
   </div>
 </template>

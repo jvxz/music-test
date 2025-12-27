@@ -93,6 +93,10 @@ export function useTrackList() {
         return cachedData
       }
 
+      if (input.value.path === 'library') {
+        return []
+      }
+
       const data: TrackListEntry[] = input.value.type === 'folder'
       //                                            ↓ cast because the rpc always returns with the is_playlist_track flag set to false
         ? (await rpc.read_folder(input.value.path)) as FolderEntry[]
