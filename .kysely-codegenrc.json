@@ -8,7 +8,7 @@
   "excludePattern": null,
   "includePattern": null,
   "numericParser": "string",
-  "outFile": "./types/db.d.ts",
+  "outFile": "./app/types/db.ts",
   "overrides": {
     "columns": {
       "playlists.id": "Generated<number>",
