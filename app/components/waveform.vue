@@ -13,7 +13,7 @@ const HEIGHT_RATIO = 0.7
 const TARGET_BINS = canvasContainerSize.width
 
 const { rpc } = useTauri()
-const { execute: getWaveform, state: waveformData } = useAsyncState(async () => props.path && rpc.get_waveform(props.path, TARGET_BINS.value), [], {
+const { execute: getWaveform, state: waveformData } = useAsyncState(async () => props.path && rpc.get_waveform(props.path, 2048), [], {
   immediate: true,
   shallow: true,
 })
