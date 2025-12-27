@@ -7,7 +7,14 @@ const props = defineProps<{
 }>()
 
 const { getPlaylistName } = useUserPlaylists()
-const { addFolderToLibrary } = useLibrary()
+const { addFolderToLibrary, removeFolderFromLibrary, useFolderInLibrary } = useLibrary()
+
+const { data: isFolderInLibrary, execute: checkFolderInLibrary } = useFolderInLibrary(props.path)
+onMounted(() => {
+  if (props.type === 'folder') {
+    checkFolderInLibrary()
+  }
+})
 
 const title = computed(() => {
   if (props.type === 'folder')
@@ -20,9 +27,16 @@ const title = computed(() => {
 <template>
   <div class="flex h-16 items-center justify-between border-b bg-background px-4">
     <div class="flex flex-col justify-center">
-      <p class="text-lg font-medium">
-        {{ title }}
-      </p>
+      <div class="flex items-center gap-2">
+        <p class="text-lg font-medium">
+          {{ title }}
+        </p>
+        <Icon
+          v-if="isFolderInLibrary"
+          name="tabler:folder-check"
+          class="size-4"
+        />
+      </div>
       <USpinner v-if="isLoading" class="h-[20px]" />
       <p v-else class="text-sm text-muted-foreground">
         {{ trackCount }} {{ checkPlural(trackCount, 'tracks', 'track') }}
@@ -36,8 +50,11 @@ const title = computed(() => {
           </UButton>
         </UDropdownMenuTrigger>
         <UDropdownMenuContent align="end">
-          <UDropdownMenuItem v-if="type === 'folder'" @click="addFolderToLibrary(0, path)">
+          <UDropdownMenuItem v-if="type === 'folder' && !isFolderInLibrary" @click="addFolderToLibrary(0, path)">
             Add to library
+          </UDropdownMenuItem>
+          <UDropdownMenuItem v-else-if="type === 'folder' && isFolderInLibrary" @click="removeFolderFromLibrary(0, path)">
+            Remove from library
           </UDropdownMenuItem>
         </UDropdownMenuContent>
       </UDropdownMenuRoot>
