@@ -80,17 +80,45 @@ pub async fn run() {
 
   let migrations: Vec<Migration> = vec![
     Migration {
-        kind: MigrationKind::Up,
-        description: "create playlists table",
-        sql: "create table playlists (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);",
-        version: 1,
-      },
-      Migration {
-        kind: MigrationKind::Up,
-        description: "create playlist_tracks table",
-        sql: "create table playlist_tracks (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, path TEXT NOT NULL, added_at DATETIME DEFAULT CURRENT_TIMESTAMP, playlist_id INTEGER NOT NULL, FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE) ;",
-        version: 2,
-      }
+      kind: MigrationKind::Up,
+      description: "create playlists table",
+      sql: "
+          CREATE TABLE playlists (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            name TEXT NOT NULL, 
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          );
+        ",
+      version: 1,
+    },
+    Migration {
+      kind: MigrationKind::Up,
+      description: "create playlist_tracks table",
+      sql: "
+          CREATE TABLE playlist_tracks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            path TEXT NOT NULL,
+            added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            playlist_id INTEGER NOT NULL,
+            FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE
+          );
+        ",
+      version: 2,
+    },
+    Migration {
+      kind: MigrationKind::Up,
+      description: "create library_folders table",
+      sql: "
+          CREATE TABLE library_folders (
+            path TEXT NOT NULL,
+            recursive BOOLEAN NOT NULL DEFAULT FALSE,
+            last_scanned DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (path)
+          );
+        ",
+      version: 3,
+    },
   ];
 
   let mut builder = tauri::Builder::default()

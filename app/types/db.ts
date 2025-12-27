@@ -18,6 +18,12 @@ export interface _SqlxMigrations {
   version: string | null;
 }
 
+export interface LibraryFolders {
+  last_scanned: Generated<string | null>;
+  path: string;
+  recursive: Generated<number>;
+}
+
 export interface Playlists {
   created_at: Generated<string>;
   id: Generated<number>;
@@ -34,6 +40,7 @@ export interface PlaylistTracks {
 
 export interface DB {
   _sqlx_migrations: _SqlxMigrations;
+  library_folders: LibraryFolders;
   playlist_tracks: PlaylistTracks;
   playlists: Playlists;
 }
