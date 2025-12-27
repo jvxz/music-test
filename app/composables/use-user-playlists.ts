@@ -1,4 +1,7 @@
 export function useUserPlaylists() {
+  const router = useRouter()
+  const route = useRoute()
+
   const { data: playlists, refresh: refreshPlaylistList } = useAsyncData<Selectable<DB['playlists']>[]>('playlists', () => $db().selectFrom('playlists').selectAll().execute(), {
     default: () => [],
     immediate: true,
@@ -24,6 +27,10 @@ export function useUserPlaylists() {
 
   async function deletePlaylist(playlistId: number) {
     await $db().deleteFrom('playlists').where('id', '=', playlistId).execute()
+
+    if ('id' in route.params && Number(route.params.id) === playlistId) {
+      router.back()
+    }
 
     refreshTrackListForPlaylist(playlistId)
     refreshPlaylistList()
@@ -66,12 +73,18 @@ export function useUserPlaylists() {
     refreshTrackListForPlaylist(playlistId)
   }
 
+  async function checkPlaylistExists(playlistId: number) {
+    const playlist = await $db().selectFrom('playlists').where('id', '=', playlistId).selectAll().executeTakeFirst()
+    return playlist !== undefined
+  }
+
   function getPlaylistName(playlistId: number) {
     return playlists.value.find(playlist => playlist.id === playlistId)?.name
   }
 
   return {
     addToPlaylist,
+    checkPlaylistExists,
     createPlaylist,
     deletePlaylist,
     getPlaylistName,
