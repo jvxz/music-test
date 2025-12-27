@@ -10,8 +10,9 @@ export type StreamAction = { Play: string } | "Pause" | "Resume" | { Seek: numbe
 
 export type StreamStatus = { is_playing: boolean; position: number; duration: number; is_looping: boolean; path: string | null; volume: number; is_muted: boolean }
 
-const ARGS_MAP = { '':'{"control_playback":["action"],"get_track_data":["path"],"get_tracks_data":["paths"],"get_waveform":["path","bin_size"],"read_folder":["path"]}' }
+const ARGS_MAP = { '':'{"control_playback":["action"],"get_canonical_path":["path"],"get_track_data":["path"],"get_tracks_data":["paths"],"get_waveform":["path","bin_size"],"read_folder":["path"]}' }
 export type Router = { "": {control_playback: (action: StreamAction) => Promise<StreamStatus>, 
+get_canonical_path: (path: string) => Promise<string>, 
 get_track_data: (path: string) => Promise<FileEntry | null>, 
 get_tracks_data: (paths: string[]) => Promise<FileEntry[]>, 
 get_waveform: (path: string, binSize: number) => Promise<number[]>, 

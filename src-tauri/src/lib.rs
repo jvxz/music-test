@@ -24,6 +24,7 @@ mod waveform;
 #[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
 trait Api {
   async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String>;
+  async fn get_canonical_path(path: String) -> Result<String, String>;
   async fn get_track_data(path: String) -> Option<FileEntry>;
   async fn get_tracks_data(paths: Vec<String>) -> Vec<FileEntry>;
   async fn control_playback<R: Runtime>(
@@ -42,6 +43,12 @@ trait Api {
 impl Api for ApiImpl {
   async fn read_folder(self, path: String) -> Result<Arc<Vec<FileEntry>>, String> {
     return files::read::read_folder(path).await;
+  }
+
+  async fn get_canonical_path(self, path: String) -> Result<String, String> {
+    return std::fs::canonicalize(path)
+      .map(|p| p.to_string_lossy().to_string())
+      .map_err(|e| e.to_string());
   }
 
   async fn get_track_data(self, path: String) -> Option<FileEntry> {
