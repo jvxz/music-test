@@ -6,7 +6,7 @@ const props = defineProps<{
   isLoading: boolean
 }>()
 
-const { getPlaylistName } = useUserPlaylists()
+const { deletePlaylist, getPlaylistName } = useUserPlaylists()
 const { addFolderToLibrary, removeFolderFromLibrary, useFolderInLibrary } = useLibrary()
 
 const { data: isFolderInLibrary, execute: checkFolderInLibrary } = useFolderInLibrary(props.path)
@@ -50,12 +50,19 @@ const title = computed(() => {
           </UButton>
         </UDropdownMenuTrigger>
         <UDropdownMenuContent align="end">
-          <UDropdownMenuItem v-if="type === 'folder' && !isFolderInLibrary" @click="addFolderToLibrary(0, path)">
-            Add to library
-          </UDropdownMenuItem>
-          <UDropdownMenuItem v-else-if="type === 'folder' && isFolderInLibrary" @click="removeFolderFromLibrary(0, path)">
-            Remove from library
-          </UDropdownMenuItem>
+          <template v-if="type === 'folder'">
+            <UDropdownMenuItem v-if="!isFolderInLibrary" @click="addFolderToLibrary(0, path)">
+              Add to library
+            </UDropdownMenuItem>
+            <UDropdownMenuItem v-else @click="removeFolderFromLibrary(0, path)">
+              Remove from library
+            </UDropdownMenuItem>
+          </template>
+          <template v-else-if="type === 'playlist'">
+            <UDropdownMenuItem @click="deletePlaylist(Number(path))">
+              Delete playlist
+            </UDropdownMenuItem>
+          </template>
         </UDropdownMenuContent>
       </UDropdownMenuRoot>
     </div>
