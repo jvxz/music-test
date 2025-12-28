@@ -25,6 +25,11 @@ export type TrackListInput = {
   type: 'library'
 }
 
+export type CurrentPlayingTrack = Prettify<TrackListEntry & {
+  playback_source: TrackListEntryType
+  playback_source_id: string
+}>
+
 //
 
 export type Prettify<T> = {

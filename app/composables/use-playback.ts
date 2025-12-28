@@ -3,7 +3,7 @@ export const usePlayback = createSharedComposable(() => {
 
   // internal
   const _playbackStatus = ref<StreamStatus | null>(prefs.get('playback-status') as StreamStatus | null)
-  const _currentTrack = shallowRef<TrackListEntry | null>(prefs.get('current-track') as TrackListEntry | null)
+  const _currentTrack = shallowRef<CurrentPlayingTrack | null>(prefs.get('current-track') as CurrentPlayingTrack | null)
 
   // public
   const playbackStatus = readonly(_playbackStatus)
@@ -51,7 +51,14 @@ export const usePlayback = createSharedComposable(() => {
 
   async function playTrack(entry: TrackListEntry) {
     const data = await getTrackData(entry)
-    _currentTrack.value = data
+    if (!data)
+      return
+
+    _currentTrack.value = {
+      ...data,
+      playback_source: getInputTypeFromEntry(entry),
+      playback_source_id: entry.path,
+    }
 
     const status = await rpc.control_playback({
       Play: entry.path,
