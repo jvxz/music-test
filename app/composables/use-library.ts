@@ -82,6 +82,7 @@ export function useLibrary() {
     await $db()
       .insertInto('library_tracks')
       .values(tracks.map(track => ({
+        album: track.tags.TALB ?? null,
         artist: track.tags.TPE1 ?? null,
         filename: track.name,
         path: track.path,

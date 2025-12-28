@@ -135,7 +135,8 @@ pub async fn run() {
             path TEXT NOT NULL UNIQUE,
             filename TEXT NOT NULL,
             title TEXT,
-            artist TEXT
+            artist TEXT,
+            album TEXT
           );
         ",
       version: 4,

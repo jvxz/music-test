@@ -25,6 +25,7 @@ export interface LibraryFolders {
 }
 
 export interface LibraryTracks {
+  album: string | null;
   artist: string | null;
   filename: string;
   id: Generated<number>;
