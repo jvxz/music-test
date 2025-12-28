@@ -130,7 +130,7 @@ export function useTrackList() {
     const { query, results } = useTrackListSearch(asyncData.data)
     const data = computed(() => {
       if (query.value) {
-        return results.value
+        return sortTrackList(results.value, input.value.sortBy, input.value.sortOrder)
       }
       return asyncData.data.value
     })

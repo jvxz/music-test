@@ -2,7 +2,9 @@
 import type { TrackListInput } from '~/types'
 import { resolveResource } from '@tauri-apps/api/path'
 
-const props = defineProps<TrackListInput>()
+const props = defineProps<TrackListInput & {
+  forceVirtualize?: boolean
+}>()
 
 const { getTrackList } = useTrackList()
 const { selectedTrack } = useTrackSelection()
@@ -42,7 +44,7 @@ async function handleDragStart(track: TrackListEntry) {
     />
     <LayoutTrackListColumns v-bind="props" />
     <LayoutTrackListVirtualProvider
-      v-if="shouldVirtualize"
+      v-if="shouldVirtualize || forceVirtualize"
       v-slot="{ containerProps, list, wrapperProps }"
       :entries="folderEntries"
     >
