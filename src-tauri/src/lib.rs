@@ -126,6 +126,34 @@ pub async fn run() {
         ",
       version: 3,
     },
+    Migration {
+      kind: MigrationKind::Up,
+      description: "create library_tracks table",
+      sql: "
+          CREATE TABLE library_tracks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            path TEXT NOT NULL UNIQUE,
+            filename TEXT NOT NULL,
+            title TEXT,
+            artist TEXT
+          );
+        ",
+      version: 4,
+    },
+    Migration {
+      kind: MigrationKind::Up,
+      description: "create library_tracks_source table",
+      sql: "
+          CREATE TABLE library_tracks_source (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            track_id INTEGER NOT NULL REFERENCES library_tracks(id) ON DELETE CASCADE,
+            source_type TEXT NOT NULL,
+            source_id TEXT NOT NULL,
+            UNIQUE (track_id, source_type, source_id)
+          );
+        ",
+      version: 5,
+    },
   ];
 
   let mut builder = tauri::Builder::default()
