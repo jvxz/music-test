@@ -23,14 +23,51 @@ export function useLibrary() {
       path: folderPath,
     }).execute()
 
+    const folderTracks = await rpc.read_folder(folderPath)
+
+    await addTracksToLibrary(folderTracks, {
+      id: folderPath,
+      type: 'folder',
+    })
+
     refreshNuxtData(buildFolderInLibraryKey(folderPath))
     refreshTrackListForType('library')
   }, void 0, { immediate: false })
 
   const { execute: removeFolderFromLibrary, isLoading: isRemovingFolderFromLibrary } = useAsyncState<void>(async (folderPath: string) => {
-    await $db().deleteFrom('library_folders').where('path', '=', folderPath).execute()
+    const folderTracksSources = await $db()
+      .selectFrom('library_tracks_source')
+      .where('source_type', '=', 'folder')
+      .where('source_id', '=', folderPath)
+      .selectAll()
+      .execute()
 
-    refreshNuxtData(buildFolderInLibraryKey(folderPath))
+    await $db()
+      .deleteFrom('library_tracks_source')
+      .where('source_type', '=', 'folder')
+      .where('source_id', '=', folderPath)
+      .execute()
+
+    const libraryTracksSources = await $db()
+      .selectFrom('library_tracks_source')
+      .where('source_id', 'is not', folderPath)
+      .where('track_id', 'in', folderTracksSources.map(source => source.track_id))
+      .selectAll()
+      .execute()
+
+    const tracksToDelete = folderTracksSources.filter(source => !libraryTracksSources.some(s => s.track_id === source.track_id))
+
+    await $db()
+      .deleteFrom('library_tracks')
+      .where('id', 'in', tracksToDelete.map(source => source.track_id))
+      .execute()
+
+    await $db()
+      .deleteFrom('library_folders')
+      .where('path', '=', folderPath)
+      .execute()
+
+    clearNuxtData(buildFolderInLibraryKey(folderPath))
     refreshTrackListForType('library')
   }, void 0, { immediate: false })
 
