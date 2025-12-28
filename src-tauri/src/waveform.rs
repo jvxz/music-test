@@ -132,6 +132,8 @@ pub async fn get_waveform<R: Runtime>(
       waveform_data.push((max * 100.0).round());
     }
 
+    waveform_data = ensure_min_samples(waveform_data, 2048);
+
     std::fs::write(
       &cache_path,
       serde_json::to_vec(&waveform_data).context("failed to serialize waveform")?,
@@ -157,4 +159,26 @@ fn build_cache_path(file_path: &str, cache_dir: &Path) -> String {
     .join(format!("{}-wf.json", hash))
     .to_string_lossy()
     .to_string();
+}
+
+fn ensure_min_samples(data: Vec<f32>, target_count: usize) -> Vec<f32> {
+  let current_count = data.len() / 2; // pairs of min/max
+  if current_count >= target_count {
+    return data;
+  }
+
+  let mut interpolated = Vec::with_capacity(target_count * 2);
+  for i in 0..target_count {
+    let index = (i as f32 * (current_count - 1) as f32) / (target_count - 1) as f32;
+    let low = index.floor() as usize;
+    let high = index.ceil() as usize;
+    let weight = index - low as f32;
+
+    let min = data[low * 2] * (1.0 - weight) + data[high * 2] * weight;
+    let max = data[low * 2 + 1] * (1.0 - weight) + data[high * 2 + 1] * weight;
+
+    interpolated.push(min);
+    interpolated.push(max);
+  }
+  return interpolated;
 }

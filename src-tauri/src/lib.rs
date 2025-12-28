@@ -24,6 +24,7 @@ mod waveform;
 #[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
 trait Api {
   async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>, String>;
+  async fn get_canonical_path(path: String) -> Result<String, String>;
   async fn get_track_data(path: String) -> Option<FileEntry>;
   async fn get_tracks_data(paths: Vec<String>) -> Vec<FileEntry>;
   async fn control_playback<R: Runtime>(
@@ -42,6 +43,12 @@ trait Api {
 impl Api for ApiImpl {
   async fn read_folder(self, path: String) -> Result<Arc<Vec<FileEntry>>, String> {
     return files::read::read_folder(path).await;
+  }
+
+  async fn get_canonical_path(self, path: String) -> Result<String, String> {
+    return std::fs::canonicalize(path)
+      .map(|p| p.to_string_lossy().to_string())
+      .map_err(|e| e.to_string());
   }
 
   async fn get_track_data(self, path: String) -> Option<FileEntry> {
@@ -80,17 +87,74 @@ pub async fn run() {
 
   let migrations: Vec<Migration> = vec![
     Migration {
-        kind: MigrationKind::Up,
-        description: "create playlists table",
-        sql: "create table playlists (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);",
-        version: 1,
-      },
-      Migration {
-        kind: MigrationKind::Up,
-        description: "create playlist_tracks table",
-        sql: "create table playlist_tracks (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, path TEXT NOT NULL, added_at DATETIME DEFAULT CURRENT_TIMESTAMP, playlist_id INTEGER NOT NULL, FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE) ;",
-        version: 2,
-      }
+      kind: MigrationKind::Up,
+      description: "create playlists table",
+      sql: "
+          CREATE TABLE playlists (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            name TEXT NOT NULL, 
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          );
+        ",
+      version: 1,
+    },
+    Migration {
+      kind: MigrationKind::Up,
+      description: "create playlist_tracks table",
+      sql: "
+          CREATE TABLE playlist_tracks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            path TEXT NOT NULL,
+            added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            playlist_id INTEGER NOT NULL,
+            FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE
+          );
+        ",
+      version: 2,
+    },
+    Migration {
+      kind: MigrationKind::Up,
+      description: "create library_folders table",
+      sql: "
+          CREATE TABLE library_folders (
+            path TEXT NOT NULL,
+            recursive BOOLEAN NOT NULL DEFAULT FALSE,
+            last_scanned DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (path)
+          );
+        ",
+      version: 3,
+    },
+    Migration {
+      kind: MigrationKind::Up,
+      description: "create library_tracks table",
+      sql: "
+          CREATE TABLE library_tracks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            path TEXT NOT NULL UNIQUE,
+            filename TEXT NOT NULL,
+            title TEXT,
+            artist TEXT,
+            album TEXT
+          );
+        ",
+      version: 4,
+    },
+    Migration {
+      kind: MigrationKind::Up,
+      description: "create library_tracks_source table",
+      sql: "
+          CREATE TABLE library_tracks_source (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            track_id INTEGER NOT NULL REFERENCES library_tracks(id) ON DELETE CASCADE,
+            source_type TEXT NOT NULL,
+            source_id TEXT NOT NULL,
+            UNIQUE (track_id, source_type, source_id)
+          );
+        ",
+      version: 5,
+    },
   ];
 
   let mut builder = tauri::Builder::default()

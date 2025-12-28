@@ -8,13 +8,16 @@
   "excludePattern": null,
   "includePattern": null,
   "numericParser": "string",
-  "outFile": "./types/db.d.ts",
+  "outFile": "./app/types/db.ts",
   "overrides": {
     "columns": {
       "playlists.id": "Generated<number>",
       "playlists.created_at": "Generated<string>",
       "playlist_tracks.id": "Generated<number>",
-      "playlist_tracks.added_at": "Generated<string>"
+      "playlist_tracks.added_at": "Generated<string>",
+      "library_tracks.id": "Generated<number>",
+      "library_tracks_source.id": "Generated<number>",
+      "library_tracks_source.source_type": "'folder' | 'playlist'"
     }
   },
   "partitions": false,

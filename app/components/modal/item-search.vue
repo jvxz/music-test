@@ -11,7 +11,7 @@ const { store } = useTauri()
 onKeyStrokeSafe('meta_p', () => {
   open.value = !open.value
 }, {
-  ignore: ['[data-slot="command-input"]'],
+  ignore: ['[data-slot="command-input"]', '#track-list-search-input'],
 })
 
 watch(open, () => {
@@ -32,8 +32,9 @@ const { execute: checkPathExists, state: pathExists } = useAsyncState(() => useT
 const inputType = computed(() => getInputType(input.value))
 watch(input, () => input.value && inputType.value !== 'query' && checkPathExists())
 
-function handleEnter(manualInput?: string) {
-  const inputToUse = manualInput ?? input.value
+async function handleEnter(manualInput?: string) {
+  const rawInput = manualInput ?? input.value
+  const inputToUse = await useTauri().rpc.get_canonical_path(rawInput)
 
   if (inputToUse) {
     open.value = false

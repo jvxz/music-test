@@ -29,14 +29,7 @@ function handlePointer(type: 'up' | 'down') {
 
 <template>
   <div class="flex w-[45%] grow -translate-y-3 flex-col items-center gap-1 *:shrink-0">
-    <div class="flex h-9 flex-col text-center">
-      <p class="truncate text-sm">
-        {{ currentTrack?.tags.TIT2 ?? currentTrack?.name }}
-      </p>
-      <p class="relative w-full text-xs text-muted-foreground">
-        {{ currentTrack?.tags.TPE1 }}
-      </p>
-    </div>
+    <LayoutTopBarSeekBarTitle :current-track/>
     <SliderRoot
       v-model:model-value="localPosition"
       :max="playbackStatus?.duration ?? 0"

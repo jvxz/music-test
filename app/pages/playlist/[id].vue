@@ -1,6 +1,16 @@
 <script lang="ts" setup>
+definePageMeta({
+  middleware: async (to) => {
+    const id = 'id' in to.params ? Number(to.params.id) : 0
+    const playlistExists = await $db().selectFrom('playlists').where('id', '=', id).selectAll().executeTakeFirst()
+
+    if (id === 0 || !playlistExists)
+      return abortNavigation()
+  },
+})
+
 const route = useRoute()
-const id: number = 'id' in route.params ? Number(route.params.id) : 0
+const id = 'id' in route.params ? Number(route.params.id) : 0
 
 const trackListInput = useTrackListInput()
 </script>
