@@ -1,19 +1,31 @@
 <script lang="ts" setup>
 const props = defineProps<{
-  path: string
+  path: TrackListInput['path']
   type: TrackListEntryType
   trackCount: number
   isLoading: boolean
 }>()
 
 const { deletePlaylist, getPlaylistName } = useUserPlaylists()
+const query = useTrackListSearchQuery()
 const { addFolderToLibrary, removeFolderFromLibrary, useFolderInLibrary } = useLibrary()
 
-const { data: isFolderInLibrary, execute: checkFolderInLibrary } = useFolderInLibrary(props.path)
+const { data: isFolderInLibrary, execute: checkFolderInLibrary } = useFolderInLibrary(props.path ?? '')
 onMounted(() => {
   if (props.type === 'folder') {
     checkFolderInLibrary()
   }
+})
+
+const searchInput = useTemplateRef<HTMLInputElement>('searchInput')
+onKeyStrokeSafe('meta_f', () => {
+  const el = unrefElement(searchInput)
+  if (el) {
+    el.focus()
+    el.select()
+  }
+}, {
+  ignore: ['[data-slot="command-input"]'],
 })
 
 const title = computed(() => {
@@ -46,6 +58,14 @@ const title = computed(() => {
       </p>
     </div>
     <div class="flex items-center gap-2">
+      <UInput
+        id="track-list-search-input"
+        ref="searchInput"
+        v-model="query"
+        v-esc-blur
+        v-no-autocorrect
+        placeholder="Search"
+      />
       <UDropdownMenuRoot>
         <UDropdownMenuTrigger as-child>
           <UButton variant="soft" size="icon">

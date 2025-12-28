@@ -11,7 +11,7 @@ const { store } = useTauri()
 onKeyStrokeSafe('meta_p', () => {
   open.value = !open.value
 }, {
-  ignore: ['[data-slot="command-input"]'],
+  ignore: ['[data-slot="command-input"]', '#track-list-search-input'],
 })
 
 watch(open, () => {

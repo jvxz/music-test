@@ -43,6 +43,7 @@
     "clsx": "^2.1.1",
     "kysely": "^0.28.9",
     "kysely-dialect-tauri": "^1.2.1",
+    "minisearch": "^7.2.0",
     "nuxt": "^4.2.2",
     "nuxt-icons": "4.0.0",
     "reka-ui": "^2.7.0",

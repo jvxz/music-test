@@ -127,7 +127,18 @@ export function useTrackList() {
 
     useTrackListRefresh.on(() => asyncData.refresh())
 
-    return asyncData
+    const { query, results } = useTrackListSearch(asyncData.data)
+    const data = computed(() => {
+      if (query.value) {
+        return results.value
+      }
+      return asyncData.data.value
+    })
+
+    return {
+      ...asyncData,
+      data,
+    }
   }
 
   return {
