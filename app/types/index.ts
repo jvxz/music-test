@@ -19,7 +19,7 @@ export type TrackListInput = {
   type: TrackListEntryType
 } | {
   //    ↓ library doesn't need a path
-  path: never
+  path?: never
   sortBy: TrackListSortByFrame
   sortOrder: TrackListSortOrder
   type: 'library'
