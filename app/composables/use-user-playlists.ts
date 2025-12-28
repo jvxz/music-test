@@ -1,6 +1,7 @@
 export function useUserPlaylists() {
   const router = useRouter()
   const route = useRoute()
+  const { addTracksToLibrary, cleanupLibraryTrackSource } = useLibrary()
 
   const { data: playlists, refresh: refreshPlaylistList } = useAsyncData<Selectable<DB['playlists']>[]>('playlists', () => $db().selectFrom('playlists').selectAll().execute(), {
     default: () => [],
@@ -8,12 +9,12 @@ export function useUserPlaylists() {
   })
 
   async function createPlaylist(opts: { name: string }) {
-    const playlist = await $db().insertInto('playlists').values({
+    await $db().insertInto('playlists').values({
       name: opts.name,
     }).returningAll().executeTakeFirstOrThrow()
 
     refreshPlaylistList()
-    refreshTrackListForPlaylist(playlist.id)
+    refreshTrackListForType('playlist')
   }
 
   async function renamePlaylist(playlistId: number, name: string) {
@@ -22,7 +23,7 @@ export function useUserPlaylists() {
     }).where('id', '=', playlistId).execute()
 
     refreshPlaylistList()
-    refreshTrackListForPlaylist(playlistId)
+    refreshTrackListForType('playlist')
   }
 
   async function deletePlaylist(playlistId: number) {
@@ -32,7 +33,7 @@ export function useUserPlaylists() {
       router.back()
     }
 
-    refreshTrackListForPlaylist(playlistId)
+    refreshTrackListForType('playlist')
     refreshPlaylistList()
   }
 
@@ -56,6 +57,11 @@ export function useUserPlaylists() {
   }
 
   async function addToPlaylist(playlistId: number, tracks: FileEntry[]) {
+    await addTracksToLibrary(tracks, {
+      id: String(playlistId),
+      type: 'playlist',
+    })
+
     await $db().insertInto('playlist_tracks').values(tracks.map(track => ({
       name: track.name,
       path: track.path,
@@ -63,14 +69,17 @@ export function useUserPlaylists() {
     }))).execute()
 
     refreshPlaylistList()
-    refreshTrackListForPlaylist(playlistId)
+    refreshTrackListForType('playlist')
   }
 
-  async function removeFromPlaylist(playlistId: number, trackId: number) {
-    await $db().deleteFrom('playlist_tracks').where('playlist_id', '=', playlistId).where('id', '=', trackId).execute()
+  // TODO: allow multiple tracks
+  async function removeFromPlaylist(playlistId: number, track: PlaylistEntry) {
+    await $db().deleteFrom('playlist_tracks').where('playlist_id', '=', playlistId).where('id', '=', track.id).execute()
+
+    await cleanupLibraryTrackSource(track)
 
     refreshPlaylistList()
-    refreshTrackListForPlaylist(playlistId)
+    refreshTrackListForType('playlist')
   }
 
   async function checkPlaylistExists(playlistId: number) {

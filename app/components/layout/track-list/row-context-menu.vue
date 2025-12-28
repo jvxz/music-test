@@ -6,7 +6,7 @@ defineProps<{
 const { addToPlaylist, playlists, removeFromPlaylist } = useUserPlaylists()
 
 async function handleRemove(entry: PlaylistEntry) {
-  await removeFromPlaylist(entry.playlist_id, entry.id)
+  await removeFromPlaylist(entry.playlist_id, entry)
   useTrackListRefresh.trigger()
 }
 </script>

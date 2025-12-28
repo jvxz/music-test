@@ -93,16 +93,28 @@ export function useTrackList() {
         return cachedData
       }
 
-      if (input.value.path === 'library') {
-        return []
+      let tracks: TrackListEntry[] = []
+
+      switch (input.value.type) {
+        case 'folder': {
+          //                                                 cast because the rpc always returns
+          //                                               ↓ with the is_playlist_track flag set to false
+          tracks = await rpc.read_folder(input.value.path) as FolderEntry[]
+          break
+        }
+
+        case 'playlist': {
+          tracks = await useUserPlaylists().getPlaylistTracks(Number(input.value.path))
+          break
+        }
+
+        case 'library': {
+          tracks = await useLibrary().getLibraryTracks()
+          break
+        }
       }
 
-      const data: TrackListEntry[] = input.value.type === 'folder'
-      //                                            ↓ cast because the rpc always returns with the is_playlist_track flag set to false
-        ? (await rpc.read_folder(input.value.path)) as FolderEntry[]
-        : await useUserPlaylists().getPlaylistTracks(Number(input.value.path))
-
-      const sortedData = sortTrackList(data, input.value.sortBy, input.value.sortOrder)
+      const sortedData = sortTrackList(tracks, input.value.sortBy, input.value.sortOrder)
       trackListCache.value.set(createTrackListInputKey(input.value), sortedData)
       return sortedData
     }, {
@@ -125,13 +137,27 @@ export function useTrackList() {
 export function createTrackListInputKey(input: TrackListInput) {
   return `${input.type}-${input.path}-${input.sortBy}-${input.sortOrder}`
 }
-//                                                          ↓ playlist id or folder path
-export function refreshTrackListForPlaylist(trackListInput: string | number) {
+
+export function refreshTrackListForType(trackListType: TrackListInput['type'], path?: string) {
   const trackListCache = useTrackListCache()
 
-  trackListCache.value.forEach((_, key, map) => {
-    if (key.includes(`playlist-${trackListInput}`)) {
-      map.delete(key)
-    }
-  })
+  if (trackListType === 'library') {
+    trackListCache.value.forEach((_, key, map) => {
+      if (key.startsWith(`library-`)) {
+        map.delete(key)
+      }
+    })
+  }
+
+  else {
+    trackListCache.value.forEach((_, key, map) => {
+      if (key.startsWith(`playlist-${path}-`)) {
+        map.delete(key)
+      }
+
+      if (key.startsWith(`playlist-`)) {
+        map.delete(key)
+      }
+    })
+  }
 }
