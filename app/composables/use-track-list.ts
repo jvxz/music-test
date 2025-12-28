@@ -85,6 +85,8 @@ export function useTrackList() {
   const { rpc } = useTauri()
   const trackListInput = useTrackListInput()
   const trackListCache = useTrackListCache()
+  const { getPlaylistTracks } = useUserPlaylists()
+  const { getLibraryTracks } = useLibrary()
 
   function getTrackList(input: Ref<TrackListInput>) {
     const asyncData = useAsyncData<TrackListEntry[]>(computed(() => createTrackListInputKey(input.value)), async () => {
@@ -104,12 +106,12 @@ export function useTrackList() {
         }
 
         case 'playlist': {
-          tracks = await useUserPlaylists().getPlaylistTracks(Number(input.value.path))
+          tracks = await getPlaylistTracks(Number(input.value.path))
           break
         }
 
         case 'library': {
-          tracks = await useLibrary().getLibraryTracks()
+          tracks = await getLibraryTracks()
           break
         }
       }
