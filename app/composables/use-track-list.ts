@@ -66,12 +66,12 @@ export const TRACK_LIST_COLUMNS: {
 ] as const
 
 export const useTrackListInput = createSharedComposable(() => {
-  const { $tauri } = useNuxtApp()
+  const tauri = useTauri()
 
-  const newData = $tauri.prefs.get('track-list-directory') as TrackListInput | undefined
+  const newData = tauri.prefs.get('track-list-directory') as TrackListInput | undefined
 
   const data = refWithControl(newData ?? defaultData, {
-    onChanged: newData => $tauri.store.set('track-list-directory', newData),
+    onChanged: newData => tauri.store.set('track-list-directory', newData),
   })
 
   return data

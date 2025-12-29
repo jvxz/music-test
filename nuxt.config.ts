@@ -1,4 +1,5 @@
 import tailwindcss from '@tailwindcss/vite'
+import vueDevTools from 'vite-plugin-vue-devtools'
 
 export default defineNuxtConfig({
   app: {
@@ -19,45 +20,59 @@ export default defineNuxtConfig({
       name: 'page',
     },
   },
+
   colorMode: {
     storage: 'cookie',
   },
+
   compatibilityDate: '2025-12-02',
+
   css: [
     '@/assets/css/globals.css',
   ],
+
   devServer: {
     host: '0.0.0.0',
   },
+
   devtools: {
-    enabled: false,
+    timeline: {
+      enabled: true,
+    },
   },
+
   dir: {
     modules: 'app/modules',
   },
+
   eslint: {
     config: {
       standalone: false,
     },
   },
+
   experimental: {
     typedPages: true,
   },
-  fonts: {
-    defaults: {
-      preload: true,
-      weights: [400, 500, 700],
-    },
-  },
+
+  ignore: [
+    '**/src-tauri/**',
+    '**/node_modules/**',
+    '**/.output/**',
+    '**/.nuxt/**',
+    '**/.git/**',
+  ],
+
   imports: {
     dirs: ['types'],
     presets: [
-      // {
-      //   from: '~~/types/db',
-      //   imports: [
-      //     { name: 'DB', type: true },
-      //   ],
-      // },
+      {
+        cache: true,
+        from: 'text-case',
+        imports: [
+          'sentenceCase',
+        ],
+      },
       {
         from: '@crabnebula/tauri-plugin-drag',
         imports: [
@@ -83,25 +98,27 @@ export default defineNuxtConfig({
       },
     ],
   },
+
   modules: [
     '@vueuse/nuxt',
     'reka-ui/nuxt',
     '@nuxt/eslint',
     '@nuxtjs/color-mode',
     '@nuxt/icon',
-    '@nuxt/fonts',
-    '@nuxt/image',
   ],
+
   router: {
     options: {
       scrollBehaviorType: 'smooth',
     },
   },
+
   ssr: false,
+
   vite: {
     clearScreen: false,
     envPrefix: ['VITE_', 'TAURI_'],
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), vueDevTools()],
     server: {
       hmr: {
         host: '0.0.0.0',
@@ -110,7 +127,13 @@ export default defineNuxtConfig({
       },
       strictPort: true,
       watch: {
-        ignored: ['**/src-tauri/**'],
+        ignored: [
+          '**/src-tauri/**',
+          '**/node_modules/**',
+          '**/.output/**',
+          '**/.nuxt/**',
+          '**/.git/**',
+        ],
       },
     },
   },

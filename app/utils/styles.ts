@@ -14,8 +14,8 @@ const interactiveStyles = {
     ghost: 'hover:bg-muted/90 active:bg-muted/75 text-muted-foreground hover:text-foreground',
     link: 'text-primary underline-offset-4 hover:underline',
     outline:
-      'border-border/90 hover:bg-muted/90 active:bg-muted/80 hover:border-border active:border-border border bg-transparent',
-    soft: 'border-border/90 text-muted-foreground hover:text-foreground hover:bg-muted/90 active:bg-muted/80 hover:border-border active:border-border border bg-card',
+    'hover:bg-muted/90 active:bg-muted/80 border bg-transparent',
+    soft: 'text-muted-foreground hover:text-foreground hover:bg-muted/90 active:bg-muted/80 border bg-card',
   },
 }
 
@@ -46,6 +46,6 @@ const popoverStyles = {
 
 const overlayStyles
   // = 'duration-150 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 fixed inset-0 z-50 bg-overlay backdrop-blur-xs'
-  = 'duration-150 fixed inset-0 z-50 bg-overlay '
+  = 'fixed inset-0 z-50 bg-overlay '
 
 export { interactiveStyles, overlayStyles, popoverStyles, staticStyles }

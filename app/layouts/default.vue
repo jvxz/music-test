@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 const { layoutPanels } = usePersistentPanels('main', [12.5, 35, 12.5])
 const router = useRouter()
-const { $tauri } = useNuxtApp()
+const tauri = useTauri()
 
 onBeforeMount(async () => {
-  const lastUrl = await $tauri.store.get<string>('last-url')
+  const lastUrl = await tauri.store.get<string>('last-url')
 
   if (lastUrl) {
     router.push(lastUrl)
@@ -13,7 +13,7 @@ onBeforeMount(async () => {
     if (to.fullPath === '/playground')
       return
 
-    $tauri.store.set('last-url', to.fullPath)
+    tauri.store.set('last-url', to.fullPath)
   })
 })
 </script>
@@ -35,7 +35,7 @@ onBeforeMount(async () => {
         <LayoutSidebarLeft />
       </SplitterPanel>
       <SplitterResizeHandle />
-      <SplitterPanel class="h-full flex-1 flex flex-col">
+      <SplitterPanel class="flex h-full flex-1 flex-col">
         <slot />
         <LayoutWaveform />
       </SplitterPanel>
