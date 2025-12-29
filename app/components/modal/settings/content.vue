@@ -40,7 +40,7 @@ const components = Object.fromEntries(
       v-for="tab in SETTINGS_MODAL_TABS"
       :key="tab"
       :value="tab"
-      class="h-[55vh]"
+      class="h-[55vh] w-full"
     >
       <component :is="components[tab]" />
     </TabsContent>
