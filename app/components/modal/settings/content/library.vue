@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import type { AcceptableValue } from 'reka-ui'
+import { open as openFilePicker } from '@tauri-apps/plugin-dialog'
 
-const { getLibraryFolders, removeFolderFromLibrary } = useLibrary()
+const { addFolderToLibrary, getLibraryFolders, removeFolderFromLibrary } = useLibrary()
 
 const { data: folders } = getLibraryFolders()
 
@@ -11,6 +12,15 @@ function handleRemoveFolder(folderPath: AcceptableValue) {
   removeFolderFromLibrary(0, folderPath)
   if (selectedFolder.value === folderPath) {
     selectedFolder.value = null
+  }
+}
+
+async function handleAddFolder() {
+  const folderPath = await openFilePicker({
+    directory: true,
+  })
+  if (folderPath) {
+    addFolderToLibrary(0, folderPath)
   }
 }
 </script>
@@ -40,7 +50,7 @@ function handleRemoveFolder(folderPath: AcceptableValue) {
         </ToggleGroupRoot>
       </UCard>
       <div class="flex justify-between">
-        <UButton variant="outline">
+        <UButton variant="outline" @click="handleAddFolder">
           Add folder...
         </UButton>
         <UButton

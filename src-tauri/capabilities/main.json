@@ -55,6 +55,7 @@
     "sql:default",
     "sql:allow-execute",
     "drag:allow-start-drag",
-    "drag:default"
+    "drag:default",
+    "dialog:default"
   ]
 }

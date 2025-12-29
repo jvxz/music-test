@@ -36,6 +36,7 @@ export function useLibrary() {
 
     refreshNuxtData(buildFolderInLibraryKey(folderPath))
     refreshTrackListForType('library')
+    refreshLibraryFolders()
   }, void 0, { immediate: false })
 
   const { execute: removeFolderFromLibrary, isLoading: isRemovingFolderFromLibrary } = useAsyncState<void>(async (folderPath: string) => {
