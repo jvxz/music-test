@@ -4,22 +4,15 @@ const { open } = useSettingsModal()
 
 <template>
   <UDialogRoot v-model:open="open">
-    <UDialogContent class="w-full sm:max-w-[58.5svw]">
-      <UDialogHeader>
-        <UDialogTitle>
-          Settings
-        </UDialogTitle>
-      </UDialogHeader>
-      <UDialogFooter>
-        <UButton disabled variant="soft">
-          Apply changes
-        </UButton>
-        <UDialogClose as-child>
-          <UButton variant="soft">
-            Close
-          </UButton>
-        </UDialogClose>
-      </UDialogFooter>
+    <UDialogContent class="w-full gap-0 p-0 sm:max-w-[58.5svw]">
+      <VisuallyHidden as-child>
+        <UDialogHeader>
+          <UDialogTitle>
+            Settings
+          </UDialogTitle>
+        </UDialogHeader>
+      </VisuallyHidden>
+      <ModalSettingsContent />
     </UDialogContent>
   </UDialogRoot>
 </template>
