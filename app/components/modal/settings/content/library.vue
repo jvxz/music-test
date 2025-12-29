@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <ModalSettingsContentLayout title="Appearance">
-    Appearance settings
+  <ModalSettingsContentLayout title="Library">
+    
   </ModalSettingsContentLayout>
 </template>
