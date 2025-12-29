@@ -55,13 +55,6 @@ export default defineNuxtConfig({
     typedPages: true,
   },
 
-  fonts: {
-    defaults: {
-      preload: true,
-      weights: [400, 500, 700],
-    },
-  },
-
   ignore: [
     '**/src-tauri/**',
     '**/node_modules/**',
@@ -73,6 +66,13 @@ export default defineNuxtConfig({
   imports: {
     dirs: ['types'],
     presets: [
+      {
+        cache: true,
+        from: 'text-case',
+        imports: [
+          'sentenceCase',
+        ],
+      },
       {
         from: '@crabnebula/tauri-plugin-drag',
         imports: [
