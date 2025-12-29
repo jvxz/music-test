@@ -24,7 +24,7 @@ const components = Object.fromEntries(
     orientation="vertical"
     class="flex size-full *:p-4"
   >
-    <TabsList class="flex w-[300px] shrink-0 flex-col gap-1 border-r *:justify-start">
+    <TabsList class="flex w-[225px] shrink-0 flex-col gap-0.5 border-r *:justify-start">
       <TabsTrigger
         v-for="tab in SETTINGS_MODAL_TABS"
         :key="tab"
@@ -40,7 +40,7 @@ const components = Object.fromEntries(
       v-for="tab in SETTINGS_MODAL_TABS"
       :key="tab"
       :value="tab"
-      class="h-[50vh]"
+      class="h-[55vh]"
     >
       <component :is="components[tab]" />
     </TabsContent>

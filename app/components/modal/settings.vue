@@ -4,7 +4,7 @@ const { open } = useSettingsModal()
 
 <template>
   <UDialogRoot v-model:open="open">
-    <UDialogContent class="w-full gap-0 p-0 sm:max-w-[58.5svw]">
+    <UDialogContent class="w-full gap-0 p-0 sm:max-w-[40svw] ">
       <VisuallyHidden as-child>
         <UDialogHeader>
           <UDialogTitle>
