@@ -3,6 +3,7 @@
   <NuxtLayout>
     <NuxtPage />
     <ModalItemSearch />
+    <ModalSettings />
   </NuxtLayout>
   <DevOnly>
     <DebugFps />
