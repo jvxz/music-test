@@ -1,22 +1,45 @@
+<script lang="ts" setup>
+const { tab } = useSettingsModal()
+
+const components = Object.fromEntries(
+  SETTINGS_MODAL_TABS.map(
+    t => [t, defineAsyncComponent(async () => {
+      try {
+        const component = await import(`~/components/modal/settings/content/${t}.vue`)
+        return component
+      }
+      catch {
+        return h('div', { innerHTML: `Please create ~/components/modal/settings/content/${t}.vue` })
+      }
+    })],
+  ),
+)
+</script>
+
 <template>
-  <TabsRoot orientation="vertical" class="flex size-full items-center *:p-4">
+  <TabsRoot
+    v-model:model-value="tab"
+    orientation="vertical"
+    class="flex size-full items-center *:p-4"
+  >
     <TabsList class="flex w-[300px] shrink-0 flex-col gap-1 border-r *:justify-start">
-      <TabsTrigger value="account" as-child>
+      <TabsTrigger
+        v-for="tab in SETTINGS_MODAL_TABS"
+        :key="tab"
+        :value="tab"
+        as-child
+      >
         <UButton variant="ghost" class="w-full justify-start">
-          Account
-        </UButton>
-      </TabsTrigger>
-      <TabsTrigger value="appearance" as-child>
-        <UButton variant="ghost" class="w-full justify-start">
-          Appearance
+          {{ sentenceCase(tab) }}
         </UButton>
       </TabsTrigger>
     </TabsList>
-    <TabsContent value="account" class="flex-1">
-      test
-    </TabsContent>
-    <TabsContent value="appearance" class="flex-1">
-      appearance
+    <TabsContent
+      v-for="tab in SETTINGS_MODAL_TABS"
+      :key="tab"
+      :value="tab"
+    >
+      <component :is="components[tab]" />
     </TabsContent>
   </TabsRoot>
   <UDialogFooter class="border-t p-4">
