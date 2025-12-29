@@ -1,4 +1,4 @@
-import type { UseMagicKeysOptions } from '@vueuse/core'
+import type { MagicKeysInternal, UseMagicKeysOptions } from '@vueuse/core'
 import type { ShallowRef } from 'vue'
 
 interface Options extends UseMagicKeysOptions<false> {
@@ -8,6 +8,7 @@ interface Options extends UseMagicKeysOptions<false> {
    * If not provided, the active element will be detected automatically
    */
   activeElement?: ShallowRef<HTMLElement | null | undefined, HTMLElement | null | undefined>
+  magicKeys?: Readonly<Record<string, globalThis.ComputedRef<boolean>> & MagicKeysInternal>
   /**
    * CSS selectors to ignore safety checks
    */
@@ -15,7 +16,7 @@ interface Options extends UseMagicKeysOptions<false> {
 }
 
 export function onKeyStrokeSafe(keystroke: string, callback: () => void, options?: Options) {
-  const keys = useMagicKeys(options)
+  const keys = options?.magicKeys ?? useMagicKeys(options)
   const activeElement = options?.activeElement ?? useActiveElement()
 
   whenever(() => keys[keystroke]?.value, () => {
