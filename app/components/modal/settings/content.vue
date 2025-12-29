@@ -1,9 +1,11 @@
 <script lang="ts" setup>
+import type { VNode } from 'vue'
+
 const { tab } = useSettingsModal()
 
 const components = Object.fromEntries(
   SETTINGS_MODAL_TABS.map(
-    t => [t, defineAsyncComponent(async () => {
+    t => [t, defineAsyncComponent<VNode>(async () => {
       try {
         const component = await import(`~/components/modal/settings/content/${t}.vue`)
         return component
