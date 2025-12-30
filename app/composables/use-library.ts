@@ -18,9 +18,14 @@ export function useLibrary() {
   const getLibraryFolders = () => useAsyncData(LIBRARY_FOLDERS_KEY, () => $db().selectFrom('library_folders').selectAll().execute(), { immediate: true })
 
   const { execute: addFolderToLibrary, isLoading: isAddingFolderToLibrary } = useAsyncState<void>(async (folderPath: string) => {
-    const isFolder = await useTauriFsExists(folderPath)
-    if (!isFolder)
+    const exists = await useTauriFsExists(folderPath)
+    if (!exists)
       // TODO: show error toast
+      return
+
+    const { isDirectory } = await useTauriFsStat(folderPath)
+    if (!isDirectory)
+    // TODO: show error toast
       return
 
     await $db().insertInto('library_folders').values({
