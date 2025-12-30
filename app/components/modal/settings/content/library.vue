@@ -2,6 +2,7 @@
 import type { AcceptableValue } from 'reka-ui'
 import { open as openFilePicker } from '@tauri-apps/plugin-dialog'
 
+const { copy } = useClipboard()
 const { addFolderToLibrary, getLibraryFolders, removeFolderFromLibrary } = useLibrary()
 
 const { data: folders } = getLibraryFolders()
@@ -37,16 +38,29 @@ async function handleAddFolder() {
           type="single"
           class="h-32 space-y-0.5 overflow-y-auto"
         >
-          <ToggleGroupItem
+          <UContextMenu
             v-for="folder in folders"
             :key="folder.path"
-            :value="folder.path"
-            as-child
           >
-            <button class="w-full truncate text-left data-[state=on]:bg-muted">
-              {{ folder.path }}
-            </button>
-          </ToggleGroupItem>
+            <UContextMenuTrigger as-child>
+              <ToggleGroupItem
+                :value="folder.path"
+                as-child
+              >
+                <button :title="folder.path" class="w-full truncate text-left select-none data-active:bg-muted">
+                  {{ folder.path }}
+                </button>
+              </ToggleGroupItem>
+            </UContextMenuTrigger>
+            <UContextMenuContent>
+              <UContextMenuItem @click="copy(folder.path)">
+                Copy path
+              </UContextMenuItem>
+              <UContextMenuItem @click="handleRemoveFolder(folder.path)">
+                Remove
+              </UContextMenuItem>
+            </UContextMenuContent>
+          </UContextMenu>
         </ToggleGroupRoot>
       </UCard>
       <div class="flex justify-between">
