@@ -158,6 +158,7 @@ pub async fn run() {
   ];
 
   let mut builder = tauri::Builder::default()
+    .plugin(tauri_plugin_stronghold::Builder::new(|pass| todo!()).build())
     .plugin(tauri_plugin_dialog::init())
     .plugin(
       tauri_plugin_sql::Builder::default()
