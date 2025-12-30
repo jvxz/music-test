@@ -31,6 +31,10 @@ export default defineNuxtConfig({
     '@/assets/css/globals.css',
   ],
 
+  dayjs: {
+    plugins: ['duration'],
+  },
+
   devServer: {
     host: '0.0.0.0',
   },
@@ -105,6 +109,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxtjs/color-mode',
     '@nuxt/icon',
+    'dayjs-nuxt',
   ],
 
   router: {

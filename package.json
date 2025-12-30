@@ -41,6 +41,8 @@
     "better-sqlite3": "^12.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dayjs": "^1.11.19",
+    "dayjs-nuxt": "2.1.11",
     "fuse.js": "^7.1.0",
     "kysely": "^0.28.9",
     "kysely-dialect-tauri": "^1.2.1",
