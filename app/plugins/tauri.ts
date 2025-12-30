@@ -14,6 +14,12 @@ export default defineNuxtPlugin({
     const entries = await tauriStore.entries()
     const prefs = new Map<string, unknown>(entries)
 
+    const settings = useState<Settings>('settings')
+    const settingsFromPrefs = prefs.get('settings') as Settings | undefined
+    settings.value = settingsFromPrefs ?? DEFAULT_SETTINGS
+
+    watchDebounced(settings, () => tauriStore.set('settings', settings.value), { debounce: 500 })
+
     return {
       provide: {
         tauri: {
