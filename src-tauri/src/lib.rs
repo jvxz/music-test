@@ -1,4 +1,4 @@
-use crate::files::read::{FileEntry, SortMethod};
+use crate::files::read::FileEntry;
 use crate::playback::{AudioHandle, StreamAction, StreamStatus};
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use serde::Serialize;
@@ -18,6 +18,7 @@ mod files {
 mod audio;
 mod cover_protocol;
 mod hooks;
+mod lastfm;
 mod playback;
 mod waveform;
 
@@ -37,6 +38,10 @@ trait Api {
     path: String,
     bin_size: f32,
   ) -> Result<Vec<f32>, String>;
+
+  // lastfm
+  async fn open_lastfm_auth<R: Runtime>(app_handle: AppHandle<R>) -> Result<String, String>;
+  async fn get_lastfm_session_key(token: String) -> Result<(), String>;
 }
 
 #[taurpc::resolvers]
@@ -74,6 +79,15 @@ impl Api for ApiImpl {
     action: StreamAction,
   ) -> Result<StreamStatus, String> {
     return playback::control_playback(app_handle, action).await;
+  }
+
+  // lastfm
+  async fn open_lastfm_auth<R: Runtime>(self, app_handle: AppHandle<R>) -> Result<String, String> {
+    return lastfm::open_lastfm_auth(app_handle).await;
+  }
+
+  async fn get_lastfm_session_key(self, token: String) -> Result<(), String> {
+    return lastfm::get_lastfm_session_key(token).await;
   }
 }
 
@@ -158,6 +172,7 @@ pub async fn run() {
   ];
 
   let mut builder = tauri::Builder::default()
+    .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_stronghold::Builder::new(|pass| todo!()).build())
     .plugin(tauri_plugin_dialog::init())
     .plugin(
@@ -195,6 +210,16 @@ pub async fn run() {
 
       let initial_state = get_initial_state(app.app_handle());
       let _join_handle = std::thread::spawn(move || audio::spawn_audio_thread(rx, initial_state));
+
+      // stronghold
+      let salt_path = app
+        .path()
+        .app_local_data_dir()
+        .expect("could not resolve app local data path")
+        .join("salt.txt");
+      app
+        .handle()
+        .plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())?;
 
       let _tray = TrayIconBuilder::new()
         .menu(&menu)

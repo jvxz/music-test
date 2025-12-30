@@ -57,6 +57,7 @@
     "drag:allow-start-drag",
     "drag:default",
     "dialog:default",
-    "stronghold:default"
+    "stronghold:default",
+    "opener:default"
   ]
 }
