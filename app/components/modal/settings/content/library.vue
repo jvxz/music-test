@@ -24,6 +24,10 @@ async function handleAddFolder() {
     addFolderToLibrary(0, folderPath)
   }
 }
+
+async function handleDrop(folderPaths: string[]) {
+  await addFolderToLibrary(0, folderPaths[0])
+}
 </script>
 
 <template>
@@ -32,37 +36,42 @@ async function handleAddFolder() {
       Monitored folders
     </h2>
     <div class="flex flex-col gap-1">
-      <UCard class="gap-0 bg-background p-1 px-2 font-mono text-sm">
-        <ToggleGroupRoot
-          v-model:model-value="selectedFolder"
-          type="single"
-          class="h-32 space-y-0.5 overflow-y-auto"
-        >
-          <UContextMenu
-            v-for="folder in folders"
-            :key="folder.path"
+      <TauriDragoverProvider v-slot="{ isOver }" @drop="handleDrop">
+        <UCard class="relative gap-0 bg-background p-1 px-2 font-mono text-sm">
+          <div v-show="isOver" class="pointer-events-none absolute inset-0 bg-background/50 grid place-items-center" >
+            Drop to add folder
+          </div>
+          <ToggleGroupRoot
+            v-model:model-value="selectedFolder"
+            type="single"
+            class="h-32 space-y-0.5 overflow-y-auto"
           >
-            <UContextMenuTrigger as-child>
-              <ToggleGroupItem
-                :value="folder.path"
-                as-child
-              >
-                <button :title="folder.path" class="w-full truncate text-left select-none data-active:bg-muted">
-                  {{ folder.path }}
-                </button>
-              </ToggleGroupItem>
-            </UContextMenuTrigger>
-            <UContextMenuContent>
-              <UContextMenuItem @click="copy(folder.path)">
-                Copy path
-              </UContextMenuItem>
-              <UContextMenuItem @click="handleRemoveFolder(folder.path)">
-                Remove
-              </UContextMenuItem>
-            </UContextMenuContent>
-          </UContextMenu>
-        </ToggleGroupRoot>
-      </UCard>
+            <UContextMenu
+              v-for="folder in folders"
+              :key="folder.path"
+            >
+              <UContextMenuTrigger as-child>
+                <ToggleGroupItem
+                  :value="folder.path"
+                  as-child
+                >
+                  <button :title="folder.path" class="w-full truncate text-left select-none data-active:bg-muted">
+                    {{ folder.path }}
+                  </button>
+                </ToggleGroupItem>
+              </UContextMenuTrigger>
+              <UContextMenuContent>
+                <UContextMenuItem @click="copy(folder.path)">
+                  Copy path
+                </UContextMenuItem>
+                <UContextMenuItem @click="handleRemoveFolder(folder.path)">
+                  Remove
+                </UContextMenuItem>
+              </UContextMenuContent>
+            </UContextMenu>
+          </ToggleGroupRoot>
+        </UCard>
+      </TauriDragoverProvider>
       <div class="flex justify-between">
         <UButton variant="outline" @click="handleAddFolder">
           Add folder...
