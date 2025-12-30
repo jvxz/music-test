@@ -1,3 +1,5 @@
+const LIBRARY_FOLDERS_KEY = 'library-folders'
+
 export function useLibrary() {
   const { rpc } = useTauri()
 
@@ -13,10 +15,17 @@ export function useLibrary() {
     return folderEntries
   }
 
+  const getLibraryFolders = () => useAsyncData(LIBRARY_FOLDERS_KEY, () => $db().selectFrom('library_folders').selectAll().execute(), { immediate: true })
+
   const { execute: addFolderToLibrary, isLoading: isAddingFolderToLibrary } = useAsyncState<void>(async (folderPath: string) => {
-    const isFolder = await useTauriFsExists(folderPath)
-    if (!isFolder)
+    const exists = await useTauriFsExists(folderPath)
+    if (!exists)
       // TODO: show error toast
+      return
+
+    const { isDirectory } = await useTauriFsStat(folderPath)
+    if (!isDirectory)
+    // TODO: show error toast
       return
 
     await $db().insertInto('library_folders').values({
@@ -32,6 +41,7 @@ export function useLibrary() {
 
     refreshNuxtData(buildFolderInLibraryKey(folderPath))
     refreshTrackListForType('library')
+    refreshLibraryFolders()
   }, void 0, { immediate: false })
 
   const { execute: removeFolderFromLibrary, isLoading: isRemovingFolderFromLibrary } = useAsyncState<void>(async (folderPath: string) => {
@@ -68,12 +78,11 @@ export function useLibrary() {
       .execute()
 
     clearNuxtData(buildFolderInLibraryKey(folderPath))
+    refreshLibraryFolders()
     refreshTrackListForType('library')
   }, void 0, { immediate: false })
 
-  const useFolderInLibrary = (folderPath: string) => useAsyncData(computed(() => buildFolderInLibraryKey(folderPath)), () => {
-    return $db().selectFrom('library_folders').where('path', '=', folderPath).selectAll().executeTakeFirst()
-  }, { immediate: false })
+  const useFolderInLibrary = (folderPath: string) => useAsyncData(computed(() => buildFolderInLibraryKey(folderPath)), () => $db().selectFrom('library_folders').where('path', '=', folderPath).selectAll().executeTakeFirst(), { immediate: false })
 
   async function addTracksToLibrary(tracks: FileEntry[], source: {
     type: 'folder' | 'playlist'
@@ -161,6 +170,7 @@ export function useLibrary() {
         .execute()
     }
 
+    refreshLibraryFolders()
     refreshTrackListForType('library')
   }
 
@@ -169,6 +179,7 @@ export function useLibrary() {
     addLibraryTrackSource,
     addTracksToLibrary,
     cleanupLibraryTrackSource,
+    getLibraryFolders,
     getLibraryTracks,
     isAddingFolderToLibrary,
     isRemovingFolderFromLibrary,
@@ -179,4 +190,8 @@ export function useLibrary() {
 
 function buildFolderInLibraryKey(folderPath: string) {
   return `${folderPath}-in-library`
+}
+
+export function refreshLibraryFolders() {
+  refreshNuxtData(LIBRARY_FOLDERS_KEY)
 }

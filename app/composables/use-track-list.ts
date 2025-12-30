@@ -148,6 +148,10 @@ export function useTrackList() {
 }
 
 export function createTrackListInputKey(input: TrackListInput) {
+  if (input.type === 'library') {
+    return `library-${input.sortBy}-${input.sortOrder}`
+  }
+
   return `${input.type}-${input.path}-${input.sortBy}-${input.sortOrder}`
 }
 
@@ -158,6 +162,7 @@ export function refreshTrackListForType(trackListType: TrackListInput['type'], p
     trackListCache.value.forEach((_, key, map) => {
       if (key.startsWith(`library-`)) {
         map.delete(key)
+        refreshNuxtData(key)
       }
     })
   }
@@ -166,10 +171,7 @@ export function refreshTrackListForType(trackListType: TrackListInput['type'], p
     trackListCache.value.forEach((_, key, map) => {
       if (key.startsWith(`playlist-${path}-`)) {
         map.delete(key)
-      }
-
-      if (key.startsWith(`playlist-`)) {
-        map.delete(key)
+        refreshNuxtData(key)
       }
     })
   }

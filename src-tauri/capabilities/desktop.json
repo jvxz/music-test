@@ -11,6 +11,7 @@
   "permissions": [
     "window-state:default",
     "fs:allow-exists",
-    "sql:default"
+    "sql:default",
+    "dialog:default"
   ]
 }

@@ -69,7 +69,7 @@ export function useUserPlaylists() {
     }))).execute()
 
     refreshPlaylistList()
-    refreshTrackListForType('playlist')
+    refreshTrackListForType('playlist', String(playlistId))
   }
 
   // TODO: allow multiple tracks
@@ -79,7 +79,7 @@ export function useUserPlaylists() {
     await cleanupLibraryTrackSource(track)
 
     refreshPlaylistList()
-    refreshTrackListForType('playlist')
+    refreshTrackListForType('playlist', String(playlistId))
   }
 
   async function checkPlaylistExists(playlistId: number) {
