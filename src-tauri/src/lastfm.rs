@@ -1,12 +1,17 @@
 use anyhow::Result;
-use last_fm_rs::{AuthToken, Client, SessionKey};
-use tauri::{AppHandle, Runtime};
+use iota_stronghold::ClientError;
+use last_fm_rs::{AuthToken, Client};
+use tauri::{AppHandle, Manager, Runtime};
 use tauri_plugin_opener::OpenerExt;
+use tauri_plugin_stronghold::stronghold::Stronghold;
+
+const LASTFM_API_KEY: &str = "_";
+const LASTFM_API_SECRET: &str = "_";
 
 #[tauri::command]
 pub async fn open_lastfm_auth<R: Runtime>(app_handle: AppHandle<R>) -> Result<String, String> {
   async fn main<R: Runtime>(app_handle: AppHandle<R>) -> anyhow::Result<String> {
-    let client = Client::new("_", "_");
+    let client = Client::new(LASTFM_API_KEY, LASTFM_API_SECRET);
 
     let token = client.get_token().await.map_err(|e| anyhow::anyhow!(e))?;
     println!("token: {:?}", token);
@@ -27,21 +32,44 @@ pub async fn open_lastfm_auth<R: Runtime>(app_handle: AppHandle<R>) -> Result<St
   return Ok(token);
 }
 
-pub async fn get_lastfm_session_key(token: String) -> Result<(), String> {
-  async fn main(token: String) -> anyhow::Result<SessionKey> {
-    let client = Client::new("_", "_");
+#[tauri::command]
+pub async fn complete_lastfm_auth<R: Runtime>(
+  app_handle: AppHandle<R>,
+  token: String,
+) -> Result<String, String> {
+  async fn main<R: Runtime>(app_handle: AppHandle<R>, token: String) -> anyhow::Result<String> {
+    let client = Client::new(LASTFM_API_KEY, LASTFM_API_SECRET);
 
     let session = client
       .get_session(&AuthToken { token })
       .await
       .map_err(|e| anyhow::anyhow!(e))?;
 
-    println!("session: {:?}", session);
+    let stronghold = app_handle.state::<Stronghold>();
+    let mut client = stronghold.load_client("lastfm");
 
-    return Ok(session);
+    if let Err(ClientError::ClientDataNotPresent) = client {
+      client = Ok(
+        stronghold
+          .create_client("lastfm")
+          .expect("failed to create client"),
+      );
+    }
+
+    let client = client.expect("failed to load client");
+
+    client.store().insert(
+      b"session_key".to_vec(),
+      session.key.as_bytes().to_vec(),
+      None,
+    )?;
+
+    stronghold.save();
+
+    return Ok(session.key);
   }
 
-  main(token).await.map_err(|e| e.to_string())?;
+  let session = main(app_handle, token).await.map_err(|e| e.to_string())?;
 
-  return Ok(());
+  return Ok(session);
 }

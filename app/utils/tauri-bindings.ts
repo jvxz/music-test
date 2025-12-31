@@ -10,10 +10,10 @@ export type StreamAction = { Play: string } | "Pause" | "Resume" | { Seek: numbe
 
 export type StreamStatus = { is_playing: boolean; position: number; duration: number; is_looping: boolean; path: string | null; volume: number; is_muted: boolean }
 
-const ARGS_MAP = { '':'{"control_playback":["action"],"get_canonical_path":["path"],"get_lastfm_session_key":["token"],"get_track_data":["path"],"get_tracks_data":["paths"],"get_waveform":["path","bin_size"],"open_lastfm_auth":[],"read_folder":["path"]}' }
-export type Router = { "": {control_playback: (action: StreamAction) => Promise<StreamStatus>, 
+const ARGS_MAP = { '':'{"complete_lastfm_auth":["token"],"control_playback":["action"],"get_canonical_path":["path"],"get_track_data":["path"],"get_tracks_data":["paths"],"get_waveform":["path","bin_size"],"open_lastfm_auth":[],"read_folder":["path"]}' }
+export type Router = { "": {complete_lastfm_auth: (token: string) => Promise<string>, 
+control_playback: (action: StreamAction) => Promise<StreamStatus>, 
 get_canonical_path: (path: string) => Promise<string>, 
-get_lastfm_session_key: (token: string) => Promise<null>, 
 get_track_data: (path: string) => Promise<FileEntry | null>, 
 get_tracks_data: (paths: string[]) => Promise<FileEntry[]>, 
 get_waveform: (path: string, binSize: number) => Promise<number[]>, 

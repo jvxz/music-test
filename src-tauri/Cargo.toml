@@ -47,6 +47,14 @@ tauri-plugin-dialog = "2"
 tauri-plugin-stronghold = "2"
 last-fm-rs = "20251214.0.2"
 tauri-plugin-opener = "2"
+keyring = { version = "3", features = [
+  "apple-native",
+  "windows-native",
+  "sync-secret-service"
+] }
+rand = "0.9.2"
+uuid = { version = "1.19.0", features = [ "v4" ] }
+iota_stronghold = "2.1.0"
 
 [dependencies.tauri]
 version = "2.9.1"

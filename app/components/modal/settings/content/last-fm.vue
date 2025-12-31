@@ -4,11 +4,11 @@ const { execute: openLastFmAuth, state: token } = useAsyncState(() => rpc.open_l
   immediate: false,
 })
 
-function completeAuthorization() {
+async function completeAuthorization() {
   if (!token.value)
     return
 
-  rpc.get_lastfm_session_key(token.value)
+  await rpc.complete_lastfm_auth(token.value)
 }
 </script>
 
