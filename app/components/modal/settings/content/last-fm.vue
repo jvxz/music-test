@@ -8,7 +8,8 @@ async function completeAuthorization() {
   if (!token.value)
     return
 
-  await rpc.complete_lastfm_auth(token.value)
+  const name = await rpc.complete_lastfm_auth(token.value)
+  console.log('name: ', name)
 }
 </script>
 
@@ -19,6 +20,9 @@ async function completeAuthorization() {
     </UButton>
     <UButton :disabled="!token" @click="completeAuthorization()">
       Complete authorization
+    </UButton>
+    <UButton @click="rpc.remove_lastfm_account()">
+      Remove authorization
     </UButton>
   </ModalSettingsContentLayout>
 </template>

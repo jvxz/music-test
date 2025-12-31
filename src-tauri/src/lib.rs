@@ -1,7 +1,7 @@
 use crate::files::read::FileEntry;
-use uuid::Uuid;
-
+use crate::lastfm::{SerializedScrobble, SerializedScrobbleResponse};
 use crate::playback::{AudioHandle, StreamAction, StreamStatus};
+use last_fm_rs::{Scrobble, ScrobbleResponse};
 use rand::TryRngCore;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use serde::Serialize;
@@ -16,6 +16,7 @@ use tauri_plugin_sql::{Migration, MigrationKind};
 use tauri_plugin_store::StoreExt;
 use tauri_plugin_stronghold::stronghold::Stronghold;
 use tokio::sync::{mpsc, oneshot};
+use uuid::Uuid;
 
 mod files {
   pub mod read;
@@ -50,6 +51,12 @@ trait Api {
     app_handle: AppHandle<R>,
     token: String,
   ) -> Result<String, String>;
+  async fn remove_lastfm_account<R: Runtime>(app_handle: AppHandle<R>) -> Result<(), String>;
+  async fn scrobble_track<R: Runtime>(
+    app_handle: AppHandle<R>,
+    scrobble: SerializedScrobble,
+  ) -> SerializedScrobbleResponse;
+  async fn set_now_playing<R: Runtime>(app_handle: AppHandle<R>, scrobble: SerializedScrobble);
 }
 
 #[taurpc::resolvers]
@@ -100,6 +107,26 @@ impl Api for ApiImpl {
     token: String,
   ) -> Result<String, String> {
     return lastfm::complete_lastfm_auth(app_handle, token).await;
+  }
+
+  async fn remove_lastfm_account<R: Runtime>(self, app_handle: AppHandle<R>) -> Result<(), String> {
+    return lastfm::remove_lastfm_account(app_handle).await;
+  }
+
+  async fn scrobble_track<R: Runtime>(
+    self,
+    app_handle: AppHandle<R>,
+    scrobble: SerializedScrobble,
+  ) -> SerializedScrobbleResponse {
+    return lastfm::scrobble_track(app_handle, scrobble).await;
+  }
+
+  async fn set_now_playing<R: Runtime>(
+    self,
+    app_handle: AppHandle<R>,
+    scrobble: SerializedScrobble,
+  ) {
+    lastfm::set_now_playing(app_handle, scrobble).await;
   }
 }
 
@@ -260,8 +287,6 @@ pub async fn run() {
         .app_local_data_dir()
         .expect("failed to get app local data dir")
         .join("swim.hold");
-      println!("stronghold path: {:?}", stronghold_path);
-      println!("vault pw: {:?}", vault_pw);
       let stronghold = Stronghold::new(stronghold_path, vault_pw.as_bytes().to_vec())
         .expect("failed to create stronghold");
       app.manage(stronghold);
