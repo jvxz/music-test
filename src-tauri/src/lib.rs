@@ -225,6 +225,9 @@ pub async fn run() {
     builder = builder.plugin(devtools);
   }
 
+  // safe to compile last.fm secrets
+  dotenvy::dotenv().ok();
+
   return builder
     .setup(|app| {
       let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())

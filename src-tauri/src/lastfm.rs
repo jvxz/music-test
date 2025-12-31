@@ -1,19 +1,15 @@
 use anyhow::Result;
-use std::{
-  sync::Mutex,
-  time::{SystemTime, UNIX_EPOCH},
-};
-
 use iota_stronghold::ClientError;
 use last_fm_rs::{AuthToken, Client, NowPlaying, Scrobble};
 use serde::{Deserialize, Serialize};
 use specta::Type;
+use std::{
+  sync::Mutex,
+  time::{SystemTime, UNIX_EPOCH},
+};
 use tauri::{AppHandle, Manager, Runtime};
 use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_stronghold::stronghold::Stronghold;
-
-const LASTFM_API_KEY: &str = "_";
-const LASTFM_API_SECRET: &str = "_";
 
 static STRONGHOLD_CLIENT: Mutex<Option<iota_stronghold::Client>> = Mutex::new(None);
 
@@ -111,7 +107,8 @@ pub async fn set_now_playing<R: Runtime>(app_handle: AppHandle<R>, scrobble: Ser
 #[tauri::command]
 pub async fn open_lastfm_auth<R: Runtime>(app_handle: AppHandle<R>) -> Result<String, String> {
   async fn main<R: Runtime>(app_handle: AppHandle<R>) -> anyhow::Result<String> {
-    let client = Client::new(LASTFM_API_KEY, LASTFM_API_SECRET);
+    let (api_key, api_secret) = get_lastfm_secrets();
+    let client = Client::new(api_key, api_secret);
 
     let token = client.get_token().await.map_err(|e| anyhow::anyhow!(e))?;
 
@@ -137,7 +134,8 @@ pub async fn complete_lastfm_auth<R: Runtime>(
   token: String,
 ) -> Result<String, String> {
   async fn main<R: Runtime>(app_handle: AppHandle<R>, token: String) -> anyhow::Result<String> {
-    let client = Client::new(LASTFM_API_KEY, LASTFM_API_SECRET);
+    let (api_key, api_secret) = get_lastfm_secrets();
+    let client = Client::new(api_key, api_secret);
 
     let session = client
       .get_session(&AuthToken { token })
@@ -184,7 +182,8 @@ pub async fn remove_lastfm_account<R: Runtime>(app_handle: AppHandle<R>) -> Resu
 
 fn get_lastfm_client<R: Runtime>(app_handle: AppHandle<R>) -> Client {
   let session_key = get_session_key(app_handle);
-  return Client::new(LASTFM_API_KEY, LASTFM_API_SECRET).with_session_key(session_key);
+  let (api_key, api_secret) = get_lastfm_secrets();
+  return Client::new(api_key, api_secret).with_session_key(session_key);
 }
 
 fn get_session_key<R: Runtime>(app_handle: AppHandle<R>) -> String {
@@ -227,4 +226,10 @@ fn load_stronghold_client<R: Runtime>(app_handle: AppHandle<R>) -> iota_strongho
   }
 
   return client;
+}
+
+fn get_lastfm_secrets() -> (String, String) {
+  let api_key = std::env::var("LAST_FM_API_KEY").expect("LAST_FM_API_KEY not found");
+  let api_secret = std::env::var("LAST_FM_CLIENT_SECRET").expect("LAST_FM_CLIENT_SECRET not found");
+  return (api_key.to_string(), api_secret.to_string());
 }
