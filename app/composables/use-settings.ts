@@ -3,6 +3,7 @@ type SettingsEntryKeyFormat = `${typeof SETTINGS_MODAL_TABS[number]}.${string}`
 export interface Settings {
   'appearance.font': 'SYSTEM' | (string & {})
   'last-fm.username': string | null
+  'last-fm.do-scrobbling': boolean
 }
 
 export type SettingsEntryKey = keyof Settings
@@ -14,6 +15,7 @@ type EnforcedSettingsKeys<T extends Record<string, any>> = {
 
 export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'appearance.font': 'SYSTEM',
+  'last-fm.do-scrobbling': true,
   'last-fm.username': null,
 }
 

@@ -22,16 +22,22 @@ export function useLastFm() {
   const removeAuth = () => rpc.remove_lastfm_account()
 
   const updateNowPlaying = useDebounceFn(async (track: TrackListEntry, duration: number) => {
+    if (!getSettingValue('last-fm.do-scrobbling'))
+      return
+
     const scrobble = getSerializedScrobble(track, duration)
     if (scrobble) {
-      rpc.set_now_playing(scrobble)
+      await rpc.set_now_playing(scrobble)
     }
   }, 2000)
 
   const scrobbleTrack = useDebounceFn(async (track: TrackListEntry, duration: number) => {
+    if (!getSettingValue('last-fm.do-scrobbling'))
+      return
+
     const scrobble = getSerializedScrobble(track, duration)
     if (scrobble) {
-      rpc.scrobble_track(scrobble)
+      await rpc.scrobble_track(scrobble)
     }
   }, 2000)
 
