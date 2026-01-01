@@ -2,6 +2,7 @@ type SettingsEntryKeyFormat = `${typeof SETTINGS_MODAL_TABS[number]}.${string}`
 
 export interface Settings {
   'appearance.font': 'SYSTEM' | (string & {})
+  'last-fm.username': string | null
 }
 
 export type SettingsEntryKey = keyof Settings
@@ -13,6 +14,7 @@ type EnforcedSettingsKeys<T extends Record<string, any>> = {
 
 export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'appearance.font': 'SYSTEM',
+  'last-fm.username': null,
 }
 
 export const useSettings = createSharedComposable(() => {
@@ -28,9 +30,15 @@ export const useSettings = createSharedComposable(() => {
     })
     return ref
   }
+
+  function setSettingValue<T extends SettingsEntryKey>(key: T, value: SettingsEntryValue<T>) {
+    settings.value = { ...settings.value, [key]: value }
+  }
+
   return {
     getSettingValue,
     getSettingValueRef,
+    setSettingValue,
     settings,
   }
 })

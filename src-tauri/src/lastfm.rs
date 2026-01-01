@@ -36,72 +36,80 @@ pub async fn scrobble_track<R: Runtime>(
 ) -> SerializedScrobbleResponse {
   let client = get_lastfm_client(app_handle);
 
-  let timestamp = SystemTime::now()
-    .duration_since(UNIX_EPOCH)
-    .expect("failed to get timestamp")
-    .as_secs();
+  if let Some(client) = client {
+    let timestamp = SystemTime::now()
+      .duration_since(UNIX_EPOCH)
+      .expect("failed to get timestamp")
+      .as_secs();
 
-  let SerializedScrobble {
-    artist,
-    track,
-    album,
-    track_number,
-    duration,
-    album_artist,
-  } = scrobble;
+    let SerializedScrobble {
+      artist,
+      track,
+      album,
+      track_number,
+      duration,
+      album_artist,
+    } = scrobble;
 
-  let mut scrobble = Scrobble::new(artist, track, timestamp).with_duration(duration as u64);
+    let mut scrobble = Scrobble::new(artist, track, timestamp).with_duration(duration as u64);
 
-  if let Some(album) = album {
-    scrobble = scrobble.with_album(album);
+    if let Some(album) = album {
+      scrobble = scrobble.with_album(album);
+    }
+    if let Some(track_number) = track_number {
+      scrobble = scrobble.with_track_number(track_number);
+    }
+    if let Some(album_artist) = album_artist {
+      scrobble = scrobble.with_album_artist(album_artist);
+    }
+
+    let res = client
+      .scrobble(&[scrobble])
+      .await
+      .expect("failed to scrobble track");
+
+    return SerializedScrobbleResponse {
+      accepted: res.scrobbles.attr.accepted,
+      ignored: res.scrobbles.attr.ignored,
+    };
   }
-  if let Some(track_number) = track_number {
-    scrobble = scrobble.with_track_number(track_number);
-  }
-  if let Some(album_artist) = album_artist {
-    scrobble = scrobble.with_album_artist(album_artist);
-  }
-
-  let res = client
-    .scrobble(&[scrobble])
-    .await
-    .expect("failed to scrobble track");
 
   return SerializedScrobbleResponse {
-    accepted: res.scrobbles.attr.accepted,
-    ignored: res.scrobbles.attr.ignored,
+    accepted: 0,
+    ignored: 0,
   };
 }
 
 #[tauri::command]
 pub async fn set_now_playing<R: Runtime>(app_handle: AppHandle<R>, scrobble: SerializedScrobble) {
   let client = get_lastfm_client(app_handle);
+  if let Some(client) = client {
+    let SerializedScrobble {
+      artist,
+      track,
+      album,
+      track_number,
+      duration,
+      album_artist,
+    } = scrobble;
 
-  let SerializedScrobble {
-    artist,
-    track,
-    album,
-    track_number,
-    duration,
-    album_artist,
-  } = scrobble;
+    let mut now_playing = NowPlaying::new(&artist, &track).with_duration(duration as u64);
 
-  let mut now_playing = NowPlaying::new(&artist, &track).with_duration(duration as u64);
+    if let Some(album) = &album {
+      now_playing = now_playing.with_album(album.as_str());
+    }
+    if let Some(track_number) = track_number {
+      now_playing = now_playing.with_track_number(track_number);
+    }
+    if let Some(album_artist) = &album_artist {
+      now_playing = now_playing.with_album_artist(album_artist);
+    }
 
-  if let Some(album) = &album {
-    now_playing = now_playing.with_album(album.as_str());
+    client
+      .update_now_playing(&now_playing)
+      .await
+      .expect("failed to update now playing");
   }
-  if let Some(track_number) = track_number {
-    now_playing = now_playing.with_track_number(track_number);
-  }
-  if let Some(album_artist) = &album_artist {
-    now_playing = now_playing.with_album_artist(album_artist);
-  }
-
-  client
-    .update_now_playing(&now_playing)
-    .await
-    .expect("failed to update now playing");
 }
 
 #[tauri::command]
@@ -143,17 +151,7 @@ pub async fn complete_lastfm_auth<R: Runtime>(
       .map_err(|e| anyhow::anyhow!(e))?;
 
     let stronghold = app_handle.state::<Stronghold>();
-    let mut client = stronghold.load_client("lastfm");
-
-    if let Err(ClientError::ClientDataNotPresent) = client {
-      client = Ok(
-        stronghold
-          .create_client("lastfm")
-          .expect("failed to create client"),
-      );
-    }
-
-    let client = client.expect("failed to load client");
+    let mut client = load_stronghold_client(app_handle.clone());
 
     client.store().insert(
       b"session_key".to_vec(),
@@ -180,23 +178,30 @@ pub async fn remove_lastfm_account<R: Runtime>(app_handle: AppHandle<R>) -> Resu
   return Ok(());
 }
 
-fn get_lastfm_client<R: Runtime>(app_handle: AppHandle<R>) -> Client {
+fn get_lastfm_client<R: Runtime>(app_handle: AppHandle<R>) -> Option<Client> {
   let session_key = get_session_key(app_handle);
-  let (api_key, api_secret) = get_lastfm_secrets();
-  return Client::new(api_key, api_secret).with_session_key(session_key);
+  if let Some(sk) = session_key {
+    let (api_key, api_secret) = get_lastfm_secrets();
+    return Some(Client::new(api_key, api_secret).with_session_key(sk));
+  }
+
+  return None;
 }
 
-fn get_session_key<R: Runtime>(app_handle: AppHandle<R>) -> String {
+fn get_session_key<R: Runtime>(app_handle: AppHandle<R>) -> Option<String> {
   let sh = load_stronghold_client(app_handle);
 
   let sk = sh
     .store()
     .get(b"session_key")
     .expect("failed to load key 'session_key' from stronghold");
-  let sk = sk.expect("no 'session_key' in stronghold");
-  let sk = std::str::from_utf8(&sk).expect("invalid format of session_key in stronghold");
 
-  return sk.to_string();
+  if let Some(sk) = sk {
+    let sk = std::str::from_utf8(&sk).expect("invalid format of session_key in stronghold");
+    return Some(sk.to_string());
+  }
+
+  return None;
 }
 
 fn load_stronghold_client<R: Runtime>(app_handle: AppHandle<R>) -> iota_stronghold::Client {
@@ -226,6 +231,12 @@ fn load_stronghold_client<R: Runtime>(app_handle: AppHandle<R>) -> iota_strongho
   }
 
   return client;
+}
+
+#[tauri::command]
+pub async fn get_lastfm_auth_status<R: Runtime>(app_handle: AppHandle<R>) -> Result<bool, String> {
+  let client = get_lastfm_client(app_handle);
+  return Ok(client.is_some());
 }
 
 fn get_lastfm_secrets() -> (String, String) {

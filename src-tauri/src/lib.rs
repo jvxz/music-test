@@ -57,6 +57,7 @@ trait Api {
     scrobble: SerializedScrobble,
   ) -> SerializedScrobbleResponse;
   async fn set_now_playing<R: Runtime>(app_handle: AppHandle<R>, scrobble: SerializedScrobble);
+  async fn get_lastfm_auth_status<R: Runtime>(app_handle: AppHandle<R>) -> Result<bool, String>;
 }
 
 #[taurpc::resolvers]
@@ -127,6 +128,13 @@ impl Api for ApiImpl {
     scrobble: SerializedScrobble,
   ) {
     lastfm::set_now_playing(app_handle, scrobble).await;
+  }
+
+  async fn get_lastfm_auth_status<R: Runtime>(
+    self,
+    app_handle: AppHandle<R>,
+  ) -> Result<bool, String> {
+    return lastfm::get_lastfm_auth_status(app_handle).await;
   }
 }
 

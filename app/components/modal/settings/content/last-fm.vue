@@ -1,27 +1,22 @@
 <script lang="ts" setup>
-const { rpc } = useTauri()
-const { execute: openLastFmAuth, state: token } = useAsyncState(() => rpc.open_lastfm_auth(), undefined, {
-  immediate: false,
-})
+const { authStatus, completeAuth, removeAuth, startAuth } = useLastFm()
 
-async function completeAuthorization() {
-  if (!token.value)
-    return
+const token = shallowRef<string | null>(null)
 
-  const name = await rpc.complete_lastfm_auth(token.value)
-  console.log('name: ', name)
+async function handleStartAuth() {
+  token.value = await startAuth()
 }
 </script>
 
 <template>
   <ModalSettingsContentLayout>
-    <UButton @click="openLastFmAuth()">
+    <UButton @click="handleStartAuth()">
       Authorize
     </UButton>
-    <UButton :disabled="!token" @click="completeAuthorization()">
+    <UButton :disabled="!token" @click="completeAuth(token!)">
       Complete authorization
     </UButton>
-    <UButton @click="rpc.remove_lastfm_account()">
+    <UButton :disabled="!authStatus" @click="removeAuth()">
       Remove authorization
     </UButton>
   </ModalSettingsContentLayout>
