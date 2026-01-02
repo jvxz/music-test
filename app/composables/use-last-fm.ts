@@ -13,6 +13,10 @@ export function useLastFm() {
   const { isOnline } = useNetwork()
 
   watch(isOnline, async (isOnline) => {
+    const shouldProcessOfflineScrobbles = getSettingValue('last-fm.do-offline-scrobbling')
+    if (!shouldProcessOfflineScrobbles)
+      return
+
     if (isOnline) {
       const scrobbles = await offlineScrobbleCache.get('scrobbles') as SerializedOfflineScrobble[]
       if (scrobbles.length > 0) {
@@ -119,6 +123,10 @@ export function useLastFm() {
   }
 
   async function addOfflineScrobble(scrobble: SerializedOfflineScrobble) {
+    const shouldCacheOfflineScrobbles = getSettingValue('last-fm.do-offline-scrobbling')
+    if (!shouldCacheOfflineScrobbles)
+      return
+
     const offlineScrobbles = (await offlineScrobbleCache.get('scrobbles')) as SerializedOfflineScrobble[] | undefined
 
     offlineScrobbleCache.set('scrobbles', [...offlineScrobbles ?? [], scrobble])

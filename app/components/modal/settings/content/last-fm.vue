@@ -6,6 +6,8 @@ const { authStatus, completeAuth, removeAuth, startAuth, useLastFmProfile } = us
 const { getSettingValueRef } = useSettings()
 
 const doScrobbling = getSettingValueRef('last-fm.do-scrobbling')
+const doOfflineScrobbling = getSettingValueRef('last-fm.do-offline-scrobbling')
+
 const token = shallowRef<string | null>(null)
 const isAuthDialogOpen = shallowRef(false)
 const isCompletingAuth = shallowRef(false)
@@ -60,15 +62,31 @@ const { isOnline } = useNetwork()
           :disabled="!authStatus"
         />
       </div>
+      <div class="flex w-full items-center gap-2">
+        <ULabel for="doOfflineScrobbling">
+          Enable offline scrobbling
+        </ULabel>
+        <USwitch
+          id="doOfflineScrobbling"
+          v-model="doOfflineScrobbling"
+          :disabled="!authStatus"
+        />
+      </div>
     </div>
     <div class="flex w-fit shrink-0 justify-between gap-4">
       <template v-if="!isOnline">
-        <div class="flex items-center justify-around gap-2 text-muted-foreground">
+        <!-- <div class="flex items-center justify-around gap-2 text-muted-foreground"> -->
+        <div class="flex items-end justify-around flex-col text-muted-foreground">
           <p class="italic">
             You are currently offline.
           </p>
-
-          <UHoverCardRoot>
+          <UButton
+            class="w-fit"
+            :disabled="true"
+          >
+            Connect
+          </UButton>
+          <!-- <UHoverCardRoot>
             <UHoverCardTrigger as-child>
               <Icon name="tabler:info-circle" class="size-3.5!" />
             </UHoverCardTrigger>
@@ -77,10 +95,9 @@ const { isOnline } = useNetwork()
                 If you previously connected your Last.fm account, scrobbles are being cached and will be sent when you are back online.
               </p>
             </UHoverCardContent>
-          </UHoverCardRoot>
+          </UHoverCardRoot> -->
         </div>
-        <div class="size-[72px] rounded border border-dashed border-muted grid place-items-center">
-
+        <div class="grid size-[72px] place-items-center rounded border border-dashed border-muted">
           <Icon name="tabler:wifi-off" class="size-6! text-muted-foreground" />
         </div>
       </template>
