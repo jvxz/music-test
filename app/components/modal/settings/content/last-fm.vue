@@ -43,6 +43,8 @@ async function handleCompleteAuth() {
 }
 
 const { data: profile, pending: profilePending } = useLastFmProfile(authStatus)
+
+const { isOnline } = useNetwork()
 </script>
 
 <template>
@@ -60,13 +62,35 @@ const { data: profile, pending: profilePending } = useLastFmProfile(authStatus)
       </div>
     </div>
     <div class="flex w-fit shrink-0 justify-between gap-4">
-      <template v-if="profilePending">
+      <template v-if="!isOnline">
+        <div class="flex items-center justify-around gap-2 text-muted-foreground">
+          <p class="italic">
+            You are currently offline.
+          </p>
+
+          <UHoverCardRoot>
+            <UHoverCardTrigger as-child>
+              <Icon name="tabler:info-circle" class="size-3.5!" />
+            </UHoverCardTrigger>
+            <UHoverCardContent side="left">
+              <p>
+                If you previously connected your Last.fm account, scrobbles are being cached and will be sent when you are back online.
+              </p>
+            </UHoverCardContent>
+          </UHoverCardRoot>
+        </div>
+        <div class="size-[72px] rounded border border-dashed border-muted grid place-items-center">
+
+          <Icon name="tabler:wifi-off" class="size-6! text-muted-foreground" />
+        </div>
+      </template>
+      <template v-else-if="profilePending">
         <div class="flex flex-col items-end justify-around">
-          <USkeleton class="h-lh w-24" />
+          <USkeleton class="h-lh w-32" />
           <UButton
             :disabled="true"
             class="w-fit"
-            variant="danger"
+            variant="outline"
           >
             Loading...
           </UButton>
