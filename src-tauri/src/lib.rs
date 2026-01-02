@@ -1,5 +1,5 @@
 use crate::files::read::FileEntry;
-use crate::lastfm::{SerializedScrobble, SerializedScrobbleResponse};
+use crate::lastfm::{SerializedOfflineScrobble, SerializedScrobble, SerializedScrobbleResponse};
 use crate::playback::{AudioHandle, StreamAction, StreamStatus};
 use last_fm_rs::{Scrobble, ScrobbleResponse};
 use rand::TryRngCore;
@@ -55,6 +55,10 @@ trait Api {
   async fn scrobble_track<R: Runtime>(
     app_handle: AppHandle<R>,
     scrobble: SerializedScrobble,
+  ) -> SerializedScrobbleResponse;
+  async fn process_offline_scrobbles<R: Runtime>(
+    app_handle: AppHandle<R>,
+    scrobbles: Vec<SerializedOfflineScrobble>,
   ) -> SerializedScrobbleResponse;
   async fn set_now_playing<R: Runtime>(app_handle: AppHandle<R>, scrobble: SerializedScrobble);
   async fn get_lastfm_auth_status<R: Runtime>(app_handle: AppHandle<R>) -> Result<bool, String>;
@@ -120,6 +124,14 @@ impl Api for ApiImpl {
     scrobble: SerializedScrobble,
   ) -> SerializedScrobbleResponse {
     return lastfm::scrobble_track(app_handle, scrobble).await;
+  }
+
+  async fn process_offline_scrobbles<R: Runtime>(
+    self,
+    app_handle: AppHandle<R>,
+    scrobbles: Vec<SerializedOfflineScrobble>,
+  ) -> SerializedScrobbleResponse {
+    return lastfm::process_offline_scrobbles(app_handle, scrobbles).await;
   }
 
   async fn set_now_playing<R: Runtime>(

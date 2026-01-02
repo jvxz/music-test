@@ -1,6 +1,28 @@
+import { LazyStore } from '@tauri-apps/plugin-store'
+
+const offlineScrobbleCache = new LazyStore('lastfm-offline-scrobbles.json', {
+  autoSave: true,
+  defaults: {
+    scrobbles: [],
+  },
+})
+
 export function useLastFm() {
   const { rpc } = useTauri()
   const { getSettingValue, setSettingValue } = useSettings()
+  const { isOnline } = useNetwork()
+
+  watch(isOnline, async (isOnline) => {
+    if (isOnline) {
+      const scrobbles = await offlineScrobbleCache.get('scrobbles') as SerializedOfflineScrobble[]
+      if (scrobbles.length > 0) {
+        await rpc.process_offline_scrobbles(scrobbles)
+        await offlineScrobbleCache.clear()
+      }
+    }
+  }, {
+    immediate: true,
+  })
 
   const { data: authStatus, execute: refreshAuthStatus, pending: authStatusPending } = useAsyncData('lastfm-auth', async () => {
     const status = await rpc.get_lastfm_auth_status()
@@ -47,7 +69,7 @@ export function useLastFm() {
   }
 
   const updateNowPlaying = useDebounceFn(async (track: TrackListEntry, duration: number) => {
-    if (!getSettingValue('last-fm.do-scrobbling'))
+    if (!getSettingValue('last-fm.do-scrobbling') || !isOnline.value)
       return
 
     const scrobble = getSerializedScrobble(track, duration)
@@ -62,7 +84,22 @@ export function useLastFm() {
 
     const scrobble = getSerializedScrobble(track, duration)
     if (scrobble) {
-      await rpc.scrobble_track(scrobble)
+      if (!isOnline.value) {
+        return await addOfflineScrobble({
+          scrobble,
+          timestamp: Math.floor(Date.now() / 1000),
+        })
+      }
+
+      try {
+        await rpc.scrobble_track(scrobble)
+      }
+      catch {
+        return await addOfflineScrobble({
+          scrobble,
+          timestamp: Math.floor(Date.now() / 1000),
+        })
+      }
     }
   }, 2000)
 
@@ -79,6 +116,12 @@ export function useLastFm() {
       track: track.tags.TIT2,
       track_number: track.tags.TRCK ? Number(track.tags.TRCK) : null,
     }
+  }
+
+  async function addOfflineScrobble(scrobble: SerializedOfflineScrobble) {
+    const offlineScrobbles = (await offlineScrobbleCache.get('scrobbles')) as SerializedOfflineScrobble[] | undefined
+
+    offlineScrobbleCache.set('scrobbles', [...offlineScrobbles ?? [], scrobble])
   }
 
   return {

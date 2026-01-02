@@ -56,7 +56,7 @@ export const usePlayback = createSharedComposable(() => {
     if (_playbackStatus.value.position >= _playbackStatus.value.duration) {
       // track finished, reset position & scrobble if not already scrobbled
       if (canScrobble()) {
-        await scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
+        scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
         hasScrobbled = true
         // await to prevent race condition
         await nextTick()
@@ -82,8 +82,9 @@ export const usePlayback = createSharedComposable(() => {
   async function playPauseCurrentTrack(action?: 'Resume' | 'Pause') {
     // scrobble current track if not already scrobbled & applicable
     if (_currentTrack.value && _playbackStatus.value && canScrobble()) {
-      await scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
+      scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
       hasScrobbled = true
+      await nextTick()
     }
 
     if (!action) {
@@ -96,7 +97,8 @@ export const usePlayback = createSharedComposable(() => {
   async function playTrack(entry: TrackListEntry) {
     // scrobble previous track if not already scrobbled
     if (_currentTrack.value && _playbackStatus.value && canScrobble()) {
-      await scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
+      scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
+      await nextTick()
     }
 
     const data = await getTrackData(entry)

@@ -24,6 +24,12 @@ pub struct SerializedScrobble {
 }
 
 #[derive(Serialize, Clone, Deserialize, Type, Debug)]
+pub struct SerializedOfflineScrobble {
+  pub scrobble: SerializedScrobble,
+  pub timestamp: u32,
+}
+
+#[derive(Serialize, Clone, Deserialize, Type, Debug)]
 pub struct SerializedScrobbleResponse {
   pub accepted: u32,
   pub ignored: u32,
@@ -42,31 +48,42 @@ pub async fn scrobble_track<R: Runtime>(
       .expect("failed to get timestamp")
       .as_secs();
 
-    let SerializedScrobble {
-      artist,
-      track,
-      album,
-      track_number,
-      duration,
-      album_artist,
-    } = scrobble;
-
-    let mut scrobble = Scrobble::new(artist, track, timestamp).with_duration(duration as u64);
-
-    if let Some(album) = album {
-      scrobble = scrobble.with_album(album);
-    }
-    if let Some(track_number) = track_number {
-      scrobble = scrobble.with_track_number(track_number);
-    }
-    if let Some(album_artist) = album_artist {
-      scrobble = scrobble.with_album_artist(album_artist);
-    }
+    let scrobble = serialized_to_struct(scrobble, timestamp as u32);
 
     let res = client
       .scrobble(&[scrobble])
       .await
       .expect("failed to scrobble track");
+
+    return SerializedScrobbleResponse {
+      accepted: res.scrobbles.attr.accepted,
+      ignored: res.scrobbles.attr.ignored,
+    };
+  }
+
+  return SerializedScrobbleResponse {
+    accepted: 0,
+    ignored: 0,
+  };
+}
+
+#[tauri::command]
+pub async fn process_offline_scrobbles<R: Runtime>(
+  app_handle: AppHandle<R>,
+  scrobbles: Vec<SerializedOfflineScrobble>,
+) -> SerializedScrobbleResponse {
+  let client = get_lastfm_client(app_handle);
+
+  if let Some(client) = client {
+    let scrobbles = scrobbles
+      .into_iter()
+      .map(|s| serialized_to_struct(s.scrobble, s.timestamp))
+      .collect::<Vec<Scrobble>>();
+
+    let res = client
+      .scrobble(&scrobbles)
+      .await
+      .expect("failed to scrobble tracks");
 
     return SerializedScrobbleResponse {
       accepted: res.scrobbles.attr.accepted,
@@ -252,4 +269,29 @@ fn get_lastfm_secrets() -> Result<(String, String), String> {
   })?;
 
   Ok((api_key.to_string(), api_secret.to_string()))
+}
+
+fn serialized_to_struct(scrobble: SerializedScrobble, timestamp: u32) -> Scrobble {
+  let SerializedScrobble {
+    artist,
+    track,
+    album,
+    track_number,
+    duration,
+    album_artist,
+  } = scrobble;
+
+  let mut scrobble = Scrobble::new(artist, track, timestamp as u64).with_duration(duration as u64);
+
+  if let Some(album) = album {
+    scrobble = scrobble.with_album(album);
+  }
+  if let Some(track_number) = track_number {
+    scrobble = scrobble.with_track_number(track_number);
+  }
+  if let Some(album_artist) = album_artist {
+    scrobble = scrobble.with_album_artist(album_artist);
+  }
+
+  return scrobble;
 }
