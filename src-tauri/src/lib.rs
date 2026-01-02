@@ -1,7 +1,11 @@
-use crate::files::read::{FileEntry, SortMethod};
+use crate::files::read::FileEntry;
+use crate::lastfm::{SerializedOfflineScrobble, SerializedScrobble, SerializedScrobbleResponse};
 use crate::playback::{AudioHandle, StreamAction, StreamStatus};
+use last_fm_rs::{Scrobble, ScrobbleResponse};
+use rand::TryRngCore;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use serde::Serialize;
+use std::io::Write;
 use std::sync::Arc;
 use tauri::{
   menu::{Menu, MenuItem},
@@ -10,7 +14,9 @@ use tauri::{
 };
 use tauri_plugin_sql::{Migration, MigrationKind};
 use tauri_plugin_store::StoreExt;
+use tauri_plugin_stronghold::stronghold::Stronghold;
 use tokio::sync::{mpsc, oneshot};
+use uuid::Uuid;
 
 mod files {
   pub mod read;
@@ -18,6 +24,7 @@ mod files {
 mod audio;
 mod cover_protocol;
 mod hooks;
+mod lastfm;
 mod playback;
 mod waveform;
 
@@ -37,6 +44,24 @@ trait Api {
     path: String,
     bin_size: f32,
   ) -> Result<Vec<f32>, String>;
+
+  // lastfm
+  async fn open_lastfm_auth<R: Runtime>(app_handle: AppHandle<R>) -> Result<String, String>;
+  async fn complete_lastfm_auth<R: Runtime>(
+    app_handle: AppHandle<R>,
+    token: String,
+  ) -> Result<String, String>;
+  async fn remove_lastfm_account<R: Runtime>(app_handle: AppHandle<R>) -> Result<(), String>;
+  async fn scrobble_track<R: Runtime>(
+    app_handle: AppHandle<R>,
+    scrobble: SerializedScrobble,
+  ) -> SerializedScrobbleResponse;
+  async fn process_offline_scrobbles<R: Runtime>(
+    app_handle: AppHandle<R>,
+    scrobbles: Vec<SerializedOfflineScrobble>,
+  ) -> SerializedScrobbleResponse;
+  async fn set_now_playing<R: Runtime>(app_handle: AppHandle<R>, scrobble: SerializedScrobble);
+  async fn get_lastfm_auth_status<R: Runtime>(app_handle: AppHandle<R>) -> Result<bool, String>;
 }
 
 #[taurpc::resolvers]
@@ -74,6 +99,54 @@ impl Api for ApiImpl {
     action: StreamAction,
   ) -> Result<StreamStatus, String> {
     return playback::control_playback(app_handle, action).await;
+  }
+
+  // lastfm
+  async fn open_lastfm_auth<R: Runtime>(self, app_handle: AppHandle<R>) -> Result<String, String> {
+    return lastfm::open_lastfm_auth(app_handle).await;
+  }
+
+  async fn complete_lastfm_auth<R: Runtime>(
+    self,
+    app_handle: AppHandle<R>,
+    token: String,
+  ) -> Result<String, String> {
+    return lastfm::complete_lastfm_auth(app_handle, token).await;
+  }
+
+  async fn remove_lastfm_account<R: Runtime>(self, app_handle: AppHandle<R>) -> Result<(), String> {
+    return lastfm::remove_lastfm_account(app_handle).await;
+  }
+
+  async fn scrobble_track<R: Runtime>(
+    self,
+    app_handle: AppHandle<R>,
+    scrobble: SerializedScrobble,
+  ) -> SerializedScrobbleResponse {
+    return lastfm::scrobble_track(app_handle, scrobble).await;
+  }
+
+  async fn process_offline_scrobbles<R: Runtime>(
+    self,
+    app_handle: AppHandle<R>,
+    scrobbles: Vec<SerializedOfflineScrobble>,
+  ) -> SerializedScrobbleResponse {
+    return lastfm::process_offline_scrobbles(app_handle, scrobbles).await;
+  }
+
+  async fn set_now_playing<R: Runtime>(
+    self,
+    app_handle: AppHandle<R>,
+    scrobble: SerializedScrobble,
+  ) {
+    lastfm::set_now_playing(app_handle, scrobble).await;
+  }
+
+  async fn get_lastfm_auth_status<R: Runtime>(
+    self,
+    app_handle: AppHandle<R>,
+  ) -> Result<bool, String> {
+    return lastfm::get_lastfm_auth_status(app_handle).await;
   }
 }
 
@@ -158,6 +231,8 @@ pub async fn run() {
   ];
 
   let mut builder = tauri::Builder::default()
+    .plugin(tauri_plugin_http::init())
+    .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_dialog::init())
     .plugin(
       tauri_plugin_sql::Builder::default()
@@ -194,6 +269,48 @@ pub async fn run() {
 
       let initial_state = get_initial_state(app.app_handle());
       let _join_handle = std::thread::spawn(move || audio::spawn_audio_thread(rx, initial_state));
+
+      // stronghold
+      let salt_path = app
+        .path()
+        .app_local_data_dir()
+        .expect("could not resolve app local data path")
+        .join("salt.txt");
+
+      if let Some(parent_dir) = salt_path.parent() {
+        std::fs::create_dir_all(parent_dir).unwrap();
+      }
+
+      if !salt_path.exists() {
+        let mut salt = [0u8; 32];
+        rand::rng().try_fill_bytes(&mut salt).unwrap();
+        let mut file = std::fs::File::create(&salt_path).unwrap();
+        file.write_all(&salt).unwrap();
+      }
+
+      app
+        .handle()
+        .plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())?;
+
+      let vault_entry = keyring::Entry::new("swim", "master-key").unwrap();
+
+      let vault_pw = match vault_entry.get_password() {
+        Ok(pw) => pw,
+        Err(_) => {
+          let new_pw = Uuid::new_v4().simple().to_string();
+          vault_entry.set_password(new_pw.as_str());
+          new_pw
+        }
+      };
+
+      let stronghold_path = app
+        .path()
+        .app_local_data_dir()
+        .expect("failed to get app local data dir")
+        .join("swim.hold");
+      let stronghold = Stronghold::new(stronghold_path, vault_pw.as_bytes().to_vec())
+        .expect("failed to create stronghold");
+      app.manage(stronghold);
 
       let _tray = TrayIconBuilder::new()
         .menu(&menu)

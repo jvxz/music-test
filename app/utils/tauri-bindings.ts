@@ -6,17 +6,30 @@ type TAURI_CHANNEL<T> = (response: T) => void
 
 export type FileEntry = { path: string; name: string; tags: Partial<{ [key in string]: string }>; thumbnail_uri: string; full_uri: string; is_playlist_track: boolean }
 
+export type SerializedOfflineScrobble = { scrobble: SerializedScrobble; timestamp: number }
+
+export type SerializedScrobble = { artist: string; track: string; album: string | null; track_number: number | null; duration: number; album_artist: string | null }
+
+export type SerializedScrobbleResponse = { accepted: number; ignored: number }
+
 export type StreamAction = { Play: string } | "Pause" | "Resume" | { Seek: number } | { SetLoop: boolean } | { SetVolume: number } | "ToggleMute"
 
 export type StreamStatus = { is_playing: boolean; position: number; duration: number; is_looping: boolean; path: string | null; volume: number; is_muted: boolean }
 
-const ARGS_MAP = { '':'{"control_playback":["action"],"get_canonical_path":["path"],"get_track_data":["path"],"get_tracks_data":["paths"],"get_waveform":["path","bin_size"],"read_folder":["path"]}' }
-export type Router = { "": {control_playback: (action: StreamAction) => Promise<StreamStatus>, 
+const ARGS_MAP = { '':'{"complete_lastfm_auth":["token"],"control_playback":["action"],"get_canonical_path":["path"],"get_lastfm_auth_status":[],"get_track_data":["path"],"get_tracks_data":["paths"],"get_waveform":["path","bin_size"],"open_lastfm_auth":[],"process_offline_scrobbles":["scrobbles"],"read_folder":["path"],"remove_lastfm_account":[],"scrobble_track":["scrobble"],"set_now_playing":["scrobble"]}' }
+export type Router = { "": {complete_lastfm_auth: (token: string) => Promise<string>, 
+control_playback: (action: StreamAction) => Promise<StreamStatus>, 
 get_canonical_path: (path: string) => Promise<string>, 
+get_lastfm_auth_status: () => Promise<boolean>, 
 get_track_data: (path: string) => Promise<FileEntry | null>, 
 get_tracks_data: (paths: string[]) => Promise<FileEntry[]>, 
 get_waveform: (path: string, binSize: number) => Promise<number[]>, 
-read_folder: (path: string) => Promise<FileEntry[]>} };
+open_lastfm_auth: () => Promise<string>, 
+process_offline_scrobbles: (scrobbles: SerializedOfflineScrobble[]) => Promise<SerializedScrobbleResponse>, 
+read_folder: (path: string) => Promise<FileEntry[]>, 
+remove_lastfm_account: () => Promise<null>, 
+scrobble_track: (scrobble: SerializedScrobble) => Promise<SerializedScrobbleResponse>, 
+set_now_playing: (scrobble: SerializedScrobble) => Promise<void>} };
 
 
 export const createTauRPCProxy = () => createProxy<Router>(ARGS_MAP)

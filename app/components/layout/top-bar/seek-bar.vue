@@ -25,11 +25,22 @@ function handlePointer(type: 'up' | 'down') {
     isChangingPosition.value = true
   }
 }
+
+const computedDuration = computed(() => {
+  return formatDuration(playbackStatus.value?.duration ?? 0, 's')
+})
+
+const computedPosition = computed(() => {
+  return formatDuration(playbackStatus.value?.position ?? 0, 's')
+})
 </script>
 
 <template>
-  <div class="flex w-[45%] grow -translate-y-3 flex-col items-center gap-1 *:shrink-0">
-    <LayoutTopBarSeekBarTitle :current-track/>
+  <div class="relative flex w-[45%] grow -translate-y-3 flex-col items-center gap-1 *:shrink-0">
+    <LayoutTopBarSeekBarTitle :current-track />
+    <p class="absolute right-0 bottom-0 text-sm text-muted-foreground">
+      {{ computedPosition }} / {{ computedDuration }}
+    </p>
     <SliderRoot
       v-model:model-value="localPosition"
       :max="playbackStatus?.duration ?? 0"
@@ -38,12 +49,8 @@ function handlePointer(type: 'up' | 'down') {
       @pointerdown="handlePointer('down')"
       @pointerup="handlePointer('up')"
     >
-      <SliderTrack
-        class="absolute top-1/2 h-2 w-full grow -translate-y-1/2 bg-muted"
-      >
-        <SliderRange
-          class="absolute top-1/2 h-2 -translate-y-1/2 bg-primary/25"
-        />
+      <SliderTrack class="absolute top-1/2 h-2 w-full grow -translate-y-1/2 bg-muted">
+        <SliderRange class="absolute top-1/2 h-2 -translate-y-1/2 bg-primary/25" />
       </SliderTrack>
       <SliderThumb
         class="absolute top-1/2 h-2 w-4 -translate-y-1/2 bg-primary outline-none focus-visible:ring-0"

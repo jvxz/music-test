@@ -1,5 +1,6 @@
 export const usePlayback = createSharedComposable(() => {
   const { prefs, rpc, store } = useTauri()
+  const { scrobbleTrack, updateNowPlaying } = useLastFm()
 
   // internal
   const _playbackStatus = ref<StreamStatus | null>(prefs.get('playback-status') as StreamStatus | null)
@@ -8,6 +9,22 @@ export const usePlayback = createSharedComposable(() => {
   // public
   const playbackStatus = readonly(_playbackStatus)
   const currentTrack = readonly(_currentTrack)
+
+  let timeListenedMs = 0
+  let hasScrobbled = false
+  const canScrobble = () => {
+    if (!_playbackStatus.value?.position)
+      return false
+
+    const hasListenedForHalf = timeListenedMs / 1000 >= Math.floor(_playbackStatus.value.duration / 2)
+    const hasListenedFor30s = timeListenedMs / 1000 >= 30
+    const hasListenedFor4m = timeListenedMs / 1000 >= 4 * 60
+
+    const hasListenedForEnough = ((hasListenedForHalf && hasListenedFor30s) || hasListenedFor4m)
+    const isLongEnough = _playbackStatus.value.duration >= 30
+
+    return hasListenedForEnough && isLongEnough && !hasScrobbled
+  }
 
   let lastTimestamp = performance.now()
   const { pause: pauseDurationTimer, resume: resumeDurationTimer } = useRafFn(() => {
@@ -19,6 +36,7 @@ export const usePlayback = createSharedComposable(() => {
     lastTimestamp = currentTimestamp
 
     _playbackStatus.value.position = Math.max(0, _playbackStatus.value?.position + (deltaTime / 1000))
+    timeListenedMs += deltaTime
   })
 
   watch(() => _playbackStatus.value?.is_playing, (isPlaying) => {
@@ -26,22 +44,49 @@ export const usePlayback = createSharedComposable(() => {
       lastTimestamp = performance.now()
       resumeDurationTimer()
     }
-    else { pauseDurationTimer() }
+    else {
+      pauseDurationTimer()
+    }
   })
 
-  watch(() => _playbackStatus.value?.position, () => {
-    if (_playbackStatus.value?.position && _playbackStatus.value?.position >= _playbackStatus.value?.duration) {
+  watch(() => _playbackStatus.value?.position, async () => {
+    if (!_currentTrack.value || !_playbackStatus.value?.position)
+      return
+
+    if (_playbackStatus.value.position >= _playbackStatus.value.duration) {
+      // track finished, reset position & scrobble if not already scrobbled
+      if (canScrobble()) {
+        scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
+        hasScrobbled = true
+        // await to prevent race condition
+        await nextTick()
+      }
       _playbackStatus.value.position = 0
+
+      // if not looping, stop playback & reset current track
       if (!_playbackStatus.value?.is_looping) {
         _playbackStatus.value.is_playing = false
         _playbackStatus.value.path = null
 
         _currentTrack.value = null
       }
+      else {
+        // if looping, reset hasScrobbled & refresh now playing
+        hasScrobbled = false
+        timeListenedMs = 0
+        updateNowPlaying(_currentTrack.value, _playbackStatus.value.duration)
+      }
     }
   })
 
   async function playPauseCurrentTrack(action?: 'Resume' | 'Pause') {
+    // scrobble current track if not already scrobbled & applicable
+    if (_currentTrack.value && _playbackStatus.value && canScrobble()) {
+      scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
+      hasScrobbled = true
+      await nextTick()
+    }
+
     if (!action) {
       action = _playbackStatus.value?.is_playing ? 'Pause' : 'Resume'
     }
@@ -50,6 +95,12 @@ export const usePlayback = createSharedComposable(() => {
   }
 
   async function playTrack(entry: TrackListEntry) {
+    // scrobble previous track if not already scrobbled
+    if (_currentTrack.value && _playbackStatus.value && canScrobble()) {
+      scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
+      await nextTick()
+    }
+
     const data = await getTrackData(entry)
     if (!data)
       return
@@ -64,7 +115,12 @@ export const usePlayback = createSharedComposable(() => {
       Play: entry.path,
     })
     _playbackStatus.value = status
+
+    timeListenedMs = 0
+    hasScrobbled = false
     resumeDurationTimer()
+
+    await updateNowPlaying(_currentTrack.value, _playbackStatus.value.duration)
   }
 
   async function setLoop(loop: boolean) {

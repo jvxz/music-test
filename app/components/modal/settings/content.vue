@@ -32,7 +32,7 @@ const components = Object.fromEntries(
         as-child
       >
         <UButton variant="ghost" class="w-full justify-start">
-          {{ sentenceCase(tab) }}
+          {{ tab === 'last-fm' ? 'Last.fm' : sentenceCase(tab) }}
         </UButton>
       </TabsTrigger>
     </TabsList>
