@@ -10,6 +10,27 @@ export function useLastFm() {
     }
   })
 
+  const useLastFmProfile = (usernameRef: MaybeRefOrGetter<string | undefined>) => useAsyncData(
+    computed(() => `lastfm-profile${toValue(usernameRef) ? `-${toValue(usernameRef)}` : ''}`),
+    async () => {
+      const username = toValue(usernameRef)
+      if (!username)
+        return null
+
+      const res = await $lastfm('user.getInfo', {
+        query: {
+          user: username,
+        },
+      })
+
+      if (!res.success) {
+        return null
+      }
+
+      return res.data.user
+    },
+  )
+
   const startAuth = () => rpc.open_lastfm_auth()
   const completeAuth = async (token: string) => {
     const username = await rpc.complete_lastfm_auth(token)
@@ -19,7 +40,11 @@ export function useLastFm() {
       return username
     }
   }
-  const removeAuth = () => rpc.remove_lastfm_account()
+  const removeAuth = async () => {
+    await rpc.remove_lastfm_account()
+    setSettingValue('last-fm.username', null)
+    await refreshAuthStatus()
+  }
 
   const updateNowPlaying = useDebounceFn(async (track: TrackListEntry, duration: number) => {
     if (!getSettingValue('last-fm.do-scrobbling'))
@@ -64,5 +89,28 @@ export function useLastFm() {
     scrobbleTrack,
     startAuth,
     updateNowPlaying,
+    useLastFmProfile,
   }
+}
+
+const IMAGE_SIZES = {
+  1: 'small',
+  2: 'medium',
+  3: 'large',
+  4: 'extralarge',
+}
+
+export function getLastFmImage(
+  images: { '#text': string, 'size': string }[],
+  maxSize: keyof typeof IMAGE_SIZES = 4,
+): string | null {
+  const result: { '#text': string, 'size': string }[] = []
+  for (let size = maxSize; size >= 1; size--) {
+    const label = IMAGE_SIZES[size]
+    const found = images.find(img => img.size === label && img['#text'])
+    if (found) {
+      result.push(found)
+    }
+  }
+  return result[0]?.['#text'] ?? null
 }
