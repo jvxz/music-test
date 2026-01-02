@@ -219,6 +219,7 @@ pub async fn run() {
   ];
 
   let mut builder = tauri::Builder::default()
+    .plugin(tauri_plugin_http::init())
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_dialog::init())
     .plugin(
@@ -232,9 +233,6 @@ pub async fn run() {
   {
     builder = builder.plugin(devtools);
   }
-
-  // safe to compile last.fm secrets
-  dotenvy::dotenv().ok();
 
   return builder
     .setup(|app| {

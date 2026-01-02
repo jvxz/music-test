@@ -115,7 +115,7 @@ pub async fn set_now_playing<R: Runtime>(app_handle: AppHandle<R>, scrobble: Ser
 #[tauri::command]
 pub async fn open_lastfm_auth<R: Runtime>(app_handle: AppHandle<R>) -> Result<String, String> {
   async fn main<R: Runtime>(app_handle: AppHandle<R>) -> anyhow::Result<String> {
-    let (api_key, api_secret) = get_lastfm_secrets();
+    let (api_key, api_secret) = get_lastfm_secrets().map_err(|e| anyhow::anyhow!(e))?;
     let client = Client::new(api_key, api_secret);
 
     let token = client.get_token().await.map_err(|e| anyhow::anyhow!(e))?;
@@ -142,7 +142,7 @@ pub async fn complete_lastfm_auth<R: Runtime>(
   token: String,
 ) -> Result<String, String> {
   async fn main<R: Runtime>(app_handle: AppHandle<R>, token: String) -> anyhow::Result<String> {
-    let (api_key, api_secret) = get_lastfm_secrets();
+    let (api_key, api_secret) = get_lastfm_secrets().map_err(|e| anyhow::anyhow!(e))?;
     let client = Client::new(api_key, api_secret);
 
     let session = client
@@ -181,8 +181,9 @@ pub async fn remove_lastfm_account<R: Runtime>(app_handle: AppHandle<R>) -> Resu
 fn get_lastfm_client<R: Runtime>(app_handle: AppHandle<R>) -> Option<Client> {
   let session_key = get_session_key(app_handle);
   if let Some(sk) = session_key {
-    let (api_key, api_secret) = get_lastfm_secrets();
-    return Some(Client::new(api_key, api_secret).with_session_key(sk));
+    if let Ok((api_key, api_secret)) = get_lastfm_secrets() {
+      return Some(Client::new(api_key, api_secret).with_session_key(sk));
+    }
   }
 
   return None;
@@ -239,8 +240,16 @@ pub async fn get_lastfm_auth_status<R: Runtime>(app_handle: AppHandle<R>) -> Res
   return Ok(client.is_some());
 }
 
-fn get_lastfm_secrets() -> (String, String) {
-  let api_key = std::env::var("LAST_FM_API_KEY").expect("LAST_FM_API_KEY not found");
-  let api_secret = std::env::var("LAST_FM_CLIENT_SECRET").expect("LAST_FM_CLIENT_SECRET not found");
-  return (api_key.to_string(), api_secret.to_string());
+fn get_lastfm_secrets() -> Result<(String, String), String> {
+  let api_key = option_env!("LAST_FM_API_KEY");
+  let api_secret = option_env!("LAST_FM_CLIENT_SECRET");
+
+  let api_key = api_key.ok_or_else(|| {
+    "LAST_FM_API_KEY not found at compile time. Make sure .env file exists in project root during build.".to_string()
+  })?;
+  let api_secret = api_secret.ok_or_else(|| {
+    "LAST_FM_CLIENT_SECRET not found at compile time. Make sure .env file exists in project root during build.".to_string()
+  })?;
+
+  Ok((api_key.to_string(), api_secret.to_string()))
 }

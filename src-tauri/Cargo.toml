@@ -15,6 +15,9 @@ crate-type = [
   "rlib"
 ]
 
+[build-dependencies]
+dotenvy = "0.15.7"
+
 [build-dependencies.tauri-build]
 version = "2.4.1"
 features = [ ]
@@ -53,7 +56,7 @@ keyring = { version = "3", features = [
 rand = "0.9.2"
 uuid = { version = "1.19.0", features = [ "v4" ] }
 iota_stronghold = "2.1.0"
-dotenvy = "0.15.7"
+tauri-plugin-http = "2"
 
 [dependencies.tauri]
 version = "2.9.1"
