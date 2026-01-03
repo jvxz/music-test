@@ -1,4 +1,5 @@
-use anyhow::Result;
+#![deny(clippy::unwrap_used, clippy::expect_used)]
+use crate::error::{Error, Result};
 use iota_stronghold::ClientError;
 use last_fm_rs::{AuthToken, Client, NowPlaying, Scrobble};
 use serde::{Deserialize, Serialize};
@@ -39,194 +40,195 @@ pub struct SerializedScrobbleResponse {
 pub async fn scrobble_track<R: Runtime>(
   app_handle: AppHandle<R>,
   scrobble: SerializedScrobble,
-) -> SerializedScrobbleResponse {
-  let client = get_lastfm_client(app_handle);
+) -> Result<SerializedScrobbleResponse> {
+  let client = get_lastfm_client(app_handle)?;
 
-  if let Some(client) = client {
-    let timestamp = SystemTime::now()
-      .duration_since(UNIX_EPOCH)
-      .expect("failed to get timestamp")
-      .as_secs();
+  let timestamp = SystemTime::now()
+    .duration_since(UNIX_EPOCH)
+    .map_err(|_| Error::LastFm("failed to get timestamp when scrobbling track".to_string()))?
+    .as_secs();
 
-    let scrobble = serialized_to_struct(scrobble, timestamp as u32);
+  let scrobble = serialized_to_struct(scrobble, timestamp as u32);
 
-    let res = client
-      .scrobble(&[scrobble])
-      .await
-      .expect("failed to scrobble track");
+  let res = client
+    .scrobble(&[scrobble])
+    .await
+    .map_err(|_| Error::LastFm("failed to scrobble track".to_string()))?;
 
-    return SerializedScrobbleResponse {
-      accepted: res.scrobbles.attr.accepted,
-      ignored: res.scrobbles.attr.ignored,
-    };
-  }
-
-  return SerializedScrobbleResponse {
-    accepted: 0,
-    ignored: 0,
-  };
+  return Ok(SerializedScrobbleResponse {
+    accepted: res.scrobbles.attr.accepted,
+    ignored: res.scrobbles.attr.ignored,
+  });
 }
 
 #[tauri::command]
 pub async fn process_offline_scrobbles<R: Runtime>(
   app_handle: AppHandle<R>,
   scrobbles: Vec<SerializedOfflineScrobble>,
-) -> SerializedScrobbleResponse {
-  let client = get_lastfm_client(app_handle);
+) -> Result<SerializedScrobbleResponse> {
+  let client = get_lastfm_client(app_handle)?;
 
-  if let Some(client) = client {
-    let scrobbles = scrobbles
-      .into_iter()
-      .map(|s| serialized_to_struct(s.scrobble, s.timestamp))
-      .collect::<Vec<Scrobble>>();
+  let scrobbles = scrobbles
+    .into_iter()
+    .map(|s| serialized_to_struct(s.scrobble, s.timestamp))
+    .collect::<Vec<Scrobble>>();
 
-    let res = client
-      .scrobble(&scrobbles)
-      .await
-      .expect("failed to scrobble tracks");
+  let res = client
+    .scrobble(&scrobbles)
+    .await
+    .map_err(|_| Error::LastFm("failed to scrobble tracks".to_string()))?;
 
-    return SerializedScrobbleResponse {
-      accepted: res.scrobbles.attr.accepted,
-      ignored: res.scrobbles.attr.ignored,
-    };
-  }
-
-  return SerializedScrobbleResponse {
-    accepted: 0,
-    ignored: 0,
-  };
+  return Ok(SerializedScrobbleResponse {
+    accepted: res.scrobbles.attr.accepted,
+    ignored: res.scrobbles.attr.ignored,
+  });
 }
 
 #[tauri::command]
-pub async fn set_now_playing<R: Runtime>(app_handle: AppHandle<R>, scrobble: SerializedScrobble) {
-  let client = get_lastfm_client(app_handle);
-  if let Some(client) = client {
-    let SerializedScrobble {
-      artist,
-      track,
-      album,
-      track_number,
-      duration,
-      album_artist,
-    } = scrobble;
+pub async fn set_now_playing<R: Runtime>(
+  app_handle: AppHandle<R>,
+  scrobble: SerializedScrobble,
+) -> Result<()> {
+  let client = get_lastfm_client(app_handle)?;
+  let SerializedScrobble {
+    artist,
+    track,
+    album,
+    track_number,
+    duration,
+    album_artist,
+  } = scrobble;
 
-    let mut now_playing = NowPlaying::new(&artist, &track).with_duration(duration as u64);
+  let mut now_playing = NowPlaying::new(&artist, &track).with_duration(duration as u64);
 
-    if let Some(album) = &album {
-      now_playing = now_playing.with_album(album.as_str());
-    }
-    if let Some(track_number) = track_number {
-      now_playing = now_playing.with_track_number(track_number);
-    }
-    if let Some(album_artist) = &album_artist {
-      now_playing = now_playing.with_album_artist(album_artist);
-    }
-
-    client
-      .update_now_playing(&now_playing)
-      .await
-      .expect("failed to update now playing");
+  if let Some(album) = &album {
+    now_playing = now_playing.with_album(album.as_str());
   }
+  if let Some(track_number) = track_number {
+    now_playing = now_playing.with_track_number(track_number);
+  }
+  if let Some(album_artist) = &album_artist {
+    now_playing = now_playing.with_album_artist(album_artist);
+  }
+
+  client
+    .update_now_playing(&now_playing)
+    .await
+    .map_err(|_| Error::LastFm("failed to update now playing status".to_string()))?;
+
+  return Ok(());
 }
 
 #[tauri::command]
-pub async fn open_lastfm_auth<R: Runtime>(app_handle: AppHandle<R>) -> Result<String, String> {
-  async fn main<R: Runtime>(app_handle: AppHandle<R>) -> anyhow::Result<String> {
-    let (api_key, api_secret) = get_lastfm_secrets().map_err(|e| anyhow::anyhow!(e))?;
-    let client = Client::new(api_key, api_secret);
+pub async fn open_lastfm_auth<R: Runtime>(app_handle: AppHandle<R>) -> Result<String> {
+  let (api_key, api_secret) = get_lastfm_secrets().map_err(|_| {
+    Error::LastFm("failed to get last.fm credentials when opening auth".to_string())
+  })?;
+  let client = Client::new(api_key, api_secret);
 
-    let token = client.get_token().await.map_err(|e| anyhow::anyhow!(e))?;
+  let token = client
+    .get_token()
+    .await
+    .map_err(|e| Error::LastFm(format!("failed to get token when opening auth: {}", e)))?;
 
-    let auth_url = client
-      .get_auth_url(&token)
-      .map_err(|e| anyhow::anyhow!(e))?;
+  let auth_url = client
+    .get_auth_url(&token)
+    .map_err(|e| Error::LastFm(format!("failed to get auth url when opening auth: {}", e)))?;
 
-    app_handle
-      .opener()
-      .open_url(auth_url.as_str(), None::<&str>)?;
+  app_handle
+    .opener()
+    .open_url(auth_url.as_str(), None::<&str>)
+    .map_err(|e| Error::LastFm(format!("failed to open url when opening auth: {}", e)))?;
 
-    return Ok(token.token.to_string());
-  }
-
-  let token = main(app_handle).await.map_err(|e| e.to_string())?;
-
-  return Ok(token);
+  return Ok(token.token.to_string());
 }
 
 #[tauri::command]
 pub async fn complete_lastfm_auth<R: Runtime>(
   app_handle: AppHandle<R>,
   token: String,
-) -> Result<String, String> {
-  async fn main<R: Runtime>(app_handle: AppHandle<R>, token: String) -> anyhow::Result<String> {
-    let (api_key, api_secret) = get_lastfm_secrets().map_err(|e| anyhow::anyhow!(e))?;
-    let client = Client::new(api_key, api_secret);
+) -> Result<String> {
+  let (api_key, api_secret) = get_lastfm_secrets().map_err(|e| {
+    Error::LastFm(format!(
+      "failed to get last.fm credentials when completing auth: {}",
+      e
+    ))
+  })?;
+  let client = Client::new(api_key, api_secret);
 
-    let session = client
-      .get_session(&AuthToken { token })
-      .await
-      .map_err(|e| anyhow::anyhow!(e))?;
+  let session = client
+    .get_session(&AuthToken { token })
+    .await
+    .map_err(|e| Error::LastFm(format!("failed to get session when completing auth: {}", e)))?;
 
-    let stronghold = app_handle.state::<Stronghold>();
-    let mut client = load_stronghold_client(app_handle.clone());
+  let stronghold = app_handle.state::<Stronghold>();
+  let client = load_stronghold_client(app_handle.clone())?;
 
-    client.store().insert(
+  client
+    .store()
+    .insert(
       b"session_key".to_vec(),
       session.key.as_bytes().to_vec(),
       None,
-    )?;
+    )
+    .map_err(|e| {
+      Error::LastFm(format!(
+        "failed to insert session key when completing auth: {}",
+        e
+      ))
+    })?;
 
-    stronghold.save();
+  stronghold
+    .save()
+    .map_err(|_| Error::LastFm("failed to save stronghold when completing auth".to_string()))?;
 
-    return Ok(session.name);
-  }
-
-  let session_name = main(app_handle, token).await.map_err(|e| e.to_string())?;
-
-  return Ok(session_name);
+  return Ok(session.name);
 }
 
 #[tauri::command]
-pub async fn remove_lastfm_account<R: Runtime>(app_handle: AppHandle<R>) -> Result<(), String> {
-  let sh = load_stronghold_client(app_handle);
+pub async fn remove_lastfm_account<R: Runtime>(app_handle: AppHandle<R>) -> Result<()> {
+  let sh = load_stronghold_client(app_handle)?;
 
-  sh.store().clear();
+  sh.store().clear().map_err(|_| {
+    Error::LastFm("failed to clear stronghold when removing last.fm account".to_string())
+  })?;
 
   return Ok(());
 }
 
-fn get_lastfm_client<R: Runtime>(app_handle: AppHandle<R>) -> Option<Client> {
-  let session_key = get_session_key(app_handle);
-  if let Some(sk) = session_key {
-    if let Ok((api_key, api_secret)) = get_lastfm_secrets() {
-      return Some(Client::new(api_key, api_secret).with_session_key(sk));
-    }
-  }
-
-  return None;
+fn get_lastfm_client<R: Runtime>(app_handle: AppHandle<R>) -> Result<Client> {
+  let session_key = get_session_key(app_handle)?;
+  let (api_key, api_secret) = get_lastfm_secrets().map_err(|_| {
+    Error::LastFm("failed to get last.fm credentials when getting lastfm client".to_string())
+  })?;
+  return Ok(Client::new(api_key, api_secret).with_session_key(session_key));
 }
 
-fn get_session_key<R: Runtime>(app_handle: AppHandle<R>) -> Option<String> {
-  let sh = load_stronghold_client(app_handle);
+fn get_session_key<R: Runtime>(app_handle: AppHandle<R>) -> Result<String> {
+  let sh = load_stronghold_client(app_handle)?;
 
   let sk = sh
     .store()
     .get(b"session_key")
-    .expect("failed to load key 'session_key' from stronghold");
+    .map_err(|_| Error::LastFm("failed to load key session key for last.fm client".to_string()))?;
 
-  if let Some(sk) = sk {
-    let sk = std::str::from_utf8(&sk).expect("invalid format of session_key in stronghold");
-    return Some(sk.to_string());
-  }
+  let sk = sk.ok_or(Error::LastFm(
+    "session key not found in stronghold".to_string(),
+  ))?;
 
-  return None;
+  let sk = std::str::from_utf8(&sk)
+    .map_err(|_| Error::LastFm("invalid format of session key for last.fm client".to_string()))?;
+  return Ok(sk.to_string());
 }
 
-fn load_stronghold_client<R: Runtime>(app_handle: AppHandle<R>) -> iota_stronghold::Client {
+fn load_stronghold_client<R: Runtime>(app_handle: AppHandle<R>) -> Result<iota_stronghold::Client> {
   {
-    let guard = STRONGHOLD_CLIENT.lock().unwrap();
+    let guard = STRONGHOLD_CLIENT.lock().map_err(|_| {
+      Error::Stronghold("failed to lock stronghold client when loading".to_string())
+    })?;
+
     if let Some(client) = &*guard {
-      return client.clone();
+      return Ok(client.clone());
     }
   }
 
@@ -237,36 +239,34 @@ fn load_stronghold_client<R: Runtime>(app_handle: AppHandle<R>) -> iota_strongho
     client = Ok(
       stronghold
         .create_client("lastfm")
-        .expect("failed to create client"),
+        .map_err(|_| Error::Stronghold("failed to create client".to_string()))?,
     );
   }
 
-  let client = client.expect("failed to load client");
+  let client = client.map_err(|_| Error::Stronghold("failed to load client".to_string()))?;
 
   {
-    let mut guard = STRONGHOLD_CLIENT.lock().unwrap();
+    let mut guard = STRONGHOLD_CLIENT.lock().map_err(|_| {
+      Error::Stronghold("failed to lock stronghold client when loading".to_string())
+    })?;
     guard.replace(client.clone());
   }
 
-  return client;
+  return Ok(client);
 }
 
 #[tauri::command]
-pub async fn get_lastfm_auth_status<R: Runtime>(app_handle: AppHandle<R>) -> Result<bool, String> {
+pub async fn get_lastfm_auth_status<R: Runtime>(app_handle: AppHandle<R>) -> Result<bool> {
   let client = get_lastfm_client(app_handle);
-  return Ok(client.is_some());
+  return Ok(client.is_ok());
 }
 
-fn get_lastfm_secrets() -> Result<(String, String), String> {
+fn get_lastfm_secrets() -> Result<(String, String)> {
   let api_key = option_env!("LAST_FM_API_KEY");
   let api_secret = option_env!("LAST_FM_CLIENT_SECRET");
 
-  let api_key = api_key.ok_or_else(|| {
-    "LAST_FM_API_KEY not found at compile time. Make sure .env file exists in project root during build.".to_string()
-  })?;
-  let api_secret = api_secret.ok_or_else(|| {
-    "LAST_FM_CLIENT_SECRET not found at compile time. Make sure .env file exists in project root during build.".to_string()
-  })?;
+  let api_key = api_key.ok_or_else(|| Error::LastFm("LAST_FM_API_KEY not found at compile time. Make sure .env file exists in project root during build.".to_string()))?;
+  let api_secret = api_secret.ok_or_else(|| Error::LastFm("LAST_FM_CLIENT_SECRET not found at compile time. Make sure .env file exists in project root during build.".to_string()))?;
 
   Ok((api_key.to_string(), api_secret.to_string()))
 }
