@@ -82,7 +82,6 @@ export function useUserPlaylists() {
 
   // TODO: allow multiple tracks
   async function removeFromPlaylist(playlistId: number, track: PlaylistEntry) {
-    console.log('track: ', track)
     await $db().deleteFrom('playlist_tracks').where('playlist_id', '=', playlistId).where('id', '=', track.id).execute()
 
     await cleanupLibraryTrackSource(track)
