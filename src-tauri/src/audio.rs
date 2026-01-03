@@ -1,4 +1,3 @@
-#![deny(clippy::unwrap_used, clippy::expect_used)]
 use crate::error::{Error, Result};
 use crate::playback::{StreamAction, StreamStatus};
 use kira::sound::static_sound::{StaticSoundData, StaticSoundHandle};
@@ -120,10 +119,7 @@ pub fn spawn_audio_thread(
       let res = event_tx_clone.try_send(InternalEvent::Command(msg.0, msg.1));
 
       if let Err(e) = res {
-        match e {
-          mpsc::error::TrySendError::Full(_) => todo!(),
-          mpsc::error::TrySendError::Closed(_) => todo!(),
-        }
+        log::error!("failed to send command to audio thread: {e}");
       }
     }
   });
@@ -148,10 +144,7 @@ pub fn spawn_audio_thread(
 
       let res = loader_event_tx.try_send(InternalEvent::LoadFinished { id, data: sound });
       if let Err(e) = res {
-        match e {
-          mpsc::error::TrySendError::Full(_) => todo!(),
-          mpsc::error::TrySendError::Closed(_) => todo!(),
-        }
+        log::error!("failed to send load finished event: {e}");
       }
     }
   });
@@ -177,7 +170,7 @@ pub fn spawn_audio_thread(
       })?;
 
     let new_sound_data = StreamingSoundData::from_file(path)
-      .map_err(|_| Error::Audio("failed to create streaming sound data".to_string()))?;
+      .map_err(|e| Error::Audio(format!("failed to create streaming sound data: {}", e)))?;
     let mut new_handle = audio_manager
       .play(new_sound_data.with_settings(StreamingSoundSettings {
         loop_region: if state.is_looping {
@@ -216,8 +209,20 @@ pub fn spawn_audio_thread(
                 Error::Audio("failed to send static sound id and path to loader thread".to_string())
               })?;
 
-            let new_sound_data = StreamingSoundData::from_file(&path)
-              .map_err(|_| Error::Audio("failed to create streaming sound data".to_string()))?;
+            let new_sound_data = StreamingSoundData::from_file(&path).map_err(|e| {
+              match e {
+                FromFileError::NoDefaultTrack => log::error!("no default track"),
+                FromFileError::UnknownSampleRate => log::error!("unknown sample rate"),
+                FromFileError::UnknownDuration => log::error!("unknown duration"),
+                FromFileError::UnsupportedChannelConfiguration => {
+                  log::error!("unsupported channel configuration")
+                }
+                FromFileError::IoError(error) => log::error!("io error: {}", error),
+                FromFileError::SymphoniaError(error) => log::error!("symphonia error: {}", error),
+              };
+
+              return Error::Audio("failed to create streaming sound data".to_string());
+            })?;
             let duration = new_sound_data.duration().as_secs_f64();
             let new_handle = audio_manager
               .play(new_sound_data)
@@ -335,5 +340,6 @@ pub fn spawn_audio_thread(
     }
   }
 
+  log::info!("audio thread exiting");
   Ok(())
 }

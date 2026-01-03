@@ -147,7 +147,7 @@ fn get_tag_map(path: impl AsRef<Path>) -> Result<SerializableTagMap> {
 fn is_supported(path: impl AsRef<Path>) -> bool {
   let supported = [
     // "mp3", "mp2", "mp1", "flac", "wav", "ogg", "oga", "m4a", "mp4", "aac", "mkv", "mka", "webm",
-    "mp3", "mp2", "mp1", "flac", "wav", "ogg", "oga",
+    "mp3", "mp2", "mp1", "flac", "wav", "ogg", "oga", "m4a", "aac",
   ];
 
   path

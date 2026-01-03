@@ -274,12 +274,8 @@ pub async fn run() {
 
       let initial_state = get_initial_state(app.app_handle())?;
       let _join_handle = std::thread::spawn(move || {
-        let res = audio::spawn_audio_thread(rx, initial_state);
-        if let Err(e) = res {
-          match e {
-            Error::Audio(e) => todo!(),
-            _ => todo!(),
-          }
+        if let Err(e) = audio::spawn_audio_thread(rx, initial_state) {
+          log::error!("failed to spawn audio thread: {e}");
         }
       });
 
