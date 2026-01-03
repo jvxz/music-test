@@ -4,6 +4,8 @@ import { createTauRPCProxy as createProxy, type InferCommandOutput } from 'taurp
 type TAURI_CHANNEL<T> = (response: T) => void
 
 
+export type Error = { type: "Audio"; data: string } | { type: "Id3"; data: string } | { type: "FileSystem"; data: string } | { type: "LastFm"; data: string } | { type: "Waveform"; data: string } | { type: "Sql"; data: string } | { type: "Store"; data: string } | { type: "Stronghold"; data: string } | { type: "Other"; data: string }
+
 export type FileEntry = { path: string; name: string; tags: Partial<{ [key in string]: string }>; thumbnail_uri: string; full_uri: string; is_playlist_track: boolean }
 
 export type SerializedOfflineScrobble = { scrobble: SerializedScrobble; timestamp: number }
@@ -29,7 +31,7 @@ process_offline_scrobbles: (scrobbles: SerializedOfflineScrobble[]) => Promise<S
 read_folder: (path: string) => Promise<FileEntry[]>, 
 remove_lastfm_account: () => Promise<null>, 
 scrobble_track: (scrobble: SerializedScrobble) => Promise<SerializedScrobbleResponse>, 
-set_now_playing: (scrobble: SerializedScrobble) => Promise<void>} };
+set_now_playing: (scrobble: SerializedScrobble) => Promise<null>} };
 
 
 export const createTauRPCProxy = () => createProxy<Router>(ARGS_MAP)
