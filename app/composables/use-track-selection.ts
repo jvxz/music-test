@@ -1,5 +1,5 @@
 export const useTrackSelection = createSharedComposable(() => {
-  const selectedTrack = ref<FileEntry | null>(null)
+  const selectedTrack = ref<PotentialFileEntry | null>(null)
 
   return {
     selectedTrack,

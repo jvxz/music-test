@@ -20,7 +20,12 @@ export function useLastFm() {
     if (isOnline) {
       const scrobbles = await offlineScrobbleCache.get('scrobbles') as SerializedOfflineScrobble[]
       if (scrobbles.length > 0) {
-        await rpc.process_offline_scrobbles(scrobbles)
+        try {
+          await rpc.process_offline_scrobbles(scrobbles)
+        }
+        catch {
+          throw new Error('Failed to process offline scrobbles')
+        }
         await offlineScrobbleCache.clear()
       }
     }
@@ -72,7 +77,7 @@ export function useLastFm() {
     await refreshAuthStatus()
   }
 
-  const updateNowPlaying = useDebounceFn(async (track: TrackListEntry, duration: number) => {
+  const updateNowPlaying = useDebounceFn(async (track: ValidFileEntry, duration: number) => {
     if (!getSettingValue('last-fm.do-scrobbling') || !isOnline.value)
       return
 
@@ -82,7 +87,7 @@ export function useLastFm() {
     }
   }, 2000)
 
-  const scrobbleTrack = useDebounceFn(async (track: TrackListEntry, duration: number) => {
+  const scrobbleTrack = useDebounceFn(async (track: ValidFileEntry, duration: number) => {
     if (!getSettingValue('last-fm.do-scrobbling'))
       return
 
@@ -107,8 +112,8 @@ export function useLastFm() {
     }
   }, 2000)
 
-  function getSerializedScrobble(track: TrackListEntry, duration: number) {
-    if (!track.tags.TPE1 || !track.tags.TIT2) {
+  function getSerializedScrobble(track: ValidFileEntry, duration: number) {
+    if (!track.valid || !track.tags.TPE1 || !track.tags.TIT2) {
       return null
     }
 

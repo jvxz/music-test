@@ -94,7 +94,7 @@ export const usePlayback = createSharedComposable(() => {
     _playbackStatus.value = await rpc.control_playback(action)
   }
 
-  async function playTrack(entry: TrackListEntry) {
+  async function playTrack(entry: ValidFileEntry) {
     // scrobble previous track if not already scrobbled
     if (_currentTrack.value && _playbackStatus.value && canScrobble()) {
       scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
@@ -165,7 +165,7 @@ export const usePlayback = createSharedComposable(() => {
     }
   }
 
-  async function getTrackData(entry: TrackListEntry): Promise<TrackListEntry | null> {
+  async function getTrackData<T extends ValidFileEntry | InvalidFileEntry>(entry: T): Promise<T | null> {
     const res = await rpc.get_track_data(entry.path)
     if (!res)
       return null

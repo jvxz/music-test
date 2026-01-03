@@ -3,16 +3,24 @@ const LIBRARY_FOLDERS_KEY = 'library-folders'
 export function useLibrary() {
   const { rpc } = useTauri()
 
-  async function getLibraryTracks() {
+  async function getLibraryTracks(): Promise<PotentialFileEntry[]> {
     const tracks = await $db().selectFrom('library_tracks').selectAll().execute()
 
     const fileEntries = await rpc.get_tracks_data(tracks.map(track => track.path))
-    const folderEntries: FolderEntry[] = fileEntries.map(entry => ({
+
+    const folderEntries = fileEntries.map(entry => ({
       ...entry,
-      is_playlist_track: false,
+      valid: true,
     }))
 
-    return folderEntries
+    const invalidFolderEntries: InvalidFileEntry[] = folderEntries.filter(e => !fileEntries.some(f => f.path === e.path)).map(entry => ({
+      is_playlist_track: entry.is_playlist_track,
+      name: entry.name,
+      path: entry.path,
+      valid: false,
+    }))
+
+    return [...folderEntries, ...invalidFolderEntries]
   }
 
   const getLibraryFolders = () => useAsyncData(LIBRARY_FOLDERS_KEY, () => $db().selectFrom('library_folders').selectAll().execute(), { immediate: true })
@@ -137,10 +145,10 @@ export function useLibrary() {
       .execute()
   }
 
-  async function cleanupLibraryTrackSource(opts: TrackListEntry) {
+  async function cleanupLibraryTrackSource(entry: TrackListEntry) {
     const libraryTrack = await $db()
       .selectFrom('library_tracks')
-      .where('path', '=', opts.path)
+      .where('path', '=', entry.path)
       .selectAll()
       .executeTakeFirst()
 
@@ -148,12 +156,12 @@ export function useLibrary() {
       return
     }
 
-    if (opts.is_playlist_track) {
+    if (entry.is_playlist_track) {
       await $db()
         .deleteFrom('library_tracks_source')
         .where('track_id', '=', libraryTrack.id)
         .where('source_type', '=', 'playlist')
-        .where('source_id', '=', String(opts.playlist_id))
+        .where('source_id', '=', String(entry.playlist_id))
         .execute()
     }
 

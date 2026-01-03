@@ -11,6 +11,7 @@ const { selectedTrack } = useTrackSelection()
     <ULabel class="text-sm">
       {{ ID3_MAP[id3Frame] }}
     </ULabel>
-    <UInput :model-value="selectedTrack?.tags[id3Frame]" />
+    <UInput v-if="selectedTrack?.valid" :model-value="selectedTrack?.tags[id3Frame]" />
+    <UInput v-else disabled />
   </div>
 </template>

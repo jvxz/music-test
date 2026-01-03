@@ -1,16 +1,32 @@
 <script lang="ts" setup>
 defineProps<{
-  entry: TrackListEntry
+  entry: PotentialFileEntry
   isSelected: boolean
   isPlaying: boolean
 }>()
 
 const emits = defineEmits<{
-  selectTrack: [track: TrackListEntry]
-  playTrack: [track: TrackListEntry]
+  selectTrack: [track: PotentialFileEntry]
+  playTrack: [track: PotentialFileEntry]
 }>()
 
 const classes = 'flex items-center'
+
+function getCellContent(entry: PotentialFileEntry, frame: Id3FrameId | undefined) {
+  if (frame === 'TIT2') {
+    if (entry.valid) {
+      return entry.tags[frame] ?? entry.name
+    }
+
+    return entry.path
+  }
+
+  if (entry.valid && frame) {
+    return entry.tags[frame]
+  }
+
+  return ''
+}
 </script>
 
 <template>
@@ -18,6 +34,7 @@ const classes = 'flex items-center'
     class="col-span-full grid grid-cols-subgrid not-last:border-b"
     :class="{
       'bg-primary/25': isSelected,
+      'bg-danger/20': !entry.valid,
     }"
     v-bind="$attrs"
     @dblclick.left="emits('playTrack', entry)"
@@ -30,7 +47,14 @@ const classes = 'flex items-center'
       <!-- cover column -->
       <template v-if="col.key === 'cover'">
         <div
-          v-if="!entry.tags.APIC"
+          v-if="!entry.valid"
+          class="mx-auto justify-center"
+          :class="classes"
+        >
+          -
+        </div>
+        <div
+          v-else-if="!entry.tags.APIC"
           class="mx-auto justify-center"
           :class="classes"
         >
@@ -63,9 +87,9 @@ const classes = 'flex items-center'
         v-else
         :class="classes"
         class="truncate px-2 text-sm"
-        :title="col.id3 === 'TIT2' ? entry.tags[col.id3] ?? entry.name : entry.tags[col.id3 ?? '']"
+        :title="getCellContent(entry, col.id3)"
       >
-        {{ col.id3 === 'TIT2' ? entry.tags[col.id3] ?? entry.name : entry.tags[col.id3 ?? ''] }}
+        {{ getCellContent(entry, col.id3) }}
       </p>
     </template>
   </div>

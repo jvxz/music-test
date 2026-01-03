@@ -1,4 +1,6 @@
-export const getInputTypeFromEntry = createUnrefFn((entry: TrackListEntry) => {
+export const getInputTypeFromEntry = createUnrefFn((entry: Prettify<Omit<ValidFileEntry, 'is_playlist_track'> & {
+  is_playlist_track: boolean
+}>) => {
   if (entry.is_playlist_track) {
     return 'playlist'
   }

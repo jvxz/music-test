@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-const { selectedTrack } = useTrackSelection()
-
 const x: Id3FrameId[] = [
   'TIT2',
   'TPE1',

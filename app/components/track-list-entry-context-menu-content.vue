@@ -1,11 +1,15 @@
 <script lang="ts" setup>
 defineProps<{
-  entry: TrackListEntry | null
+  entry: PotentialFileEntry | null
 }>()
 
 const { addToPlaylist, playlists, removeFromPlaylist } = useUserPlaylists()
 
 async function handleRemove(entry: PlaylistEntry) {
+  if (!entry.is_playlist_track) {
+    return
+  }
+
   await removeFromPlaylist(entry.playlist_id, entry)
   useTrackListRefresh.trigger()
 }
@@ -25,7 +29,8 @@ async function handleRemove(entry: PlaylistEntry) {
         <UContextMenuItem
           v-for="playlist in playlists"
           :key="playlist.id"
-          @click="addToPlaylist(playlist.id, [entry])"
+          :disabled="!entry.valid"
+          @click="addToPlaylist(playlist.id, [entry as FileEntry])"
         >
           {{ playlist.name }}
         </UContextMenuItem>
@@ -34,7 +39,7 @@ async function handleRemove(entry: PlaylistEntry) {
     <UContextMenuItem
       v-if="entry.is_playlist_track"
       class="focus-visible:bg-red-400/20"
-      @click="handleRemove(entry)"
+      @click="handleRemove(entry as PlaylistEntry)"
     >
       Remove from playlist
     </UContextMenuItem>
