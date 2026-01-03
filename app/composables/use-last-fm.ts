@@ -24,7 +24,8 @@ export function useLastFm() {
           await rpc.process_offline_scrobbles(scrobbles)
         }
         catch {
-          throw new Error('Failed to process offline scrobbles')
+          console.error('Failed to process offline scrobbles')
+          return
         }
         await offlineScrobbleCache.clear()
       }
