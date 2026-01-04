@@ -209,6 +209,11 @@ pub fn spawn_audio_thread(
                 Error::Audio("failed to send static sound id and path to loader thread".to_string())
               })?;
 
+            // check if file exists/is valid
+            if !std::path::Path::new(&path).is_file() {
+              return Err(Error::Audio("file does not exist".to_string()));
+            }
+
             let new_sound_data = StreamingSoundData::from_file(&path).map_err(|e| {
               match e {
                 FromFileError::NoDefaultTrack => log::error!("no default track"),
