@@ -6,21 +6,7 @@ export function useLibrary() {
   async function getLibraryTracks(): Promise<PotentialFileEntry[]> {
     const tracks = await $db().selectFrom('library_tracks').selectAll().execute()
 
-    const fileEntries = await rpc.get_tracks_data(tracks.map(track => track.path))
-
-    const folderEntries = fileEntries.map(entry => ({
-      ...entry,
-      valid: true,
-    }))
-
-    const invalidFolderEntries: InvalidFileEntry[] = folderEntries.filter(e => !fileEntries.some(f => f.path === e.path)).map(entry => ({
-      is_playlist_track: entry.is_playlist_track,
-      name: entry.name,
-      path: entry.path,
-      valid: false,
-    }))
-
-    return [...folderEntries, ...invalidFolderEntries]
+    return await getTracksData(tracks.map(track => track.path))
   }
 
   const getLibraryFolders = () => useAsyncData(LIBRARY_FOLDERS_KEY, () => $db().selectFrom('library_folders').selectAll().execute(), { immediate: true })
