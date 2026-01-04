@@ -177,3 +177,18 @@ export function refreshTrackListForType(trackListType: TrackListInput['type'], p
     })
   }
 }
+
+export function markTrackAsInvalid(trackPath: string) {
+  const trackListCache = useTrackListCache()
+
+  trackListCache.value.forEach((tracks, key) => {
+    const trackIndex = tracks.findIndex(t => t.path === trackPath)
+    if (trackIndex !== -1 && tracks[trackIndex]) {
+      tracks[trackIndex] = {
+        ...tracks[trackIndex],
+        valid: false,
+      }
+      refreshNuxtData(key)
+    }
+  })
+}
