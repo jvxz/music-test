@@ -101,6 +101,23 @@ export const usePlayback = createSharedComposable(() => {
       await nextTick()
     }
 
+    try {
+      const exists = await useTauriFsExists(entry.path)
+      if (!exists) {
+        return emitError({
+          data: `${entry.name} does not exist`,
+          type: 'FileSystem',
+        })
+      }
+    }
+    catch {
+      markTrackAsInvalid(entry.path)
+      return emitError({
+        data: `${entry.name} is inaccessible (may have been moved, deleted, or permission denied)`,
+        type: 'FileSystem',
+      })
+    }
+
     const data = await getTrackData(entry)
     if (!data)
       return
