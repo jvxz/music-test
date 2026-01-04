@@ -13,7 +13,7 @@ const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
 
 const { data: folderEntries, pending: isLoadingPlaylistData } = getTrackList(toRef(props))
 
-function handleTrackSelection(track: TrackListEntry) {
+function handleTrackSelection(track: PotentialFileEntry) {
   if (selectedTrack.value?.path !== track.path) {
     selectedTrack.value = track
   }
@@ -21,9 +21,9 @@ function handleTrackSelection(track: TrackListEntry) {
 
 const shouldVirtualize = computed(() => folderEntries.value.length >= TRACK_LIST_VIRTUALIZATION_THRESHOLD)
 
-const contextMenuEntry = shallowRef<TrackListEntry | null>(null)
+const contextMenuEntry = shallowRef<PotentialFileEntry | null>(null)
 
-async function handleDragStart(track: TrackListEntry) {
+async function handleDragStart(track: PotentialFileEntry) {
   const { value: colorMode } = useColorMode()
   const icon = await resolveResource(`icons/${colorMode === 'light' ? 'file-dark.svg' : 'file-light.svg'}`)
 
@@ -65,12 +65,13 @@ async function handleDragStart(track: TrackListEntry) {
                 entry.data.path,
                 selectedTrack?.path === entry.data.path,
                 playbackStatus?.path === entry.data.path,
+                entry.data.valid,
               ]"
               :entry="entry.data"
               :is-selected="selectedTrack?.path === entry.data.path"
               :is-playing="playbackStatus?.path === entry.data.path"
               draggable="true"
-              @play-track="playTrack(entry.data)"
+              @play-track="entry.data.valid && playTrack(entry.data)"
               @select-track="handleTrackSelection(entry.data)"
               @click.right="contextMenuEntry = entry.data"
               @dragstart.prevent="handleDragStart(entry.data)"
@@ -98,12 +99,13 @@ async function handleDragStart(track: TrackListEntry) {
               entry.path,
               selectedTrack?.path === entry.path,
               playbackStatus?.path === entry.path,
+              entry.valid,
             ]"
             :entry="entry"
             :is-selected="selectedTrack?.path === entry.path"
             :is-playing="playbackStatus?.path === entry.path"
             draggable="true"
-            @play-track="playTrack(entry)"
+            @play-track="entry.valid && playTrack(entry)"
             @select-track="handleTrackSelection(entry)"
             @click.right="contextMenuEntry = entry"
             @dragstart.prevent="handleDragStart(entry)"

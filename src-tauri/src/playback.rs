@@ -1,4 +1,5 @@
-use anyhow::Result;
+#![deny(clippy::unwrap_used, clippy::expect_used)]
+use crate::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::{AppHandle, Manager, Runtime};
@@ -34,7 +35,7 @@ pub struct StreamStatus {
 pub async fn control_playback<R: Runtime>(
   app_handle: AppHandle<R>,
   action: StreamAction,
-) -> Result<StreamStatus, String> {
+) -> Result<StreamStatus> {
   let audio_handle = app_handle.state::<AudioHandle>();
 
   let (response_tx, response_rx) = oneshot::channel::<StreamStatus>();
@@ -43,7 +44,7 @@ pub async fn control_playback<R: Runtime>(
 
   let response = response_rx
     .await
-    .map_err(|_| "failed to get response from audio thread".to_string())?;
+    .map_err(|_| Error::Other("failed to get response from audio thread".to_string()))?;
 
   return Ok(response);
 }

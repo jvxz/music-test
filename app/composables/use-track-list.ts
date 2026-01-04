@@ -77,7 +77,7 @@ export const useTrackListInput = createSharedComposable(() => {
   return data
 })
 
-const useTrackListCache = () => useState<Map<string, TrackListEntry[]>>('track-list-cache', () => new Map())
+const useTrackListCache = () => useState<Map<string, PotentialFileEntry[]>>('track-list-cache', () => new Map())
 
 export const useTrackListRefresh = createEventHook()
 
@@ -89,19 +89,20 @@ export function useTrackList() {
   const { getLibraryTracks } = useLibrary()
 
   function getTrackList(input: Ref<TrackListInput>) {
-    const asyncData = useAsyncData<TrackListEntry[]>(computed(() => createTrackListInputKey(input.value)), async () => {
+    const asyncData = useAsyncData<PotentialFileEntry[]>(computed(() => createTrackListInputKey(input.value)), async () => {
       const cachedData = trackListCache.value.get(createTrackListInputKey(input.value))
       if (cachedData) {
         return cachedData
       }
 
-      let tracks: TrackListEntry[] = []
+      let tracks: PotentialFileEntry[] = []
 
       switch (input.value.type) {
         case 'folder': {
-          //                                                 cast because the rpc always returns
-          //                                               ↓ with the is_playlist_track flag set to false
-          tracks = await rpc.read_folder(input.value.path) as FolderEntry[]
+          tracks = (await rpc.read_folder(input.value.path)).map(entry => ({
+            ...entry,
+            valid: true,
+          }))
           break
         }
 
@@ -175,4 +176,19 @@ export function refreshTrackListForType(trackListType: TrackListInput['type'], p
       }
     })
   }
+}
+
+export function markTrackAsInvalid(trackPath: string) {
+  const trackListCache = useTrackListCache()
+
+  trackListCache.value.forEach((tracks, key) => {
+    const trackIndex = tracks.findIndex(t => t.path === trackPath)
+    if (trackIndex !== -1 && tracks[trackIndex]) {
+      tracks[trackIndex] = {
+        ...tracks[trackIndex],
+        valid: false,
+      }
+      refreshNuxtData(key)
+    }
+  })
 }

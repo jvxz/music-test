@@ -1,7 +1,17 @@
-export type PlaylistEntry = Prettify<FileEntry & Selectable<DB['playlist_tracks']> & {
+export interface ValidFileEntry extends FileEntry {
+  valid: true
+}
+
+export interface InvalidFileEntry extends Omit<FileEntry, 'tags' | 'thumbnail_uri' | 'full_uri'> {
+  valid: false
+}
+
+export type PotentialFileEntry = ValidFileEntry | InvalidFileEntry
+
+export type PlaylistEntry = Prettify<PotentialFileEntry & Selectable<DB['playlist_tracks']> & {
   is_playlist_track: true
 }>
-export type FolderEntry = Prettify<FileEntry & {
+export type FolderEntry = Prettify<PotentialFileEntry & {
   is_playlist_track: false
 }>
 
@@ -25,7 +35,7 @@ export type TrackListInput = {
   type: 'library'
 }
 
-export type CurrentPlayingTrack = Prettify<TrackListEntry & {
+export type CurrentPlayingTrack = Prettify<ValidFileEntry & {
   playback_source: TrackListEntryType
   playback_source_id: string
 }>

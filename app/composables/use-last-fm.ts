@@ -12,28 +12,36 @@ export function useLastFm() {
   const { getSettingValue, setSettingValue } = useSettings()
   const { isOnline } = useNetwork()
 
-  watch(isOnline, async (isOnline) => {
-    const shouldProcessOfflineScrobbles = getSettingValue('last-fm.do-offline-scrobbling')
-    if (!shouldProcessOfflineScrobbles)
-      return
-
-    if (isOnline) {
-      const scrobbles = await offlineScrobbleCache.get('scrobbles') as SerializedOfflineScrobble[]
-      if (scrobbles.length > 0) {
-        await rpc.process_offline_scrobbles(scrobbles)
-        await offlineScrobbleCache.clear()
-      }
-    }
-  }, {
-    immediate: true,
-  })
-
   const { data: authStatus, execute: refreshAuthStatus, pending: authStatusPending } = useAsyncData('lastfm-auth', async () => {
     const status = await rpc.get_lastfm_auth_status()
 
     if (status) {
       return getSettingValue('last-fm.username') ?? undefined
     }
+  })
+
+  watch([isOnline, authStatus], async (isOnline) => {
+    await until(authStatusPending).toBe(false)
+
+    const shouldProcessOfflineScrobbles = getSettingValue('last-fm.do-offline-scrobbling') && authStatus.value
+    if (!shouldProcessOfflineScrobbles)
+      return
+
+    if (isOnline) {
+      const scrobbles = await offlineScrobbleCache.get('scrobbles') as SerializedOfflineScrobble[] | undefined
+      if (scrobbles && scrobbles.length > 0) {
+        try {
+          await rpc.process_offline_scrobbles(scrobbles)
+        }
+        catch {
+          emitError({ data: `Failed to process offline scrobbles. Your ${scrobbles.length} ${checkPlural(scrobbles.length, 'cached scrobbles')} can be manually processed in settings`, type: 'LastFm' })
+          return
+        }
+        await offlineScrobbleCache.clear()
+      }
+    }
+  }, {
+    immediate: true,
   })
 
   const useLastFmProfile = (usernameRef: MaybeRefOrGetter<string | undefined>) => useAsyncData(
@@ -72,7 +80,7 @@ export function useLastFm() {
     await refreshAuthStatus()
   }
 
-  const updateNowPlaying = useDebounceFn(async (track: TrackListEntry, duration: number) => {
+  const updateNowPlaying = useDebounceFn(async (track: ValidFileEntry, duration: number) => {
     if (!getSettingValue('last-fm.do-scrobbling') || !isOnline.value)
       return
 
@@ -82,7 +90,7 @@ export function useLastFm() {
     }
   }, 2000)
 
-  const scrobbleTrack = useDebounceFn(async (track: TrackListEntry, duration: number) => {
+  const scrobbleTrack = useDebounceFn(async (track: ValidFileEntry, duration: number) => {
     if (!getSettingValue('last-fm.do-scrobbling'))
       return
 
@@ -107,8 +115,8 @@ export function useLastFm() {
     }
   }, 2000)
 
-  function getSerializedScrobble(track: TrackListEntry, duration: number) {
-    if (!track.tags.TPE1 || !track.tags.TIT2) {
+  function getSerializedScrobble(track: ValidFileEntry, duration: number) {
+    if (!track.valid || !track.tags.TPE1 || !track.tags.TIT2) {
       return null
     }
 
@@ -123,7 +131,7 @@ export function useLastFm() {
   }
 
   async function addOfflineScrobble(scrobble: SerializedOfflineScrobble) {
-    const shouldCacheOfflineScrobbles = getSettingValue('last-fm.do-offline-scrobbling')
+    const shouldCacheOfflineScrobbles = getSettingValue('last-fm.do-offline-scrobbling') && authStatus.value
     if (!shouldCacheOfflineScrobbles)
       return
 

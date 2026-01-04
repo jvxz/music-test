@@ -39,10 +39,17 @@ export function useUserPlaylists() {
 
   async function getPlaylistTracks(playlistId: number): Promise<PlaylistEntry[]> {
     const playlistTracks = await $db().selectFrom('playlist_tracks').where('playlist_id', '=', playlistId).selectAll().execute()
-    const fileEntries: (PlaylistEntry | null)[] = await Promise.all(playlistTracks.map(async (track) => {
+    const fileEntries: PotentialFileEntry[] = await Promise.all(playlistTracks.map(async (track) => {
       const fileEntry = await useTauri().rpc.get_track_data(track.path)
-      if (!fileEntry)
-        return null
+      if (!fileEntry) {
+        return {
+          ...track,
+          is_playlist_track: true,
+          name: track.name,
+          path: track.path,
+          valid: false,
+        } as InvalidFileEntry
+      }
 
       return {
         ...fileEntry,
@@ -50,6 +57,7 @@ export function useUserPlaylists() {
         id: track.id,
         is_playlist_track: true,
         playlist_id: track.playlist_id,
+        valid: true,
       }
     }))
 

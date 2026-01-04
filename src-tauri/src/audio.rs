@@ -1,3 +1,4 @@
+use crate::error::{Error, Result};
 use crate::playback::{StreamAction, StreamStatus};
 use kira::sound::static_sound::{StaticSoundData, StaticSoundHandle};
 use kira::sound::streaming::{StreamingSoundHandle, StreamingSoundSettings};
@@ -107,7 +108,7 @@ impl CurrentHandle {
 pub fn spawn_audio_thread(
   mut ui_rx: mpsc::Receiver<(StreamAction, oneshot::Sender<StreamStatus>)>,
   initial_state: Option<StreamStatus>,
-) -> anyhow::Result<()> {
+) -> Result<()> {
   let (event_tx, mut event_rx) = mpsc::channel::<InternalEvent>(32);
 
   let event_tx_clone = event_tx.clone();
@@ -115,7 +116,11 @@ pub fn spawn_audio_thread(
   // ui event loop
   thread::spawn(move || {
     while let Some(msg) = ui_rx.blocking_recv() {
-      event_tx_clone.try_send(InternalEvent::Command(msg.0, msg.1));
+      let res = event_tx_clone.try_send(InternalEvent::Command(msg.0, msg.1));
+
+      if let Err(e) = res {
+        log::error!("failed to send command to audio thread: {e}");
+      }
     }
   });
 
@@ -123,7 +128,7 @@ pub fn spawn_audio_thread(
     internal_buffer_size: 256,
     ..Default::default()
   })
-  .unwrap();
+  .map_err(|_| Error::Audio("failed to create audio manager".to_string()))?;
 
   let mut pending_static_data: Option<StaticSoundData> = None;
   let mut audio_handle: CurrentHandle = CurrentHandle::None;
@@ -137,7 +142,10 @@ pub fn spawn_audio_thread(
     while let Ok((id, path)) = loader_rx.recv() {
       let sound = StaticSoundData::from_file(&path).ok();
 
-      loader_event_tx.try_send(InternalEvent::LoadFinished { id, data: sound });
+      let res = loader_event_tx.try_send(InternalEvent::LoadFinished { id, data: sound });
+      if let Err(e) = res {
+        log::error!("failed to send load finished event: {e}");
+      }
     }
   });
 
@@ -155,9 +163,14 @@ pub fn spawn_audio_thread(
   if let Some(path) = &state.path {
     static_sound_id += 1;
     pending_static_data = None;
-    loader_tx.send((static_sound_id, path.to_string()));
+    loader_tx
+      .send((static_sound_id, path.to_string()))
+      .map_err(|_| {
+        Error::Audio("failed to send static sound id and path to loader thread".to_string())
+      })?;
 
-    let new_sound_data = StreamingSoundData::from_file(path).unwrap();
+    let new_sound_data = StreamingSoundData::from_file(path)
+      .map_err(|e| Error::Audio(format!("failed to create streaming sound data: {}", e)))?;
     let mut new_handle = audio_manager
       .play(new_sound_data.with_settings(StreamingSoundSettings {
         loop_region: if state.is_looping {
@@ -169,7 +182,7 @@ pub fn spawn_audio_thread(
         start_position: PlaybackPosition::Seconds(state.position),
         ..Default::default()
       }))
-      .unwrap();
+      .map_err(|_| Error::Audio("failed to play sound via stream".to_string()))?;
     new_handle.pause(TWEEN);
     audio_handle = CurrentHandle::Streaming(new_handle);
   }
@@ -190,11 +203,35 @@ pub fn spawn_audio_thread(
             pending_static_data = None;
 
             // trigger static sound data loader
-            loader_tx.send((static_sound_id, path.clone()));
+            loader_tx
+              .send((static_sound_id, path.clone()))
+              .map_err(|_| {
+                Error::Audio("failed to send static sound id and path to loader thread".to_string())
+              })?;
 
-            let new_sound_data = StreamingSoundData::from_file(&path).unwrap();
+            // check if file exists/is valid
+            if !std::path::Path::new(&path).is_file() {
+              return Err(Error::Audio("file does not exist".to_string()));
+            }
+
+            let new_sound_data = StreamingSoundData::from_file(&path).map_err(|e| {
+              match e {
+                FromFileError::NoDefaultTrack => log::error!("no default track"),
+                FromFileError::UnknownSampleRate => log::error!("unknown sample rate"),
+                FromFileError::UnknownDuration => log::error!("unknown duration"),
+                FromFileError::UnsupportedChannelConfiguration => {
+                  log::error!("unsupported channel configuration")
+                }
+                FromFileError::IoError(error) => log::error!("io error: {}", error),
+                FromFileError::SymphoniaError(error) => log::error!("symphonia error: {}", error),
+              };
+
+              return Error::Audio("failed to create streaming sound data".to_string());
+            })?;
             let duration = new_sound_data.duration().as_secs_f64();
-            let new_handle = audio_manager.play(new_sound_data).unwrap();
+            let new_handle = audio_manager
+              .play(new_sound_data)
+              .map_err(|_| Error::Audio("failed to play sound via stream".to_string()))?;
 
             // set to streaming sound handle for instant playback
             audio_handle = CurrentHandle::Streaming(new_handle);
@@ -207,14 +244,18 @@ pub fn spawn_audio_thread(
             state.path = Some(path.clone());
             state.position = 0.0;
 
-            response_tx.send(state.clone());
+            response_tx
+              .send(state.clone())
+              .map_err(|_| Error::Audio("failed to send state after playing track".to_string()))?;
           }
           StreamAction::SetLoop(should_loop) => {
             audio_handle.set_loop(should_loop);
 
             state.is_looping = should_loop;
 
-            response_tx.send(state.clone());
+            response_tx
+              .send(state.clone())
+              .map_err(|_| Error::Audio("failed to send state after setting loop".to_string()))?;
           }
           StreamAction::Pause => {
             audio_handle.pause();
@@ -222,14 +263,18 @@ pub fn spawn_audio_thread(
             state.is_playing = false;
             state.position = audio_handle.position();
 
-            response_tx.send(state.clone());
+            response_tx
+              .send(state.clone())
+              .map_err(|_| Error::Audio("failed to send state after pausing".to_string()))?;
           }
           StreamAction::Resume => {
             audio_handle.resume();
 
             state.is_playing = true;
 
-            response_tx.send(state.clone());
+            response_tx
+              .send(state.clone())
+              .map_err(|_| Error::Audio("failed to send state after resuming".to_string()))?;
           }
           StreamAction::Seek(to) => {
             if let Some(static_data) = pending_static_data.as_ref() {
@@ -244,7 +289,7 @@ pub fn spawn_audio_thread(
                   // swap to static sound data
                   let mut new_handle = audio_manager
                     .play(static_data.clone().volume(volume))
-                    .unwrap();
+                    .map_err(|_| Error::Audio("failed to play static sound".to_string()))?;
                   new_handle.seek_to(to);
                   if !state.is_playing {
                     new_handle.pause(TWEEN);
@@ -268,20 +313,26 @@ pub fn spawn_audio_thread(
 
             state.position = to;
 
-            response_tx.send(state.clone());
+            response_tx
+              .send(state.clone())
+              .map_err(|_| Error::Audio("failed to send state after seeking".to_string()))?;
           }
           StreamAction::SetVolume(volume) => {
             audio_handle.set_volume(volume, state.is_muted);
 
             state.volume = volume;
-            response_tx.send(state.clone());
+            response_tx
+              .send(state.clone())
+              .map_err(|_| Error::Audio("failed to send state after setting volume".to_string()))?;
           }
           StreamAction::ToggleMute => {
             state.is_muted = !state.is_muted;
 
             audio_handle.set_volume(state.volume, state.is_muted);
 
-            response_tx.send(state.clone());
+            response_tx
+              .send(state.clone())
+              .map_err(|_| Error::Audio("failed to send state after toggling mute".to_string()))?;
           }
         }
       }
@@ -294,5 +345,6 @@ pub fn spawn_audio_thread(
     }
   }
 
+  log::info!("audio thread exiting");
   Ok(())
 }

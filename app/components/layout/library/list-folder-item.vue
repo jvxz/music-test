@@ -12,8 +12,12 @@ const emits = defineEmits<{
 const { addToPlaylist } = useUserPlaylists()
 
 async function handleDrop(itemPaths: string[]) {
-  const tracks = await useTauri().rpc.get_tracks_data(itemPaths)
-  addToPlaylist(props.playlist.id, tracks)
+  const tracks = await getTracksData(itemPaths)
+  const validTracks = tracks.filter(track => track.valid)
+
+  if (validTracks.length > 0) {
+    addToPlaylist(props.playlist.id, validTracks)
+  }
 }
 </script>
 

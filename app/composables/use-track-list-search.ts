@@ -9,7 +9,7 @@ export const useTrackListSearchQuery = createGlobalState(() => {
   return query
 })
 
-export function useTrackListSearch(entries: Ref<TrackListEntry[]>) {
+export function useTrackListSearch(entries: Ref<PotentialFileEntry[]>) {
   const query = useTrackListSearchQuery()
   const { fuse, results: fuseResults } = useFuse(query, entries, {
     fuseOptions: {
@@ -20,7 +20,7 @@ export function useTrackListSearch(entries: Ref<TrackListEntry[]>) {
 
   const results = computed(() => resultsToEntries(fuseResults.value))
 
-  function resultsToEntries(results: FuseResult<globalThis.TrackListEntry>[]): TrackListEntry[] {
+  function resultsToEntries(results: FuseResult<PotentialFileEntry>[]): PotentialFileEntry[] {
     const mappedEntries = results.map((result) => {
       const entry = entries.value.find(entry => entry.path === result.item.path)
       if (!entry) {
