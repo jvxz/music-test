@@ -22,7 +22,7 @@ async function handleRemove(entry: PlaylistEntry) {
       </UContextMenuLabel> -->
 
     <UContextMenuSub>
-      <UContextMenuSubTrigger>
+      <UContextMenuSubTrigger :disabled="!entry.valid">
         Add to playlist
       </UContextMenuSubTrigger>
       <UContextMenuSubContent>
@@ -38,7 +38,6 @@ async function handleRemove(entry: PlaylistEntry) {
     </UContextMenuSub>
     <UContextMenuItem
       v-if="entry.is_playlist_track"
-      class="focus-visible:bg-red-400/20"
       @click="handleRemove(entry as PlaylistEntry)"
     >
       Remove from playlist
