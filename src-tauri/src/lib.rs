@@ -1,9 +1,9 @@
 // #![deny(clippy::unwrap_used, clippy::expect_used)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use crate::error::{Error, Result};
-use crate::files::read::FileEntry;
 use crate::lastfm::{SerializedOfflineScrobble, SerializedScrobble, SerializedScrobbleResponse};
 use crate::playback::{AudioHandle, StreamAction, StreamStatus};
+use crate::read::FileEntry;
 use rand::TryRngCore;
 use serde::Serialize;
 use std::io::Write;
@@ -19,15 +19,13 @@ use tauri_plugin_stronghold::stronghold::Stronghold;
 use tokio::sync::{mpsc, oneshot};
 use uuid::Uuid;
 
-mod files {
-  pub mod read;
-}
 mod audio;
 mod cover_protocol;
 mod error;
 mod hooks;
 mod lastfm;
 mod playback;
+mod read;
 mod waveform;
 
 #[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
@@ -72,7 +70,7 @@ trait Api {
 #[taurpc::resolvers]
 impl Api for ApiImpl {
   async fn read_folder(self, path: String) -> Result<Arc<Vec<FileEntry>>> {
-    return files::read::read_folder(path).await;
+    return read::read_folder(path).await;
   }
 
   async fn get_canonical_path(self, path: String) -> Result<String> {
@@ -84,11 +82,11 @@ impl Api for ApiImpl {
   }
 
   async fn get_track_data(self, path: String) -> Result<FileEntry> {
-    return files::read::get_track_data(path).await;
+    return read::get_track_data(path).await;
   }
 
   async fn get_tracks_data(self, paths: Vec<String>) -> Vec<FileEntry> {
-    return files::read::get_tracks_data(paths).await;
+    return read::get_tracks_data(paths).await;
   }
 
   async fn get_waveform<R: Runtime>(
