@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { revealItemInDir } from '@tauri-apps/plugin-opener'
+
 defineProps<{
   entry: PotentialFileEntry | null
 }>()
@@ -41,6 +43,18 @@ async function handleRemove(entry: PlaylistEntry) {
       @click="handleRemove(entry as PlaylistEntry)"
     >
       Remove from playlist
+    </UContextMenuItem>
+    <UContextMenuItem
+      :disabled="!entry.valid"
+      @click="revealItemInDir(entry.path)"
+    >
+      Reveal in file explorer
+    </UContextMenuItem>
+    <UContextMenuItem
+      :disabled="!entry.valid"
+      @click="requestDeleteFile(entry as ValidFileEntry)"
+    >
+      Delete file
     </UContextMenuItem>
   </UContextMenuContent>
 </template>
