@@ -77,7 +77,7 @@ export const useTrackListInput = createSharedComposable(() => {
   return data
 })
 
-const useTrackListCache = () => useState<Map<string, PotentialFileEntry[]>>('track-list-cache', () => new Map())
+const useTrackListCache = () => useState<Map<string, TrackListEntry[]>>('track-list-cache', () => new Map())
 
 export const useTrackListRefresh = createEventHook()
 
@@ -89,19 +89,19 @@ export function useTrackList() {
   const { getLibraryTracks } = useLibrary()
 
   function getTrackList(input: Ref<TrackListInput>) {
-    const asyncData = useAsyncData<PotentialFileEntry[]>(computed(() => createTrackListInputKey(input.value)), async () => {
+    const asyncData = useAsyncData<TrackListEntry[]>(computed(() => createTrackListInputKey(input.value)), async () => {
       const cachedData = trackListCache.value.get(createTrackListInputKey(input.value))
       if (cachedData) {
         return cachedData
       }
 
-      let tracks: PotentialFileEntry[] = []
+      let tracks: TrackListEntry[] = []
 
       switch (input.value.type) {
         case 'folder': {
           tracks = (await rpc.read_folder(input.value.path)).map(entry => ({
             ...entry,
-            valid: true,
+            is_playlist_track: false as const,
           }))
           break
         }
@@ -112,7 +112,10 @@ export function useTrackList() {
         }
 
         case 'library': {
-          tracks = await getLibraryTracks()
+          tracks = (await getLibraryTracks()).map(entry => ({
+            ...entry,
+            is_playlist_track: false as const,
+          }))
           break
         }
       }
@@ -187,6 +190,30 @@ export function markTrackAsInvalid(trackPath: string) {
       tracks[trackIndex] = {
         ...tracks[trackIndex],
         valid: false,
+      }
+      refreshNuxtData(key)
+    }
+  })
+}
+
+export function markTrackAsValid(track: TrackListEntry) {
+  const trackListCache = useTrackListCache()
+
+  trackListCache.value.forEach(async (tracks, key) => {
+    const trackIndex = tracks.findIndex(t => t.path === track.path)
+    if (trackIndex !== -1 && tracks[trackIndex]) {
+      const data = await getTracksData([track.path])
+      if (data[0]) {
+        tracks[trackIndex] = {
+          ...data[0],
+          is_playlist_track: track.is_playlist_track,
+          ...(track.is_playlist_track && {
+            added_at: track.added_at,
+            id: track.id,
+            playlist_id: track.playlist_id,
+          }),
+          valid: true,
+        } as TrackListEntry
       }
       refreshNuxtData(key)
     }

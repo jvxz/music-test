@@ -1,18 +1,18 @@
 <script lang="ts" setup>
 defineProps<{
-  entry: PotentialFileEntry
+  entry: TrackListEntry
   isSelected: boolean
   isPlaying: boolean
 }>()
 
 const emits = defineEmits<{
-  selectTrack: [track: PotentialFileEntry]
-  playTrack: [track: PotentialFileEntry]
+  selectTrack: [track: TrackListEntry]
+  playTrack: [track: TrackListEntry]
 }>()
 
 const classes = 'flex items-center'
 
-function getCellContent(entry: PotentialFileEntry, frame: Id3FrameId | undefined) {
+function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
   if (frame === 'TIT2') {
     if (entry.valid) {
       return entry.tags[frame] ?? entry.name

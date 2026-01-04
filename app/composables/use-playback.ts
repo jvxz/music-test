@@ -94,7 +94,7 @@ export const usePlayback = createSharedComposable(() => {
     _playbackStatus.value = await rpc.control_playback(action)
   }
 
-  async function playTrack(entry: ValidFileEntry) {
+  async function playTrack(entry: TrackListEntry) {
     // scrobble previous track if not already scrobbled
     if (_currentTrack.value && _playbackStatus.value && canScrobble()) {
       scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
@@ -104,10 +104,15 @@ export const usePlayback = createSharedComposable(() => {
     try {
       const exists = await useTauriFsExists(entry.path)
       if (!exists) {
+        markTrackAsInvalid(entry.path)
         return emitError({
           data: `${entry.name} does not exist`,
           type: 'FileSystem',
         })
+      }
+
+      if (!entry.valid) {
+        markTrackAsValid(entry)
       }
     }
     catch {
@@ -119,8 +124,13 @@ export const usePlayback = createSharedComposable(() => {
     }
 
     const data = await getTrackData(entry)
-    if (!data)
-      return
+    if (!data) {
+      markTrackAsInvalid(entry.path)
+      return emitError({
+        data: `${entry.name} is inaccessible (may have been moved, deleted, or permission denied)`,
+        type: 'FileSystem',
+      })
+    }
 
     _currentTrack.value = {
       ...data,
@@ -182,7 +192,7 @@ export const usePlayback = createSharedComposable(() => {
     }
   }
 
-  async function getTrackData<T extends ValidFileEntry | InvalidFileEntry>(entry: T): Promise<T | null> {
+  async function getTrackData(entry: TrackListEntry): Promise<TrackListEntry | null> {
     const res = await rpc.get_track_data(entry.path)
     if (!res)
       return null

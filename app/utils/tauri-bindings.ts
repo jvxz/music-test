@@ -6,7 +6,7 @@ type TAURI_CHANNEL<T> = (response: T) => void
 
 export type Error = { type: "Audio"; data: string } | { type: "Id3"; data: string } | { type: "FileSystem"; data: string } | { type: "LastFm"; data: string } | { type: "Waveform"; data: string } | { type: "Sql"; data: string } | { type: "Store"; data: string } | { type: "Stronghold"; data: string } | { type: "Other"; data: string }
 
-export type FileEntry = { path: string; name: string; tags: Partial<{ [key in string]: string }>; thumbnail_uri: string; full_uri: string; is_playlist_track: boolean }
+export type FileEntry = { path: string; name: string; tags: Partial<{ [key in string]: string }>; thumbnail_uri: string; full_uri: string; is_playlist_track: boolean; valid: boolean }
 
 export type SerializedOfflineScrobble = { scrobble: SerializedScrobble; timestamp: number }
 
@@ -23,7 +23,7 @@ export type Router = { "": {complete_lastfm_auth: (token: string) => Promise<str
 control_playback: (action: StreamAction) => Promise<StreamStatus>, 
 get_canonical_path: (path: string) => Promise<string>, 
 get_lastfm_auth_status: () => Promise<boolean>, 
-get_track_data: (path: string) => Promise<FileEntry | null>, 
+get_track_data: (path: string) => Promise<FileEntry>, 
 get_tracks_data: (paths: string[]) => Promise<FileEntry[]>, 
 get_waveform: (path: string, binSize: number) => Promise<number[]>, 
 open_lastfm_auth: () => Promise<string>, 

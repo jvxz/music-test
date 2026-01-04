@@ -161,30 +161,32 @@ pub fn spawn_audio_thread(
 
   // load track if initial state has path
   if let Some(path) = &state.path {
-    static_sound_id += 1;
-    pending_static_data = None;
-    loader_tx
-      .send((static_sound_id, path.to_string()))
-      .map_err(|_| {
-        Error::Audio("failed to send static sound id and path to loader thread".to_string())
-      })?;
+    if std::path::Path::new(path).is_file() {
+      static_sound_id += 1;
+      pending_static_data = None;
+      loader_tx
+        .send((static_sound_id, path.to_string()))
+        .map_err(|_| {
+          Error::Audio("failed to send static sound id and path to loader thread".to_string())
+        })?;
 
-    let new_sound_data = StreamingSoundData::from_file(path)
-      .map_err(|e| Error::Audio(format!("failed to create streaming sound data: {}", e)))?;
-    let mut new_handle = audio_manager
-      .play(new_sound_data.with_settings(StreamingSoundSettings {
-        loop_region: if state.is_looping {
-          Some(Region::from(0.0..))
-        } else {
-          None
-        },
-        volume: Value::from(Decibels::from(state.volume)),
-        start_position: PlaybackPosition::Seconds(state.position),
-        ..Default::default()
-      }))
-      .map_err(|_| Error::Audio("failed to play sound via stream".to_string()))?;
-    new_handle.pause(TWEEN);
-    audio_handle = CurrentHandle::Streaming(new_handle);
+      let new_sound_data = StreamingSoundData::from_file(path)
+        .map_err(|e| Error::Audio(format!("failed to create streaming sound data: {}", e)))?;
+      let mut new_handle = audio_manager
+        .play(new_sound_data.with_settings(StreamingSoundSettings {
+          loop_region: if state.is_looping {
+            Some(Region::from(0.0..))
+          } else {
+            None
+          },
+          volume: Value::from(Decibels::from(state.volume)),
+          start_position: PlaybackPosition::Seconds(state.position),
+          ..Default::default()
+        }))
+        .map_err(|_| Error::Audio("failed to play sound via stream".to_string()))?;
+      new_handle.pause(TWEEN);
+      audio_handle = CurrentHandle::Streaming(new_handle);
+    }
   }
 
   // main event loop

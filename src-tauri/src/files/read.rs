@@ -22,6 +22,7 @@ pub struct FileEntry {
   pub thumbnail_uri: String,
   pub full_uri: String,
   pub is_playlist_track: bool,
+  pub valid: bool,
 }
 
 pub static FOLDER_CACHE: LazyLock<DashMap<String, Arc<Vec<FileEntry>>>> =
@@ -65,46 +66,54 @@ pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>> {
 }
 
 #[tauri::command]
-pub async fn get_track_data(path_string: impl AsRef<str>) -> Option<FileEntry> {
-  return _get_track_data(path_string).unwrap_or(None);
-}
-
-#[tauri::command]
 pub async fn get_tracks_data(paths: Vec<String>) -> Vec<FileEntry> {
   let tracks = paths.into_iter().map(_get_track_data);
 
   let tracks = tracks
-    .filter_map(|result| match result {
-      Ok(Some(entry)) => Some(entry),
-      _ => None,
-    })
+    .filter_map(|result| result.ok())
     .collect::<Vec<FileEntry>>();
 
   return tracks;
 }
 
-fn _get_track_data(path_string: impl AsRef<str>) -> Result<Option<FileEntry>> {
+#[tauri::command]
+pub async fn get_track_data(path_string: impl AsRef<str>) -> Result<FileEntry> {
+  return _get_track_data(path_string);
+}
+
+#[tauri::command]
+fn _get_track_data(path_string: impl AsRef<str>) -> Result<FileEntry> {
   if let Some(cached_track) = TRACK_CACHE.get(path_string.as_ref()) {
     let data = cached_track.value().clone();
-    return Ok(Some(data));
+    return Ok(data);
   }
 
   let path = PathBuf::from(path_string.as_ref());
 
-  if !path.is_file() {
-    return Ok(None);
-  }
-
-  let file_entry = file_entry_from_path(&path)?;
+  let file_entry = file_entry_from_path(path)?;
 
   TRACK_CACHE.insert(path_string.as_ref().to_string(), file_entry.clone());
 
-  return Ok(Some(file_entry));
+  return Ok(file_entry);
 }
 
-fn file_entry_from_path(path: impl AsRef<Path>) -> Result<FileEntry> {
-  let path = path.as_ref();
-  let tag_map = get_tag_map(path)?;
+fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
+  if !path.is_file() {
+    return Ok(FileEntry {
+      tags: SerializableTagMap::new(),
+      full_uri: String::new(),
+      thumbnail_uri: String::new(),
+      path: path.to_string_lossy().to_string(),
+      name: path
+        .file_name()
+        .map(|n| n.to_string_lossy().to_string())
+        .unwrap_or("Unknown title".to_string()),
+      is_playlist_track: false,
+      valid: false,
+    });
+  }
+
+  let tag_map = get_tag_map(&path)?;
   let full_uri = build_cover_uri(path.to_string_lossy().as_ref(), "full");
   let thumbnail_uri = build_cover_uri(path.to_string_lossy().as_ref(), "thumbnail");
   let name = path
@@ -119,6 +128,7 @@ fn file_entry_from_path(path: impl AsRef<Path>) -> Result<FileEntry> {
     path: path.to_string_lossy().to_string(),
     name,
     is_playlist_track: false,
+    valid: true,
   });
 }
 
