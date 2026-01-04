@@ -65,6 +65,7 @@ async function handleDragStart(track: PotentialFileEntry) {
                 entry.data.path,
                 selectedTrack?.path === entry.data.path,
                 playbackStatus?.path === entry.data.path,
+                entry.data.valid,
               ]"
               :entry="entry.data"
               :is-selected="selectedTrack?.path === entry.data.path"
@@ -98,6 +99,7 @@ async function handleDragStart(track: PotentialFileEntry) {
               entry.path,
               selectedTrack?.path === entry.path,
               playbackStatus?.path === entry.path,
+              entry.valid,
             ]"
             :entry="entry"
             :is-selected="selectedTrack?.path === entry.path"
