@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 defineProps<{
-  entry: PotentialFileEntry | null
+  entry: TrackListEntry | null
 }>()
 </script>
 

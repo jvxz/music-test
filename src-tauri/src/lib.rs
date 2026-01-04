@@ -34,7 +34,7 @@ mod waveform;
 trait Api {
   async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>>;
   async fn get_canonical_path(path: String) -> Result<String>;
-  async fn get_track_data(path: String) -> Option<FileEntry>;
+  async fn get_track_data(path: String) -> Result<FileEntry>;
   async fn get_tracks_data(paths: Vec<String>) -> Vec<FileEntry>;
   async fn control_playback<R: Runtime>(
     app_handle: AppHandle<R>,
@@ -83,7 +83,7 @@ impl Api for ApiImpl {
     return Ok(canonical_path);
   }
 
-  async fn get_track_data(self, path: String) -> Option<FileEntry> {
+  async fn get_track_data(self, path: String) -> Result<FileEntry> {
     return files::read::get_track_data(path).await;
   }
 

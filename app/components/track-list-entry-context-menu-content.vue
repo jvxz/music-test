@@ -2,12 +2,12 @@
 import { revealItemInDir } from '@tauri-apps/plugin-opener'
 
 defineProps<{
-  entry: PotentialFileEntry | null
+  entry: TrackListEntry | null
 }>()
 
 const { addToPlaylist, playlists, removeFromPlaylist } = useUserPlaylists()
 
-async function handleRemove(entry: PlaylistEntry) {
+async function handleRemove(entry: TrackListEntry) {
   if (!entry.is_playlist_track) {
     return
   }
@@ -32,7 +32,7 @@ async function handleRemove(entry: PlaylistEntry) {
           v-for="playlist in playlists"
           :key="playlist.id"
           :disabled="!entry.valid"
-          @click="addToPlaylist(playlist.id, [entry as FileEntry])"
+          @click="addToPlaylist(playlist.id, [entry])"
         >
           {{ playlist.name }}
         </UContextMenuItem>
@@ -40,7 +40,7 @@ async function handleRemove(entry: PlaylistEntry) {
     </UContextMenuSub>
     <UContextMenuItem
       v-if="entry.is_playlist_track"
-      @click="handleRemove(entry as PlaylistEntry)"
+      @click="handleRemove(entry)"
     >
       Remove from playlist
     </UContextMenuItem>
@@ -49,12 +49,6 @@ async function handleRemove(entry: PlaylistEntry) {
       @click="revealItemInDir(entry.path)"
     >
       Reveal in file explorer
-    </UContextMenuItem>
-    <UContextMenuItem
-      :disabled="!entry.valid"
-      @click="requestDeleteFile(entry as ValidFileEntry)"
-    >
-      Delete file
     </UContextMenuItem>
   </UContextMenuContent>
 </template>

@@ -13,7 +13,7 @@ const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
 
 const { data: folderEntries, pending: isLoadingPlaylistData } = getTrackList(toRef(props))
 
-function handleTrackSelection(track: PotentialFileEntry) {
+function handleTrackSelection(track: TrackListEntry) {
   if (selectedTrack.value?.path !== track.path) {
     selectedTrack.value = track
   }
@@ -21,9 +21,9 @@ function handleTrackSelection(track: PotentialFileEntry) {
 
 const shouldVirtualize = computed(() => folderEntries.value.length >= TRACK_LIST_VIRTUALIZATION_THRESHOLD)
 
-const contextMenuEntry = shallowRef<PotentialFileEntry | null>(null)
+const contextMenuEntry = shallowRef<TrackListEntry | null>(null)
 
-async function handleDragStart(track: PotentialFileEntry) {
+async function handleDragStart(track: TrackListEntry) {
   const { value: colorMode } = useColorMode()
   const icon = await resolveResource(`icons/${colorMode === 'light' ? 'file-dark.svg' : 'file-light.svg'}`)
 
@@ -71,7 +71,7 @@ async function handleDragStart(track: PotentialFileEntry) {
               :is-selected="selectedTrack?.path === entry.data.path"
               :is-playing="playbackStatus?.path === entry.data.path"
               draggable="true"
-              @play-track="entry.data.valid && playTrack(entry.data)"
+              @play-track="playTrack(entry.data)"
               @select-track="handleTrackSelection(entry.data)"
               @click.right="contextMenuEntry = entry.data"
               @dragstart.prevent="handleDragStart(entry.data)"
@@ -105,7 +105,7 @@ async function handleDragStart(track: PotentialFileEntry) {
             :is-selected="selectedTrack?.path === entry.path"
             :is-playing="playbackStatus?.path === entry.path"
             draggable="true"
-            @play-track="entry.valid && playTrack(entry)"
+            @play-track="playTrack(entry)"
             @select-track="handleTrackSelection(entry)"
             @click.right="contextMenuEntry = entry"
             @dragstart.prevent="handleDragStart(entry)"

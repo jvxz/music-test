@@ -39,33 +39,31 @@ export function useUserPlaylists() {
 
   async function getPlaylistTracks(playlistId: number): Promise<PlaylistEntry[]> {
     const playlistTracks = await $db().selectFrom('playlist_tracks').where('playlist_id', '=', playlistId).selectAll().execute()
-    const fileEntries: PotentialFileEntry[] = await Promise.all(playlistTracks.map(async (track) => {
-      const fileEntry = await useTauri().rpc.get_track_data(track.path)
-      if (!fileEntry) {
-        return {
-          ...track,
-          is_playlist_track: true,
-          name: track.name,
-          path: track.path,
-          valid: false,
-        } as InvalidFileEntry
-      }
-
+    const fileEntries: PlaylistEntry[] = await Promise.all(playlistTracks.map(async (track) => {
+      const trackData = await useTauri().rpc.get_track_data(track.path)
       return {
-        ...fileEntry,
-        added_at: track.added_at,
-        id: track.id,
+        ...trackData,
+        ...track,
         is_playlist_track: true,
-        playlist_id: track.playlist_id,
-        valid: true,
-      }
-    }))
+      } satisfies PlaylistEntry
+    }),
+    )
 
-    return fileEntries.filter(Boolean) as PlaylistEntry[]
+    return fileEntries
   }
 
-  async function addToPlaylist(playlistId: number, tracks: FileEntry[]) {
-    await addTracksToLibrary(tracks, {
+  async function addToPlaylist(playlistId: number, tracks: TrackListEntry[]) {
+    const validTracks = tracks.filter(track => track.valid)
+
+    const invalidTracks = tracks.filter(track => !track.valid)
+    if (invalidTracks.length > 0) {
+      emitError({
+        data: `Could not add the following tracks to the playlist: ${invalidTracks.map(track => track.path).join(', ')}`,
+        type: 'FileSystem',
+      })
+    }
+
+    await addTracksToLibrary(validTracks, {
       id: String(playlistId),
       type: 'playlist',
     })

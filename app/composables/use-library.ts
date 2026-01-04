@@ -3,7 +3,7 @@ const LIBRARY_FOLDERS_KEY = 'library-folders'
 export function useLibrary() {
   const { rpc } = useTauri()
 
-  async function getLibraryTracks(): Promise<PotentialFileEntry[]> {
+  async function getLibraryTracks() {
     const tracks = await $db().selectFrom('library_tracks').selectAll().execute()
 
     return await getTracksData(tracks.map(track => track.path))

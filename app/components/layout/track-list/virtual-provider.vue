@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const props = defineProps<{
-  entries: PotentialFileEntry[]
+  entries: TrackListEntry[]
 }>()
 
 const { containerProps, list, wrapperProps } = useVirtualList(computed(() => props.entries), {
