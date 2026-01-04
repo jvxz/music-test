@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import { message } from '@tauri-apps/plugin-dialog'
-
 const { authStatus, completeAuth, removeAuth, startAuth, useLastFmProfile } = useLastFm()
 
 const { getSettingValueRef } = useSettings()
 
 const doScrobbling = getSettingValueRef('last-fm.do-scrobbling')
+const doNowPlayingUpdates = getSettingValueRef('last-fm.do-now-playing-updates')
 const doOfflineScrobbling = getSettingValueRef('last-fm.do-offline-scrobbling')
 
 const token = shallowRef<string | null>(null)
@@ -23,7 +22,7 @@ async function handleStartAuth() {
   }
   catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error)
-    await message(errorMsg, { kind: 'error', title: 'Last.fm Auth Error' })
+    emitError({ data: errorMsg, type: 'LastFm' })
     isAuthDialogOpen.value = false
   }
 }
@@ -36,6 +35,9 @@ async function handleCompleteAuth() {
 
   try {
     await completeAuth(token.value)
+  }
+  catch {
+    emitError({ data: 'Failed to complete authentication. Did you complete the process in the new tab before continuing?', type: 'LastFm' })
   }
   finally {
     isAuthDialogOpen.value = false
@@ -64,6 +66,16 @@ const { isOnline } = useNetwork()
       </div>
       <div class="flex w-full items-center gap-2">
         <ULabel for="doOfflineScrobbling">
+          Update "now playing" status
+        </ULabel>
+        <USwitch
+          id="doNowPlayingUpdates"
+          v-model="doNowPlayingUpdates"
+          :disabled="!authStatus"
+        />
+      </div>
+      <div class="flex w-full items-center gap-2">
+        <ULabel for="doOfflineScrobbling">
           Enable offline scrobbling
         </ULabel>
         <USwitch
@@ -76,9 +88,9 @@ const { isOnline } = useNetwork()
     <div class="flex w-fit shrink-0 justify-between gap-4">
       <template v-if="!isOnline">
         <!-- <div class="flex items-center justify-around gap-2 text-muted-foreground"> -->
-        <div class="flex items-end justify-around flex-col text-muted-foreground">
+        <div class="flex flex-col items-end justify-around text-muted-foreground">
           <p class="italic">
-            You are currently offline.
+            You are currently offline
           </p>
           <UButton
             class="w-fit"

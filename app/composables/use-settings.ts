@@ -4,6 +4,7 @@ export interface Settings {
   'appearance.font': 'SYSTEM' | (string & {})
   'last-fm.username': string | null
   'last-fm.do-scrobbling': boolean
+  'last-fm.do-now-playing-updates': boolean
   'last-fm.do-offline-scrobbling': boolean
 }
 
@@ -16,6 +17,7 @@ type EnforcedSettingsKeys<T extends Record<string, any>> = {
 
 export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'appearance.font': 'SYSTEM',
+  'last-fm.do-now-playing-updates': true,
   'last-fm.do-offline-scrobbling': true,
   'last-fm.do-scrobbling': true,
   'last-fm.username': null,
