@@ -7,6 +7,7 @@ export interface Settings {
   'last-fm.do-now-playing-updates': boolean
   'last-fm.do-offline-scrobbling': boolean
   'appearance.token.background': string
+  'appearance.token.muted': string
   'appearance.token.foreground': string
   'appearance.token.primary': string
   'appearance.token.border': string
@@ -28,6 +29,7 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
       'appearance.token.background': '#080808',
       'appearance.token.border': '#171717',
       'appearance.token.foreground': '#C7C7C7',
+      'appearance.token.muted': '#1D1D1D',
       'appearance.token.primary': '#5A907C',
       'appearance.token.surface': '#0E0E0E',
     },
@@ -35,6 +37,7 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'appearance.token.background': '#080808',
   'appearance.token.border': '#171717',
   'appearance.token.foreground': '#C7C7C7',
+  'appearance.token.muted': '#1D1D1D',
   'appearance.token.primary': '#5A907C',
   'appearance.token.surface': '#0E0E0E',
   'last-fm.do-now-playing-updates': true,
