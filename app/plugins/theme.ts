@@ -11,6 +11,7 @@ export default defineNuxtPlugin({
         --primary: ${settings.value['appearance.token.primary']};
         --border: ${settings.value['appearance.token.border']};
         --card: ${settings.value['appearance.token.surface']};
+        --muted: ${settings.value['appearance.token.muted']};
       }
     `))
   },
