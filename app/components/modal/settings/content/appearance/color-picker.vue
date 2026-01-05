@@ -2,7 +2,7 @@
 import { Colord } from 'colord'
 
 const { settingKey } = defineProps<{
-  settingKey: SettingsEntryKey & `appearance.${string}`
+  settingKey: SettingsEntryKey & `appearance.token.${string}`
 }>()
 
 const { getSettingValueRef } = useSettings()
