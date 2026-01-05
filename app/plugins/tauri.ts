@@ -17,7 +17,10 @@ export default defineNuxtPlugin({
 
     const settings = useState<Settings>('settings')
     const settingsFromPrefs = prefs.get('settings') as Settings | undefined
-    settings.value = settingsFromPrefs ?? DEFAULT_SETTINGS
+    settings.value = {
+      ...DEFAULT_SETTINGS,
+      ...settingsFromPrefs,
+    }
 
     watchDebounced(settings, () => tauriStore.set('settings', settings.value), { debounce: 500 })
 
