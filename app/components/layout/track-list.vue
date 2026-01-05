@@ -24,8 +24,7 @@ const shouldVirtualize = computed(() => folderEntries.value.length >= TRACK_LIST
 const contextMenuEntry = shallowRef<TrackListEntry | null>(null)
 
 async function handleDragStart(track: TrackListEntry) {
-  const { value: colorMode } = useColorMode()
-  const icon = await resolveResource(`icons/${colorMode === 'light' ? 'file-dark.svg' : 'file-light.svg'}`)
+  const icon = await resolveResource(`icons/file-light.svg`)
 
   await startDrag({
     icon,

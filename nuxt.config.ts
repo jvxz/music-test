@@ -21,10 +21,6 @@ export default defineNuxtConfig({
     },
   },
 
-  colorMode: {
-    storage: 'cookie',
-  },
-
   compatibilityDate: '2025-12-02',
 
   css: [
@@ -107,7 +103,6 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     'reka-ui/nuxt',
     '@nuxt/eslint',
-    '@nuxtjs/color-mode',
     '@nuxt/icon',
     'dayjs-nuxt',
   ],
