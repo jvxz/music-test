@@ -2,14 +2,22 @@
 import { Colord } from 'colord'
 
 const { settingKey } = defineProps<{
-  settingKey: SettingsEntryKey
+  settingKey: SettingsEntryKey & `appearance.${string}`
 }>()
 
 const { getSettingValueRef } = useSettings()
 
 const label = computed(() => sentenceCase(settingKey.split('.').pop()!))
 
-const color = getSettingValueRef(settingKey) as Ref<string>
+const isColorValid = shallowRef(true)
+const color = getSettingValueRef(settingKey, {
+  onBeforeChange: (value) => {
+    const isValid = new Colord(value).isValid()
+
+    isColorValid.value = isValid
+    return isValid
+  },
+})
 
 const colorPicker = shallowRef<HTMLInputElement | null>(null)
 function handleColorPickerClick() {
@@ -39,7 +47,12 @@ function handleColorPickerClick() {
         type="color"
         class="invisible absolute inset-0 -left-2"
       />
-      <UInput v-model="color" />
+      <UInput
+        v-model="color"
+        :class="{
+          'border-danger': !isColorValid,
+        }"
+      />
     </div>
   </div>
 </template>
