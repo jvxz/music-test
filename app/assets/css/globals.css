@@ -71,29 +71,7 @@
   /* --font-weight-bold: 650; */
 }
 
-:root {
-  --background: hsl(from var(--primary) h calc(s * 0.1) calc(l * 1.7));
-  --foreground: hsl(from var(--primary) h calc(s * 0.15) calc(l * 0.362));
-  --border: hsl(from var(--background) h s calc(l / 1.2));
-  --card: hsl(from var(--background) h s calc(l * 1.4));
-  --card-foreground: var(--foreground);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(from var(--primary) h calc(s * 0.2) calc(l * 0.362));
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(0 0% 92.1569%);
-  --secondary-foreground: var(--foreground);
-  --muted: hsl(from var(--background) h s calc(l / 1.04));
-  /* --muted-foreground: hsl(0 0% 45%); */
-  --muted-foreground: hsl(from var(--primary) h calc(s * 0.1) calc(l * 0.9));
-  --accent: hsl(196, 66%, 68%);
-  --accent-foreground: hsl(0 0% 8%);
-  --danger: hsl(352.6829 50.014% 50.0392%);
-  --danger-foreground: var(--foreground);
-  --input: hsl(0 0% 80%);
-  --ring: hsl(196, 66%, 68%);
-}
-
-:root {
+/* :root {
   --overlay: hsl(0 0% 0% / 0.4);
   --radius: 0.25rem;
 
@@ -114,6 +92,28 @@
   --danger: hsl(352.6829 50.014% 50.0392%);
   --danger-foreground: hsl(0 0% 100%);
   --input: hsl(0 0% 21.9608%);
+} */
+:root {
+  --overlay: hsl(0 0% 0% / 0.4);
+  --radius: 0.25rem;
+
+  --background: hsl(157, 0%, 3.22%);
+  --foreground: hsl(157, 0%, 78.2%);
+  --primary: hsl(157, 23%, 46%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(0 0% 23.1373%);
+  --secondary-foreground: hsl(157, 0%, 78.2%);
+  --muted: hsl(157, 0%, 11.27%);
+  --muted-foreground: hsl(157, 0%, 54.74%);
+  --card: hsl(157, 0%, 5.635%);
+  --card-foreground: hsl(157, 0%, 78.2%);
+  --popover: hsl(0 0% 3.1373%);
+  --popover-foreground: hsl(0 0% 63.5294%);
+  --accent-foreground: hsl(0 0% 100%);
+  --danger: hsl(352.6829 50.014% 50.0392%);
+  --danger-foreground: hsl(0 0% 100%);
+  --input: hsl(0 0% 21.9608%);
+  --border: hsl(157, 0%, 9.016%);
 }
 
 @utility scrollbar-fancy {
