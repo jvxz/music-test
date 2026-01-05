@@ -1,5 +1,3 @@
-import type { ControlledRefOptions } from '@vueuse/core'
-
 type SettingsEntryKeyFormat = `${typeof SETTINGS_MODAL_TABS[number]}.${string}`
 
 export interface Settings {
@@ -8,11 +6,12 @@ export interface Settings {
   'last-fm.do-scrobbling': boolean
   'last-fm.do-now-playing-updates': boolean
   'last-fm.do-offline-scrobbling': boolean
-  'appearance.background': string
-  'appearance.foreground': string
-  'appearance.primary': string
-  'appearance.border': string
-  'appearance.surface': string
+  'appearance.token.background': string
+  'appearance.token.foreground': string
+  'appearance.token.primary': string
+  'appearance.token.border': string
+  'appearance.token.surface': string
+  'appearance.presets': Record<string, Record<SettingsEntryKey & `appearance.token.${string}`, string>>
 }
 
 export type SettingsEntryKey = keyof Settings
@@ -23,12 +22,21 @@ type EnforcedSettingsKeys<T extends Record<string, any>> = {
 }
 
 export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
-  'appearance.background': '#080808',
-  'appearance.border': '#171717',
   'appearance.font': 'SYSTEM',
-  'appearance.foreground': '#C7C7C7',
-  'appearance.primary': '#5A907C',
-  'appearance.surface': '#0E0E0E',
+  'appearance.presets': {
+    Default: {
+      'appearance.token.background': '#080808',
+      'appearance.token.border': '#171717',
+      'appearance.token.foreground': '#C7C7C7',
+      'appearance.token.primary': '#5A907C',
+      'appearance.token.surface': '#0E0E0E',
+    },
+  },
+  'appearance.token.background': '#080808',
+  'appearance.token.border': '#171717',
+  'appearance.token.foreground': '#C7C7C7',
+  'appearance.token.primary': '#5A907C',
+  'appearance.token.surface': '#0E0E0E',
   'last-fm.do-now-playing-updates': true,
   'last-fm.do-offline-scrobbling': true,
   'last-fm.do-scrobbling': true,
@@ -42,25 +50,37 @@ export const useSettings = createSharedComposable(() => {
     return settings.value[key]
   }
 
-  function getSettingValueRef<T extends SettingsEntryKey>(key: T, options?: ControlledRefOptions<Settings[T]>): Ref<SettingsEntryValue<T>> {
-    const ref = refWithControl<SettingsEntryValue<T>>(settings.value[key], {
-      onChanged: (value, oldValue) => {
+  function getSettingValueRef<T extends SettingsEntryKey>(
+    key: T,
+    opts?: {
+      onChanged?: (value: SettingsEntryValue<T>, oldValue: SettingsEntryValue<T>) => void
+      onBeforeChange?: (value: SettingsEntryValue<T>) => boolean
+    },
+  ): Ref<SettingsEntryValue<T>> {
+    return computed({
+      get: () => settings.value[key],
+      set: (value) => {
+        if (!opts?.onBeforeChange?.(value))
+          return
         settings.value = { ...settings.value, [key]: value }
-        options?.onChanged?.(value, oldValue)
+        opts?.onChanged?.(value, settings.value[key])
       },
-      ...options,
     })
-    return ref
   }
 
   function setSettingValue<T extends SettingsEntryKey>(key: T, value: SettingsEntryValue<T>) {
     settings.value = { ...settings.value, [key]: value }
   }
 
+  function setSettingValues<T extends Record<SettingsEntryKey, SettingsEntryValue<SettingsEntryKey>>>(values: T) {
+    settings.value = { ...settings.value, ...values }
+  }
+
   return {
     getSettingValue,
     getSettingValueRef,
     setSettingValue,
+    setSettingValues,
     settings,
   }
 })

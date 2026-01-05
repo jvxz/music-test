@@ -6,11 +6,11 @@ export default defineNuxtPlugin({
 
     useStyleTag(computed(() => `
       :root {
-        --background: ${settings.value['appearance.background']};
-        --foreground: ${settings.value['appearance.foreground']};
-        --primary: ${settings.value['appearance.primary']};
-        --border: ${settings.value['appearance.border']};
-        --card: ${settings.value['appearance.surface']};
+        --background: ${settings.value['appearance.token.background']};
+        --foreground: ${settings.value['appearance.token.foreground']};
+        --primary: ${settings.value['appearance.token.primary']};
+        --border: ${settings.value['appearance.token.border']};
+        --card: ${settings.value['appearance.token.surface']};
       }
     `))
   },
