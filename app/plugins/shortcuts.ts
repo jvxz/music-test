@@ -4,9 +4,6 @@ export default defineNuxtPlugin({
     const activeElement = useActiveElement()
     const magicKeys = useMagicKeys()
 
-    // toggle theme
-    onKeyStrokeSafe('shift_t', () => toggleColorMode(), { activeElement, magicKeys })
-
     // play/pause
     onKeyStrokeSafe('space', () => usePlayback().playPauseCurrentTrack(), { activeElement, magicKeys })
 
