@@ -6,6 +6,11 @@ export interface Settings {
   'last-fm.do-scrobbling': boolean
   'last-fm.do-now-playing-updates': boolean
   'last-fm.do-offline-scrobbling': boolean
+  'appearance.background': string
+  'appearance.foreground': string
+  'appearance.primary': string
+  'appearance.border': string
+  'appearance.surface': string
 }
 
 export type SettingsEntryKey = keyof Settings
@@ -16,7 +21,12 @@ type EnforcedSettingsKeys<T extends Record<string, any>> = {
 }
 
 export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
+  'appearance.background': '#080808',
+  'appearance.border': '#171717',
   'appearance.font': 'SYSTEM',
+  'appearance.foreground': '#C7C7C7',
+  'appearance.primary': '#5A907C',
+  'appearance.surface': '#0E0E0E',
   'last-fm.do-now-playing-updates': true,
   'last-fm.do-offline-scrobbling': true,
   'last-fm.do-scrobbling': true,
