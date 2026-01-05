@@ -1,3 +1,5 @@
+import type { ControlledRefOptions } from '@vueuse/core'
+
 type SettingsEntryKeyFormat = `${typeof SETTINGS_MODAL_TABS[number]}.${string}`
 
 export interface Settings {
@@ -40,9 +42,13 @@ export const useSettings = createSharedComposable(() => {
     return settings.value[key]
   }
 
-  function getSettingValueRef<T extends SettingsEntryKey>(key: T): Ref<SettingsEntryValue<T>> {
-    const ref = refWithControl(settings.value[key], {
-      onChanged: value => settings.value = { ...settings.value, [key]: value },
+  function getSettingValueRef<T extends SettingsEntryKey>(key: T, options?: ControlledRefOptions<Settings[T]>): Ref<SettingsEntryValue<T>> {
+    const ref = refWithControl<SettingsEntryValue<T>>(settings.value[key], {
+      onChanged: (value, oldValue) => {
+        settings.value = { ...settings.value, [key]: value }
+        options?.onChanged?.(value, oldValue)
+      },
+      ...options,
     })
     return ref
   }
