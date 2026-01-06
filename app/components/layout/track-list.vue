@@ -43,7 +43,7 @@ async function handleDragStart(track: TrackListEntry) {
         v-slot="{ containerProps, list, wrapperProps }"
         :entries="folderEntries"
       >
-        <div class="h-full cursor-default select-none" v-bind="containerProps">
+        <div class="h-fit cursor-default select-none" v-bind="containerProps">
           <LayoutTrackListRowContextMenu :entry="contextMenuEntry">
             <div
               class="grid h-full"
@@ -77,7 +77,7 @@ async function handleDragStart(track: TrackListEntry) {
       </LayoutTrackListVirtualProvider>
       <div
         v-else
-        class="h-full overflow-y-auto"
+        class="h-fit overflow-y-auto"
       >
         <LayoutTrackListRowContextMenu :entry="contextMenuEntry">
           <div
