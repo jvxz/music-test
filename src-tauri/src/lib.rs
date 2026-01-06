@@ -251,12 +251,17 @@ pub async fn run() {
 
   return builder
     .setup(|app| {
-      let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
+      let mut win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
         .title("swim")
         .inner_size(800.0, 600.0)
-        .title_bar_style(tauri::TitleBarStyle::Overlay)
-        .decorations(true)
-        .traffic_light_position(Position::Logical(LogicalPosition::new(8.0, 8.0)));
+        .decorations(true);
+
+      #[cfg(target_os = "macos")]
+      {
+        win_builder = win_builder
+          .traffic_light_position(Position::Logical(LogicalPosition::new(8.0, 8.0)))
+          .title_bar_style(tauri::TitleBarStyle::Overlay);
+      }
 
       let cache_dir = app.app_handle().path().app_cache_dir().unwrap();
       std::fs::create_dir_all(&cache_dir).unwrap();
