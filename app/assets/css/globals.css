@@ -20,7 +20,7 @@
   --text-xxxl: clamp(0.81rem, 3.24vi + 0rem, 2.59rem);
   /* --spacing: calc(var(--text-base) / 4.1); */
 
-  --font-sans: system-ui, -apple-system, 'Inter', sans-serif;
+  --font-sans: system-ui, -apple-system, sans-serif;
   --font-mono: 'Paper Mono', monospace;
   --font-display: 'Funnel Display', monospace;
   --animate-accordion-down: accordion-down 0.15s;
@@ -155,6 +155,22 @@
   *::-webkit-scrollbar {
     width: 12px;
     height: 12px;
+  }
+
+  :focus {
+    outline: none;
+  }
+
+  :root {
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+  }
+
+  input,
+  textarea {
+    user-select: text;
+    -webkit-user-select: text;
   }
 
   *::-webkit-scrollbar-track {

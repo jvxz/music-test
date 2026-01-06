@@ -25,7 +25,7 @@ const staticStyles = {
     danger:
       'bg-card border-danger text-danger border [&>svg]:text-current',
     default:
-      'bg-card  border  text-card-foreground',
+      'bg-card border text-card-foreground',
   },
 }
 
@@ -34,7 +34,8 @@ const popoverStyles = {
     staticStyles.base,
     staticStyles.variant.default,
     // 'duration-150 z-50 min-w-52 overflow-hidden p-1 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:scale-[97.5%]',
-    'duration-150 z-50 min-w-52 overflow-hidden p-1 ',
+    // 'duration-150 z-50 min-w-52 overflow-hidden p-1 bg-[hsl(from_var(--card)_h_s_calc(l*1.5))]',
+    'duration-150 z-50 min-w-52 overflow-hidden p-1',
   ],
   item: [
     interactiveStyles.base,
