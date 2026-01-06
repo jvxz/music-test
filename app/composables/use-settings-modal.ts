@@ -8,6 +8,8 @@ export function useSettingsModal() {
     open.value = !open.value
   }
 
+  whenever(() => !open.value, () => blurActiveElement())
+
   return {
     open,
     tab,

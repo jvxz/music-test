@@ -15,12 +15,14 @@ interface Options extends UseMagicKeysOptions<false> {
   ignore?: string[]
 }
 
+const INPUT_TAGS = ['input', 'textarea', 'button', 'select']
+
 export function onKeyStrokeSafe(keystroke: string, callback: () => void, options?: Options) {
   const keys = options?.magicKeys ?? useMagicKeys(options)
   const activeElement = options?.activeElement ?? useActiveElement()
 
   whenever(() => keys[keystroke]?.value, () => {
-    const isInInput = activeElement.value?.tagName.toLowerCase() === 'input' || activeElement.value?.tagName.toLowerCase() === 'textarea'
+    const isInInput = INPUT_TAGS.includes(activeElement.value?.tagName.toLowerCase() ?? '')
     const isInWhitelisted = options?.ignore?.some(selector => activeElement.value?.matches(selector))
 
     if (isInInput && !isInWhitelisted)
