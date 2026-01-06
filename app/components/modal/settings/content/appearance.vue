@@ -4,7 +4,7 @@ const themeTokens = ['background', 'border', 'foreground', 'primary', 'surface',
 
 <template>
   <ModalSettingsContentLayout title="Appearance">
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4 w-full">
       <ModalSettingsContentAppearancePresets />
       <ModalSettingsContentAppearanceColorPicker
         v-for="token in themeTokens"
