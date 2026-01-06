@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 defineProps<{
   id3Frame: Id3FrameId
+  track: TrackListEntry | null
 }>()
-
-const { selectedTrack } = useTrackSelection()
 </script>
 
 <template>
@@ -11,7 +10,7 @@ const { selectedTrack } = useTrackSelection()
     <ULabel class="text-sm">
       {{ ID3_MAP[id3Frame] }}
     </ULabel>
-    <UInput v-if="selectedTrack?.valid" :model-value="selectedTrack?.tags[id3Frame]" />
+    <UInput v-if="track && track.valid" :model-value="track.tags[id3Frame]" />
     <UInput v-else disabled />
   </div>
 </template>

@@ -40,7 +40,7 @@ const title = computed(() => {
 </script>
 
 <template>
-  <div class="flex h-16 items-center justify-between border-b bg-background px-4">
+  <div class="flex h-16 items-center justify-between border-b bg-background px-4 shrink-0">
     <div class="flex flex-col justify-center">
       <div class="flex items-center gap-2">
         <p class="text-md font-medium">
