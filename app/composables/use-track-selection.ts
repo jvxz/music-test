@@ -3,39 +3,70 @@ type SelectedTrack = Prettify<TrackListEntry & {
 }>
 
 export const useTrackSelection = createSharedComposable(() => {
-  const selectedTrack = shallowRef<SelectedTrack | null>(null)
+  const selectedTracks = ref<SelectedTrack[]>([])
 
-  function setSelectedTrack(entry: TrackListEntry, manualInput?: TrackListInput) {
+  function editTrackSelection(shouldSelect: 'select' | 'deselect', entry: TrackListEntry, manualInput?: TrackListInput) {
     const input = manualInput ?? useTrackListInput().value
+    const entryToEdit = makeSelectableTrack(entry, input)
 
-    if (checkIsSelected(entry, input)) {
-      return
+    if (shouldSelect === 'select') {
+      if (checkIsSelected(entry))
+        return
+
+      selectedTracks.value.push(entryToEdit)
     }
-
-    selectedTrack.value = {
-      ...entry,
-      selectedFrom: input,
+    else {
+      selectedTracks.value = selectedTracks.value.filter((entry) => {
+        if (entry.is_playlist_track && entryToEdit.is_playlist_track) {
+          return entry.position !== entryToEdit.position
+        }
+        else {
+          return entry.path !== entryToEdit.path
+        }
+      })
     }
   }
 
   function checkIsSelected(entry: TrackListEntry, manualInput?: TrackListInput) {
     const input = manualInput ?? useTrackListInput().value
-    return selectedTrack.value?.selectedFrom === input && selectedTrack.value?.path === entry.path
+    const selectableTrack = makeSelectableTrack(entry, input)
+
+    const idx = selectedTracks.value.findIndex((entry) => {
+      if (entry.is_playlist_track && selectableTrack.is_playlist_track) {
+        return entry.position === selectableTrack.position
+      }
+      else {
+        return entry.path === selectableTrack.path
+      }
+    })
+
+    return idx >= 0
   }
 
-  function clearSelectedTrack() {
-    selectedTrack.value = null
+  function clearSelectedTracks() {
+    if (selectedTracks.value.length) {
+      selectedTracks.value = []
+    }
   }
 
   const router = useRouter()
   router.beforeEach(() => {
-    clearSelectedTrack()
+    clearSelectedTracks()
   })
 
   return {
     checkIsSelected,
-    clearSelectedTrack,
-    selectedTrack,
-    setSelectedTrack,
+    clearSelectedTracks,
+    editTrackSelection,
+    selectedTracks,
   }
 })
+
+function makeSelectableTrack(entry: TrackListEntry, manualInput?: TrackListInput): SelectedTrack {
+  const input = manualInput ?? useTrackListInput().value
+
+  return {
+    ...entry,
+    selectedFrom: input,
+  }
+}

@@ -8,9 +8,16 @@ const props = defineProps<TrackListInput & {
 }>()
 
 const { getTrackList } = useTrackList()
-const { checkIsSelected, clearSelectedTrack, setSelectedTrack } = useTrackSelection()
 const { playbackStatus, playTrack } = usePlayback()
 const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
+
+let shouldSelectOrDeselect: 'select' | 'deselect' = 'select'
+let wasMouseDownOnTrackRow = false
+const { checkIsSelected, clearSelectedTracks, editTrackSelection, selectedTracks } = useTrackSelection()
+useEventListener('mouseup', () => {
+  wasMouseDownOnTrackRow = false
+  console.log(selectedTracks.value)
+})
 
 const { data: folderEntries, pending: isLoadingPlaylistData } = getTrackList(toRef(props))
 
@@ -26,6 +33,25 @@ async function handleDragStart(track: TrackListEntry) {
     item: [track.path],
   })
 }
+
+async function handleSelectDragStart(entryTriggeredFrom: TrackListEntry) {
+  if (wasMouseDownOnTrackRow)
+    return
+
+  const isEntryTriggeredFromSelected = checkIsSelected(entryTriggeredFrom)
+
+  shouldSelectOrDeselect = isEntryTriggeredFromSelected ? 'deselect' : 'select'
+  wasMouseDownOnTrackRow = true
+
+  editTrackSelection(shouldSelectOrDeselect, entryTriggeredFrom)
+}
+
+async function handleDragHoverSelect(entryToEdit: TrackListEntry) {
+  if (!wasMouseDownOnTrackRow)
+    return
+
+  editTrackSelection(shouldSelectOrDeselect, entryToEdit)
+}
 </script>
 
 <template>
@@ -37,7 +63,7 @@ async function handleDragStart(track: TrackListEntry) {
       :is-loading="isLoadingPlaylistData"
     />
     <LayoutTrackListColumns v-bind="props" />
-    <OnClickOutside @trigger="clearSelectedTrack">
+    <OnClickOutside @trigger="clearSelectedTracks">
       <LayoutTrackListVirtualProvider
         v-if="shouldVirtualize || forceVirtualize"
         v-slot="{ containerProps, list, wrapperProps }"
@@ -65,11 +91,10 @@ async function handleDragStart(track: TrackListEntry) {
                 :entry="entry.data"
                 :is-selected="checkIsSelected(entry.data, $props)"
                 :is-playing="playbackStatus?.path === entry.data.path"
-                draggable="true"
+                @mousedown.left="handleSelectDragStart(entry.data)"
+                @mouseover="handleDragHoverSelect(entry.data)"
                 @play-track="playTrack(entry.data)"
-                @select-track="setSelectedTrack(entry.data, $props)"
                 @click.right="contextMenuEntry = entry.data"
-                @dragstart.prevent="handleDragStart(entry.data)"
               />
             </div>
           </LayoutTrackListRowContextMenu>
@@ -99,14 +124,13 @@ async function handleDragStart(track: TrackListEntry) {
               :entry="entry"
               :is-selected="checkIsSelected(entry, $props)"
               :is-playing="playbackStatus?.path === entry.path"
-              draggable="true"
+              @mousedown.left="handleSelectDragStart(entry)"
+              @mouseover="handleDragHoverSelect(entry)"
               @play-track="playTrack(entry)"
-              @select-track="setSelectedTrack(entry, $props)"
               @click.right="() => {
-                setSelectedTrack(entry, $props)
-                contextMenuEntry = entry
+                // setSelectedTrack(entry, $props)
+                // contextMenuEntry = entry
               }"
-              @dragstart.prevent="handleDragStart(entry)"
             />
           </div>
         </LayoutTrackListRowContextMenu>
