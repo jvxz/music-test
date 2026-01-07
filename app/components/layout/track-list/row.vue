@@ -6,7 +6,6 @@ defineProps<{
 }>()
 
 const emits = defineEmits<{
-  selectTrack: [track: TrackListEntry]
   playTrack: [track: TrackListEntry]
 }>()
 
@@ -38,7 +37,6 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
     }"
     v-bind="$attrs"
     @dblclick.left="emits('playTrack', entry)"
-    @mousedown.left="emits('selectTrack', entry)"
   >
     <template
       v-for="col in TRACK_LIST_COLUMNS"
