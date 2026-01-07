@@ -13,17 +13,17 @@ const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
 
 let shouldSelectOrDeselect: 'select' | 'deselect' = 'select'
 let wasMouseDownOnTrackRow = false
-const { checkIsSelected, clearSelectedTracks, editTrackSelection, selectedTracks } = useTrackSelection()
-useEventListener('mouseup', () => {
-  wasMouseDownOnTrackRow = false
-  console.log(selectedTracks.value)
-})
+const { checkIsSelected, clearSelectedTracks, editTrackSelection, selectedTrackData } = useTrackSelection()
 
 const { data: folderEntries, pending: isLoadingPlaylistData } = getTrackList(toRef(props))
 
 const shouldVirtualize = computed(() => folderEntries.value.length >= TRACK_LIST_VIRTUALIZATION_THRESHOLD)
 
-const contextMenuEntry = shallowRef<TrackListEntry | null>(null)
+const contextMenuEntries = shallowRef<TrackListEntry[] | null>(null)
+useEventListener('mouseup', () => {
+  wasMouseDownOnTrackRow = false
+  contextMenuEntries.value = selectedTrackData.value.entries
+})
 
 async function handleDragStart(track: TrackListEntry) {
   const icon = await resolveResource(`icons/file-light.svg`)
@@ -69,8 +69,8 @@ async function handleDragHoverSelect(entryToEdit: TrackListEntry) {
         v-slot="{ containerProps, list, wrapperProps }"
         :entries="folderEntries"
       >
-        <div class="h-fit cursor-default select-none" v-bind="containerProps">
-          <LayoutTrackListRowContextMenu :entry="contextMenuEntry">
+        <div class="h-full cursor-default select-none" v-bind="containerProps">
+          <LayoutTrackListRowContextMenu :entries="contextMenuEntries">
             <div
               class="grid h-full"
               v-bind="wrapperProps"
@@ -84,17 +84,16 @@ async function handleDragHoverSelect(entryToEdit: TrackListEntry) {
                 :key="entry.data.path"
                 v-memo="[
                   entry.data.path,
-                  checkIsSelected(entry.data, $props),
+                  checkIsSelected(entry.data),
                   playbackStatus?.path === entry.data.path,
                   entry.data.valid,
                 ]"
                 :entry="entry.data"
-                :is-selected="checkIsSelected(entry.data, $props)"
+                :is-selected="checkIsSelected(entry.data)"
                 :is-playing="playbackStatus?.path === entry.data.path"
                 @mousedown.left="handleSelectDragStart(entry.data)"
                 @mouseover="handleDragHoverSelect(entry.data)"
                 @play-track="playTrack(entry.data)"
-                @click.right="contextMenuEntry = entry.data"
               />
             </div>
           </LayoutTrackListRowContextMenu>
@@ -102,9 +101,9 @@ async function handleDragHoverSelect(entryToEdit: TrackListEntry) {
       </LayoutTrackListVirtualProvider>
       <div
         v-else
-        class="h-fit overflow-y-auto"
+        class="h-full overflow-y-auto"
       >
-        <LayoutTrackListRowContextMenu :entry="contextMenuEntry">
+        <LayoutTrackListRowContextMenu :entries="contextMenuEntries">
           <div
             class="grid"
             :style="{
@@ -117,12 +116,12 @@ async function handleDragHoverSelect(entryToEdit: TrackListEntry) {
               :key="entry.path"
               v-memo="[
                 entry.path,
-                checkIsSelected(entry, $props),
+                checkIsSelected(entry),
                 playbackStatus?.path === entry.path,
                 entry.valid,
               ]"
               :entry="entry"
-              :is-selected="checkIsSelected(entry, $props)"
+              :is-selected="checkIsSelected(entry)"
               :is-playing="playbackStatus?.path === entry.path"
               @mousedown.left="handleSelectDragStart(entry)"
               @mouseover="handleDragHoverSelect(entry)"

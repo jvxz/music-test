@@ -2,7 +2,7 @@
 import { revealItemInDir } from '@tauri-apps/plugin-opener'
 
 defineProps<{
-  entry: TrackListEntry | null
+  entries: TrackListEntry[] | null
 }>()
 
 const { addToPlaylist, playlists, removeFromPlaylist } = useUserPlaylists()
@@ -18,7 +18,7 @@ async function handleRemove(entry: TrackListEntry) {
 </script>
 
 <template>
-  <UContextMenuContent v-if="entry" class="w-52">
+  <UContextMenuContent v-if="entries" class="w-52">
     <!-- <UContextMenuLabel class="truncate" :title="entry.name">
         {{ entry.name }}
       </UContextMenuLabel> -->
@@ -31,8 +31,8 @@ async function handleRemove(entry: TrackListEntry) {
         <UContextMenuItem
           v-for="playlist in playlists"
           :key="playlist.id"
-          :disabled="!entry.valid"
-          @click="addToPlaylist(playlist.id, [entry])"
+          :disabled="entries.some(e => !e.valid)"
+          @click="addToPlaylist(playlist.id, entries)"
         >
           {{ playlist.name }}
         </UContextMenuItem>
