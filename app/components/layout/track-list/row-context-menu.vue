@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 defineProps<{
-  entry: TrackListEntry | null
+  entries: TrackListEntry[] | null
 }>()
 </script>
 
@@ -9,6 +9,6 @@ defineProps<{
     <UContextMenuTrigger as-child>
       <slot />
     </UContextMenuTrigger>
-    <TrackListEntryContextMenuContent v-if="entry" :entry />
+    <TrackListEntryContextMenuContent v-if="entries" :entries />
   </UContextMenu>
 </template>

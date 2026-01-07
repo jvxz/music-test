@@ -1,22 +1,26 @@
-type SelectedTrack = Prettify<TrackListEntry & {
+interface SelectedTrackData {
   selectedFrom: TrackListInput
-}>
+  entries: TrackListEntry[]
+}
 
 export const useTrackSelection = createSharedComposable(() => {
-  const selectedTracks = ref<SelectedTrack[]>([])
+  const trackListInput = useTrackListInput()
+  const selectedTrackData = ref<SelectedTrackData>({
+    entries: [],
+    selectedFrom: trackListInput.value,
+  })
 
-  function editTrackSelection(shouldSelect: 'select' | 'deselect', entry: TrackListEntry, manualInput?: TrackListInput) {
-    const input = manualInput ?? useTrackListInput().value
-    const entryToEdit = makeSelectableTrack(entry, input)
+  function editTrackSelection(shouldSelect: 'select' | 'deselect', entry: TrackListEntry) {
+    const entryToEdit = entry
 
     if (shouldSelect === 'select') {
       if (checkIsSelected(entry))
         return
 
-      selectedTracks.value.push(entryToEdit)
+      selectedTrackData.value.entries.push(entryToEdit)
     }
     else {
-      selectedTracks.value = selectedTracks.value.filter((entry) => {
+      selectedTrackData.value.entries = selectedTrackData.value.entries.filter((entry) => {
         if (entry.is_playlist_track && entryToEdit.is_playlist_track) {
           return entry.position !== entryToEdit.position
         }
@@ -27,16 +31,13 @@ export const useTrackSelection = createSharedComposable(() => {
     }
   }
 
-  function checkIsSelected(entry: TrackListEntry, manualInput?: TrackListInput) {
-    const input = manualInput ?? useTrackListInput().value
-    const selectableTrack = makeSelectableTrack(entry, input)
-
-    const idx = selectedTracks.value.findIndex((entry) => {
-      if (entry.is_playlist_track && selectableTrack.is_playlist_track) {
-        return entry.position === selectableTrack.position
+  function checkIsSelected(entryToCheck: TrackListEntry) {
+    const idx = selectedTrackData.value.entries.findIndex((entry) => {
+      if (entry.is_playlist_track && entryToCheck.is_playlist_track) {
+        return entry.position === entryToCheck.position
       }
       else {
-        return entry.path === selectableTrack.path
+        return entry.path === entryToCheck.path
       }
     })
 
@@ -44,8 +45,8 @@ export const useTrackSelection = createSharedComposable(() => {
   }
 
   function clearSelectedTracks() {
-    if (selectedTracks.value.length) {
-      selectedTracks.value = []
+    if (selectedTrackData.value.entries.length) {
+      selectedTrackData.value.entries = []
     }
   }
 
@@ -58,15 +59,6 @@ export const useTrackSelection = createSharedComposable(() => {
     checkIsSelected,
     clearSelectedTracks,
     editTrackSelection,
-    selectedTracks,
+    selectedTrackData,
   }
 })
-
-function makeSelectableTrack(entry: TrackListEntry, manualInput?: TrackListInput): SelectedTrack {
-  const input = manualInput ?? useTrackListInput().value
-
-  return {
-    ...entry,
-    selectedFrom: input,
-  }
-}
