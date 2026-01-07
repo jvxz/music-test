@@ -1,3 +1,5 @@
+import { sql } from 'kysely'
+
 export function useUserPlaylists() {
   const router = useRouter()
   const route = useRoute()
@@ -38,7 +40,13 @@ export function useUserPlaylists() {
   }
 
   async function getPlaylistTracks(playlistId: number): Promise<PlaylistEntry[]> {
-    const playlistTracks = await $db().selectFrom('playlist_tracks').where('playlist_id', '=', playlistId).selectAll().execute()
+    const playlistTracks = await $db()
+      .selectFrom('playlist_tracks')
+      .where('playlist_id', '=', playlistId)
+      .selectAll()
+      .orderBy('position', 'asc')
+      .execute()
+
     const fileEntries: PlaylistEntry[] = await Promise.all(playlistTracks.map(async (track) => {
       const trackData = await useTauri().rpc.get_track_data(track.path)
       return {
@@ -56,7 +64,7 @@ export function useUserPlaylists() {
     const validTracks = tracks.filter(track => track.valid)
 
     const invalidTracks = tracks.filter(track => !track.valid)
-    if (invalidTracks.length > 0) {
+    if (invalidTracks.length) {
       emitError({
         data: `Could not add the following tracks to the playlist: ${invalidTracks.map(track => track.path).join(', ')}`,
         type: 'FileSystem',
@@ -72,7 +80,13 @@ export function useUserPlaylists() {
       name: track.name,
       path: track.path,
       playlist_id: playlistId,
-    }))).execute()
+      position: eb => eb
+        .selectFrom('playlist_tracks')
+        .select(x => sql<number>`${x.fn.coalesce(x.fn.max('position'), x.val(0))} + 1`.as('pos'))
+        .where('playlist_id', '=', playlistId)
+        .limit(1),
+    })),
+    ).execute()
 
     refreshPlaylistList()
     refreshTrackListForType('playlist', String(playlistId))

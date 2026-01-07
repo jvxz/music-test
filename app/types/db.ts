@@ -52,6 +52,7 @@ export interface PlaylistTracks {
   name: string;
   path: string;
   playlist_id: number;
+  position: number;
 }
 
 export interface DB {
