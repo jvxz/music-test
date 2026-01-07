@@ -184,6 +184,7 @@ pub async fn run() {
             path TEXT NOT NULL,
             added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             playlist_id INTEGER NOT NULL,
+            position INTEGER NOT NULL,
             FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE
           );
         ",
@@ -230,6 +231,20 @@ pub async fn run() {
           );
         ",
       version: 5,
+    },
+    Migration {
+      kind: MigrationKind::Up,
+      description: "create reorder_after_delete trigger",
+      sql: "
+          CREATE TRIGGER reorder_after_delete 
+          AFTER DELETE ON playlist_tracks
+          BEGIN
+            UPDATE playlist_tracks 
+            SET position = position - 1 
+            WHERE playlist_id = OLD.playlist_id AND position > OLD.position;
+          END;
+    ",
+      version: 6,
     },
   ];
 
