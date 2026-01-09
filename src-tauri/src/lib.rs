@@ -176,16 +176,15 @@ pub async fn run() {
     },
     Migration {
       kind: MigrationKind::Up,
-      description: "create playlist_tracks table",
+      description: "create library_tracks table",
       sql: "
-          CREATE TABLE playlist_tracks (
+          CREATE TABLE library_tracks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            path TEXT NOT NULL,
-            added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            playlist_id INTEGER NOT NULL,
-            position INTEGER NOT NULL,
-            FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE
+            path TEXT NOT NULL UNIQUE,
+            filename TEXT NOT NULL,
+            title TEXT,
+            artist TEXT,
+            album TEXT
           );
         ",
       version: 2,
@@ -205,15 +204,18 @@ pub async fn run() {
     },
     Migration {
       kind: MigrationKind::Up,
-      description: "create library_tracks table",
+      description: "create playlist_tracks table",
       sql: "
-          CREATE TABLE library_tracks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            path TEXT NOT NULL UNIQUE,
-            filename TEXT NOT NULL,
-            title TEXT,
-            artist TEXT,
-            album TEXT
+          CREATE TABLE playlist_tracks (
+            track_id INTEGER PRIMARY KEY NOT NULL,
+            playlist_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            path TEXT NOT NULL,
+            added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            position INTEGER NOT NULL,
+            FOREIGN KEY (track_id) REFERENCES library_tracks(id) ON DELETE CASCADE,
+            FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE,
+            UNIQUE (position)
           );
         ",
       version: 4,
@@ -245,6 +247,38 @@ pub async fn run() {
           END;
     ",
       version: 6,
+    },
+    Migration {
+      kind: MigrationKind::Up,
+      description: "create cleanup_playlist_track_source trigger",
+      sql: "
+          CREATE TRIGGER cleanup_playlist_track_source
+          AFTER DELETE ON playlist_tracks
+          FOR EACH ROW
+          BEGIN
+            DELETE FROM library_tracks_source
+            WHERE source_type = 'playlist'
+              AND source_id = OLD.playlist_id
+              AND track_id = OLD.track_id;
+          END;
+    ",
+      version: 7,
+    },
+    Migration {
+      kind: MigrationKind::Up,
+      description: "create remove_orphaned_library_track trigger",
+      sql: "
+          CREATE TRIGGER remove_orphaned_library_track
+          AFTER DELETE ON library_tracks_source
+          FOR EACH ROW
+          WHEN NOT EXISTS (
+            SELECT 1 FROM library_tracks_source WHERE track_id = OLD.track_id
+          )
+          BEGIN
+            DELETE FROM library_tracks WHERE id = OLD.track_id;
+          END;
+    ",
+      version: 8,
     },
   ];
 
