@@ -48,11 +48,11 @@ export interface Playlists {
 
 export interface PlaylistTracks {
   added_at: Generated<string>;
-  id: Generated<number>;
   name: string;
   path: string;
   playlist_id: number;
   position: number;
+  track_id: Generated<number>;
 }
 
 export interface DB {

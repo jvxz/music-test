@@ -71,7 +71,7 @@ export function useUserPlaylists() {
       })
     }
 
-    await addTracksToLibrary(validTracks, {
+    const libraryTracks = await addTracksToLibrary(validTracks, {
       id: String(playlistId),
       type: 'playlist',
     })
@@ -82,9 +82,19 @@ export function useUserPlaylists() {
       playlist_id: playlistId,
       position: eb => eb
         .selectFrom('playlist_tracks')
+<<<<<<< Updated upstream
         .select(x => sql<number>`${x.fn.coalesce(x.fn.max('position'), x.val(0))} + 1`.as('pos'))
+=======
+        .select(eb =>
+          sql<number>`${eb.fn.coalesce(
+            eb.fn.max('position'),
+            eb.val(0),
+          )} + 1 + ${idx}`.as('pos'),
+        )
+>>>>>>> Stashed changes
         .where('playlist_id', '=', playlistId)
         .limit(1),
+      track_id: libraryTracks.find(e => e.path === track.path)?.id,
     })),
     ).execute()
 
