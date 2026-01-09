@@ -13,18 +13,18 @@ function handleColumnClick(col: typeof TRACK_LIST_COLUMNS[number]) {
 
   const sortOrder = col.id3 === trackListInput.value.sortBy ? trackListInput.value.sortOrder === 'Asc' ? 'Desc' : 'Asc' : 'Asc'
 
-  trackListInput.set({
+  trackListInput.value = {
     ...trackListInput.value,
     sortBy: col.id3,
     sortOrder,
-  })
+  }
 }
 </script>
 
 <template>
   <SplitterGroup
     direction="horizontal"
-    class="group z-20 h-8! bg-background"
+    class="group z-20 h-8! bg-background shrink-0"
     @layout="playlistColumnPercents = $event"
   >
     <template

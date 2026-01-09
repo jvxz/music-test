@@ -13,6 +13,14 @@ const route = useRoute()
 const id = 'id' in route.params ? Number(route.params.id) : 0
 
 const trackListInput = useTrackListInput()
+
+onMounted(() => {
+  trackListInput.value = {
+    ...trackListInput.value,
+    path: id.toString(),
+    type: 'playlist',
+  }
+})
 </script>
 
 <template>
