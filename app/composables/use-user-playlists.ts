@@ -3,7 +3,7 @@ import { sql } from 'kysely'
 export function useUserPlaylists() {
   const router = useRouter()
   const route = useRoute()
-  const { addTracksToLibrary, cleanupLibraryTrackSource } = useLibrary()
+  const { addTracksToLibrary } = useLibrary()
 
   const { data: playlists, refresh: refreshPlaylistList } = useAsyncData<Selectable<DB['playlists']>[]>('playlists', () => $db().selectFrom('playlists').selectAll().execute(), {
     default: () => [],
@@ -62,6 +62,12 @@ export function useUserPlaylists() {
 
   async function addToPlaylist(playlistId: number, tracks: TrackListEntry[]) {
     const validTracks = tracks.filter(track => track.valid)
+    if (!validTracks.length) {
+      return emitError({
+        data: 'No valid tracks to add to the playlist. Did you select any tracks?',
+        type: 'Other',
+      })
+    }
 
     const invalidTracks = tracks.filter(track => !track.valid)
     if (invalidTracks.length) {
@@ -76,22 +82,18 @@ export function useUserPlaylists() {
       type: 'playlist',
     })
 
-    await $db().insertInto('playlist_tracks').values(tracks.map(track => ({
+    await $db().insertInto('playlist_tracks').values(tracks.map((track, idx) => ({
       name: track.name,
       path: track.path,
       playlist_id: playlistId,
       position: eb => eb
         .selectFrom('playlist_tracks')
-<<<<<<< Updated upstream
-        .select(x => sql<number>`${x.fn.coalesce(x.fn.max('position'), x.val(0))} + 1`.as('pos'))
-=======
         .select(eb =>
           sql<number>`${eb.fn.coalesce(
             eb.fn.max('position'),
             eb.val(0),
           )} + 1 + ${idx}`.as('pos'),
         )
->>>>>>> Stashed changes
         .where('playlist_id', '=', playlistId)
         .limit(1),
       track_id: libraryTracks.find(e => e.path === track.path)?.id,
@@ -103,17 +105,40 @@ export function useUserPlaylists() {
   }
 
   // TODO: allow multiple tracks
-  async function removeFromPlaylist(playlistId: number, track: PlaylistEntry) {
-    await $db().deleteFrom('playlist_tracks').where('playlist_id', '=', playlistId).where('id', '=', track.id).execute()
+  async function removeFromPlaylist(tracks: PlaylistEntry[]) {
+    const playlistId = tracks[0]?.playlist_id
 
-    await cleanupLibraryTrackSource(track)
+    if (!playlistId) {
+      return emitError({
+        data: 'Attempted to remove tracks from an unknown playlist',
+        type: 'Other',
+      })
+    }
+
+    if (playlistId && tracks.some(track => track.playlist_id !== playlistId)) {
+      return emitError({
+        data: 'Attempted to remove tracks from multiple playlists',
+        type: 'Other',
+      })
+    }
+
+    await $db()
+      .deleteFrom('playlist_tracks')
+      .where('playlist_id', '=', playlistId)
+      .where('track_id', 'in', tracks.map(track => track.track_id))
+      .execute()
 
     refreshPlaylistList()
     refreshTrackListForType('playlist', String(playlistId))
+    refreshTrackListForType('library')
   }
 
   async function checkPlaylistExists(playlistId: number) {
-    const playlist = await $db().selectFrom('playlists').where('id', '=', playlistId).selectAll().executeTakeFirst()
+    const playlist = await $db()
+      .selectFrom('playlists')
+      .where('id', '=', playlistId)
+      .selectAll()
+      .executeTakeFirst()
     return playlist !== undefined
   }
 

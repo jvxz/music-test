@@ -131,48 +131,10 @@ export function useLibrary() {
       .execute()
   }
 
-  async function cleanupLibraryTrackSource(entry: TrackListEntry) {
-    const libraryTrack = await $db()
-      .selectFrom('library_tracks')
-      .where('path', '=', entry.path)
-      .selectAll()
-      .executeTakeFirst()
-
-    if (!libraryTrack) {
-      return
-    }
-
-    if (entry.is_playlist_track) {
-      await $db()
-        .deleteFrom('library_tracks_source')
-        .where('track_id', '=', libraryTrack.id)
-        .where('source_type', '=', 'playlist')
-        .where('source_id', '=', String(entry.playlist_id))
-        .execute()
-    }
-
-    const remainingSources = await $db()
-      .selectFrom('library_tracks_source')
-      .where('track_id', '=', libraryTrack.id)
-      .selectAll()
-      .execute()
-
-    if (remainingSources.length === 0) {
-      await $db()
-        .deleteFrom('library_tracks')
-        .where('id', '=', libraryTrack.id)
-        .execute()
-    }
-
-    refreshLibraryFolders()
-    refreshTrackListForType('library')
-  }
-
   return {
     addFolderToLibrary,
     addLibraryTrackSource,
     addTracksToLibrary,
-    cleanupLibraryTrackSource,
     getLibraryFolders,
     getLibraryTracks,
     isAddingFolderToLibrary,

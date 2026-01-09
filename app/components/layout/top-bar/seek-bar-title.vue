@@ -2,6 +2,8 @@
 defineProps<{
   currentTrack: CurrentPlayingTrack | null
 }>()
+
+const { selectedTrackData } = useTrackSelection()
 </script>
 
 <template>
@@ -16,6 +18,6 @@ defineProps<{
         </p>
       </div>
     </UContextMenuTrigger>
-    <TrackListEntryContextMenuContent v-if="currentTrack" :entry="currentTrack" />
+    <TrackListEntryContextMenuContent v-if="currentTrack" :entries="selectedTrackData.entries" />
   </UContextMenu>
 </template>

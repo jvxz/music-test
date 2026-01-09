@@ -1,30 +1,55 @@
 <script lang="ts" setup>
+import { confirm } from '@tauri-apps/plugin-dialog'
 import { revealItemInDir } from '@tauri-apps/plugin-opener'
 
-defineProps<{
+const { entries } = defineProps<{
   entries: TrackListEntry[] | null
 }>()
 
 const { addToPlaylist, playlists, removeFromPlaylist } = useUserPlaylists()
 
-async function handleRemove(entry: TrackListEntry) {
-  if (!entry.is_playlist_track) {
+async function handleReveal() {
+  if (!entries)
     return
+
+  let confirmation = true
+  if (entries.length >= 5) {
+    confirmation = await confirm(`You are attempting to reveal ${entries.length} items. Continue?`)
+    if (!confirmation)
+      return
   }
 
-  await removeFromPlaylist(entry.playlist_id, entry)
-  useTrackListRefresh.trigger()
+  for (const entry of entries) {
+    revealItemInDir(entry.path)
+  }
+}
+
+async function handleRemove() {
+  if (!entries)
+    return
+
+  if (entries.some(entry => !entry.is_playlist_track)) {
+    return emitError({
+      data: 'Attempted to remove non-playlist tracks from a playlist',
+      type: 'Other',
+    })
+  }
+
+  let confirmation = true
+  if (entries.length >= 5) {
+    confirmation = await confirm(`You are attempting to remove ${entries.length} items. Continue?`)
+    if (!confirmation)
+      return
+  }
+
+  await removeFromPlaylist(entries.filter(entry => entry.is_playlist_track))
 }
 </script>
 
 <template>
   <UContextMenuContent v-if="entries" class="w-52">
-    <!-- <UContextMenuLabel class="truncate" :title="entry.name">
-        {{ entry.name }}
-      </UContextMenuLabel> -->
-
     <UContextMenuSub>
-      <UContextMenuSubTrigger :disabled="!entry.valid">
+      <UContextMenuSubTrigger>
         Add to playlist
       </UContextMenuSubTrigger>
       <UContextMenuSubContent>
@@ -32,22 +57,19 @@ async function handleRemove(entry: TrackListEntry) {
           v-for="playlist in playlists"
           :key="playlist.id"
           :disabled="entries.some(e => !e.valid)"
-          @click="addToPlaylist(playlist.id, entries)"
+          @click="() => {
+            console.log(entries)
+            addToPlaylist(playlist.id, entries)
+          }"
         >
           {{ playlist.name }}
         </UContextMenuItem>
       </UContextMenuSubContent>
     </UContextMenuSub>
-    <UContextMenuItem
-      v-if="entry.is_playlist_track"
-      @click="handleRemove(entry)"
-    >
+    <UContextMenuItem @click="handleRemove">
       Remove from playlist
     </UContextMenuItem>
-    <UContextMenuItem
-      :disabled="!entry.valid"
-      @click="revealItemInDir(entry.path)"
-    >
+    <UContextMenuItem @click="handleReveal">
       Reveal in file explorer
     </UContextMenuItem>
   </UContextMenuContent>
