@@ -65,17 +65,31 @@ export const TRACK_LIST_COLUMNS: {
   },
 ] as const
 
-export const useTrackListInput = createSharedComposable(() => {
+// export const useTrackListInput = createSharedComposable(() => {
+//   const tauri = useTauri()
+
+//   const newData = tauri.prefs.get('track-list-directory') as TrackListInput | undefined
+
+//   const data = refWithControl(newData ?? defaultData, {
+//     onChanged: (newData) => {
+//       console.log('newData: ', newData)
+//       tauri.store.set('track-list-directory', newData)
+//     },
+//   })
+
+//   return data
+// })
+export function useTrackListInput() {
   const tauri = useTauri()
 
   const newData = tauri.prefs.get('track-list-directory') as TrackListInput | undefined
 
-  const data = refWithControl(newData ?? defaultData, {
-    onChanged: newData => tauri.store.set('track-list-directory', newData),
-  })
+  const state = useState<TrackListInput>('track-list-input', () => newData ?? defaultData)
 
-  return data
-})
+  watch(state, newData => tauri.store.set('track-list-directory', newData))
+
+  return state
+}
 
 const useTrackListCache = () => useState<Map<string, TrackListEntry[]>>('track-list-cache', () => new Map())
 
@@ -209,7 +223,7 @@ export function markTrackAsValid(track: TrackListEntry) {
           is_playlist_track: track.is_playlist_track,
           ...(track.is_playlist_track && {
             added_at: track.added_at,
-            id: track.id,
+            id: track.track_id,
             playlist_id: track.playlist_id,
           }),
           valid: true,
