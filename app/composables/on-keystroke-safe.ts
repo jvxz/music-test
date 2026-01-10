@@ -18,7 +18,7 @@ interface Options extends UseMagicKeysOptions<false> {
 const INPUT_TAGS = ['input', 'textarea', 'button', 'select']
 
 export function onKeyStrokeSafe(keystroke: string, callback: () => void, options?: Options) {
-  const keys = options?.magicKeys ?? useMagicKeys(options)
+  const keys = options?.magicKeys ?? useGlobalKeys(options)
   const activeElement = options?.activeElement ?? useActiveElement()
 
   whenever(() => keys[keystroke]?.value, () => {

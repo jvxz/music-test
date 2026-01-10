@@ -7,7 +7,7 @@ const props = defineProps<TrackListInput & {
   forceVirtualize?: boolean
 }>()
 
-const keys = useMagicKeys()
+const keys = useGlobalKeys()
 const { getTrackList } = useTrackList()
 const { playbackStatus, playTrack } = usePlayback()
 const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
@@ -30,7 +30,7 @@ useEventListener('mouseup', () => {
   allowRowDragStart = false
 
   if (!isDraggingEntries && entryToSelectInsteadOfDrag) {
-    if (keys.command?.value) {
+    if (keys.ctrl?.value) {
       editTrackSelection('deselect', entryToSelectInsteadOfDrag)
     }
     else {
@@ -69,7 +69,7 @@ async function handleSelectDragStart(entryTriggeredFrom: TrackListEntry) {
   const isEntryTriggeredFromSelected = checkIsSelected(entryTriggeredFrom)
 
   if (!isEntryTriggeredFromSelected) {
-    if (keys.command?.value) {
+    if (keys.ctrl?.value) {
       editTrackSelection('select', entryTriggeredFrom)
     }
     else if (!keys.shift?.value) {
