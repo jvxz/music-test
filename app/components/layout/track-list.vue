@@ -7,31 +7,54 @@ const props = defineProps<TrackListInput & {
   forceVirtualize?: boolean
 }>()
 
+const keys = useMagicKeys()
 const { getTrackList } = useTrackList()
 const { playbackStatus, playTrack } = usePlayback()
 const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
-
-let shouldSelectOrDeselect: 'select' | 'deselect' = 'select'
-let wasMouseDownOnTrackRow = false
 const { checkIsSelected, clearSelectedTracks, editTrackSelection, selectedTrackData } = useTrackSelection()
 
 const { data: folderEntries, pending: isLoadingPlaylistData } = getTrackList(toRef(props))
 
+let allowRowDragStart = false
+let isDraggingEntries = false
+let entryToSelectInsteadOfDrag: TrackListEntry | null = null
+let shouldSelectOrDeselect: 'select' | 'deselect' = 'select'
+let wasMouseDownOnTrackRow = false
+
 const shouldVirtualize = computed(() => folderEntries.value.length >= TRACK_LIST_VIRTUALIZATION_THRESHOLD)
 
 const contextMenuEntries = shallowRef<TrackListEntry[] | null>(null)
+
 useEventListener('mouseup', () => {
   wasMouseDownOnTrackRow = false
+  allowRowDragStart = false
+
+  if (!isDraggingEntries && entryToSelectInsteadOfDrag) {
+    clearSelectedTracks()
+    editTrackSelection('select', entryToSelectInsteadOfDrag)
+    entryToSelectInsteadOfDrag = null
+  }
+
+  isDraggingEntries = false
   contextMenuEntries.value = selectedTrackData.value.entries
 })
 
-async function handleDragStart(track: TrackListEntry) {
-  const icon = await resolveResource(`icons/file-light.svg`)
+async function handleRowDragStart(e: DragEvent, wasEntrySelected: boolean) {
+  e.preventDefault()
 
-  await startDrag({
-    icon,
-    item: [track.path],
-  })
+  if (!allowRowDragStart)
+    return
+
+  entryToSelectInsteadOfDrag = null
+
+  if (wasEntrySelected) {
+    isDraggingEntries = true
+    const icon = await resolveResource(`icons/file-light.svg`)
+    await startDrag({
+      icon,
+      item: selectedTrackData.value.entries.map(entry => entry.path),
+    })
+  }
 }
 
 async function handleSelectDragStart(entryTriggeredFrom: TrackListEntry) {
@@ -40,10 +63,44 @@ async function handleSelectDragStart(entryTriggeredFrom: TrackListEntry) {
 
   const isEntryTriggeredFromSelected = checkIsSelected(entryTriggeredFrom)
 
-  shouldSelectOrDeselect = isEntryTriggeredFromSelected ? 'deselect' : 'select'
+  if (!keys.shift?.value && !isEntryTriggeredFromSelected) {
+    clearSelectedTracks()
+  }
+
+  if (isEntryTriggeredFromSelected) {
+    allowRowDragStart = true
+    wasMouseDownOnTrackRow = true
+    entryToSelectInsteadOfDrag = entryTriggeredFrom
+    return
+  }
+
+  if (keys.shift?.value && !isEntryTriggeredFromSelected && selectedTrackData.value.entries.length) {
+    const idx = folderEntries.value.findIndex(entry => entry.path === entryTriggeredFrom.path)
+    if (idx !== -1) {
+      const lastSelectedEntryIndex = folderEntries.value.findIndex(entry => entry.path === selectedTrackData.value.entries.at(-1)!.path)
+
+      if (idx >= lastSelectedEntryIndex) {
+        const newEntries = folderEntries.value.slice(
+          lastSelectedEntryIndex,
+          idx,
+        )
+        selectedTrackData.value.entries = [...selectedTrackData.value.entries, ...newEntries]
+      }
+      else {
+        const newEntries = folderEntries.value.slice(
+          idx,
+          folderEntries.value.findIndex(entry => entry.path === selectedTrackData.value.entries[0]!.path),
+        )
+        selectedTrackData.value.entries = [...newEntries, ...selectedTrackData.value.entries]
+      }
+    }
+  }
+
+  shouldSelectOrDeselect = (keys.shift?.value && isEntryTriggeredFromSelected) ? 'deselect' : 'select'
   wasMouseDownOnTrackRow = true
 
   editTrackSelection(shouldSelectOrDeselect, entryTriggeredFrom)
+  allowRowDragStart = false
 }
 
 async function handleDragHoverSelect(entryToEdit: TrackListEntry) {
@@ -52,6 +109,17 @@ async function handleDragHoverSelect(entryToEdit: TrackListEntry) {
 
   editTrackSelection(shouldSelectOrDeselect, entryToEdit)
 }
+
+function handleRightClick(entry: TrackListEntry) {
+  const clickedOnSelectedTrack = checkIsSelected(entry)
+
+  if (!clickedOnSelectedTrack || !selectedTrackData.value.entries.length || selectedTrackData.value.entries.length === 1) {
+    selectedTrackData.value.entries = [entry]
+  }
+}
+
+onKeyStrokeSafe('ctrl_a', () => selectedTrackData.value.entries = folderEntries.value)
+onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
 </script>
 
 <template>
@@ -88,12 +156,15 @@ async function handleDragHoverSelect(entryToEdit: TrackListEntry) {
                   playbackStatus?.path === entry.data.path,
                   entry.data.valid,
                 ]"
+                draggable="true"
                 :entry="entry.data"
                 :is-selected="checkIsSelected(entry.data)"
                 :is-playing="playbackStatus?.path === entry.data.path"
+                @row-drag-start="handleRowDragStart($event, checkIsSelected(entry.data))"
                 @mousedown.left="handleSelectDragStart(entry.data)"
                 @mouseover="handleDragHoverSelect(entry.data)"
                 @play-track="playTrack(entry.data)"
+                @mousedown.right="handleRightClick(entry.data)"
               />
             </div>
           </LayoutTrackListRowContextMenu>
@@ -120,16 +191,15 @@ async function handleDragHoverSelect(entryToEdit: TrackListEntry) {
                 playbackStatus?.path === entry.path,
                 entry.valid,
               ]"
+              draggable="true"
               :entry="entry"
               :is-selected="checkIsSelected(entry)"
               :is-playing="playbackStatus?.path === entry.path"
+              @row-drag-start="handleRowDragStart($event, checkIsSelected(entry))"
               @mousedown.left="handleSelectDragStart(entry)"
               @mouseover="handleDragHoverSelect(entry)"
               @play-track="playTrack(entry)"
-              @click.right="() => {
-                // setSelectedTrack(entry, $props)
-                // contextMenuEntry = entry
-              }"
+              @mousedown.right="handleRightClick(entry)"
             />
           </div>
         </LayoutTrackListRowContextMenu>
