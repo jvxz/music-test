@@ -7,6 +7,7 @@ const { entries } = defineProps<{
 }>()
 
 const { addToPlaylist, playlists, removeFromPlaylist } = useUserPlaylists()
+const trackListInput = useTrackListInput()
 
 async function handleReveal() {
   if (!entries)
@@ -19,9 +20,7 @@ async function handleReveal() {
       return
   }
 
-  for (const entry of entries) {
-    revealItemInDir(entry.path)
-  }
+  revealItemInDir(entries.map(entry => entry.path))
 }
 
 async function handleRemove() {
@@ -66,7 +65,7 @@ async function handleRemove() {
         </UContextMenuItem>
       </UContextMenuSubContent>
     </UContextMenuSub>
-    <UContextMenuItem @click="handleRemove">
+    <UContextMenuItem v-if="trackListInput.type === 'playlist'" @click="handleRemove">
       Remove from playlist
     </UContextMenuItem>
     <UContextMenuItem @click="handleReveal">
