@@ -30,8 +30,13 @@ useEventListener('mouseup', () => {
   allowRowDragStart = false
 
   if (!isDraggingEntries && entryToSelectInsteadOfDrag) {
-    clearSelectedTracks()
-    editTrackSelection('select', entryToSelectInsteadOfDrag)
+    if (keys.command?.value) {
+      editTrackSelection('deselect', entryToSelectInsteadOfDrag)
+    }
+    else {
+      clearSelectedTracks()
+      editTrackSelection('select', entryToSelectInsteadOfDrag)
+    }
     entryToSelectInsteadOfDrag = null
   }
 
@@ -63,8 +68,13 @@ async function handleSelectDragStart(entryTriggeredFrom: TrackListEntry) {
 
   const isEntryTriggeredFromSelected = checkIsSelected(entryTriggeredFrom)
 
-  if (!keys.shift?.value && !isEntryTriggeredFromSelected) {
-    clearSelectedTracks()
+  if (!isEntryTriggeredFromSelected) {
+    if (keys.command?.value) {
+      editTrackSelection('select', entryTriggeredFrom)
+    }
+    else if (!keys.shift?.value) {
+      clearSelectedTracks()
+    }
   }
 
   if (isEntryTriggeredFromSelected) {
