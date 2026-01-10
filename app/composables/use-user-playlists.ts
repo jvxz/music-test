@@ -82,8 +82,8 @@ export function useUserPlaylists() {
       type: 'playlist',
     })
 
-    await $db().insertInto('playlist_tracks').values(tracks.map((track, idx) => ({
-      name: track.name,
+    await $db().insertInto('playlist_tracks').values(libraryTracks.map((track, idx) => ({
+      name: track.filename,
       path: track.path,
       playlist_id: playlistId,
       position: eb => eb
@@ -96,7 +96,7 @@ export function useUserPlaylists() {
         )
         .where('playlist_id', '=', playlistId)
         .limit(1),
-      track_id: libraryTracks.find(e => e.path === track.path)?.id,
+      track_id: track.id,
     })),
     ).execute()
 

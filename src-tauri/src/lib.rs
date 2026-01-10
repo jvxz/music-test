@@ -207,7 +207,8 @@ pub async fn run() {
       description: "create playlist_tracks table",
       sql: "
           CREATE TABLE playlist_tracks (
-            track_id INTEGER PRIMARY KEY NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            track_id INTEGER NOT NULL,
             playlist_id INTEGER NOT NULL,
             name TEXT NOT NULL,
             path TEXT NOT NULL,
