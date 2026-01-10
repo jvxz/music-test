@@ -10,7 +10,7 @@ export async function getTracksData(paths: string[]): Promise<FileEntry[]> {
   const res = await Promise.all(tracks.map(async (track): Promise<FileEntry> => {
     const ext = await extname(track.path)
 
-    if (!SUPPORTED_EXTENSIONS.includes(ext)) {
+    if (!SUPPORTED_EXTENSIONS.includes(ext.toLowerCase())) {
       unsupportedExtensions.push(ext)
     }
 
