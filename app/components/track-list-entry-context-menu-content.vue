@@ -56,10 +56,7 @@ async function handleRemove() {
           v-for="playlist in playlists"
           :key="playlist.id"
           :disabled="entries.some(e => !e.valid)"
-          @click="() => {
-            console.log(entries)
-            addToPlaylist(playlist.id, entries)
-          }"
+          @click="() => addToPlaylist(playlist.id, entries)"
         >
           {{ playlist.name }}
         </UContextMenuItem>
