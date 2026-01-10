@@ -79,7 +79,6 @@ async function handleSelectDragStart(entryTriggeredFrom: TrackListEntry) {
 
   if (isEntryTriggeredFromSelected) {
     allowRowDragStart = true
-    wasMouseDownOnTrackRow = true
     entryToSelectInsteadOfDrag = entryTriggeredFrom
     return
   }
