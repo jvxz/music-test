@@ -31,7 +31,7 @@ const components = Object.fromEntries(
         :value="tab"
         as-child
       >
-        <UButton variant="ghost" class="w-full justify-start">
+        <UButton variant="ghost" class="w-full justify-start data-[state=active]:ghost-button-active">
           {{ tab === 'last-fm' ? 'Last.fm' : sentenceCase(tab) }}
         </UButton>
       </TabsTrigger>
