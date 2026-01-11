@@ -7095,6 +7095,24 @@
           "markdownDescription": "Denies the save_store_record command without any pre-configured scope."
         },
         {
+          "description": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-get-system-fonts`",
+          "type": "string",
+          "const": "system-fonts:default",
+          "markdownDescription": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-get-system-fonts`"
+        },
+        {
+          "description": "Enables the get_system_fonts command without any pre-configured scope.",
+          "type": "string",
+          "const": "system-fonts:allow-get-system-fonts",
+          "markdownDescription": "Enables the get_system_fonts command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_system_fonts command without any pre-configured scope.",
+          "type": "string",
+          "const": "system-fonts:deny-get-system-fonts",
+          "markdownDescription": "Denies the get_system_fonts command without any pre-configured scope."
+        },
+        {
           "description": "This permission set configures what kind of\noperations are available from the window state plugin.\n\n#### Granted Permissions\n\nAll operations are enabled by default.\n\n\n#### This default permission set includes:\n\n- `allow-filename`\n- `allow-restore-state`\n- `allow-save-window-state`",
           "type": "string",
           "const": "window-state:default",
