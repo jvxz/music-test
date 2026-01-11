@@ -12,6 +12,7 @@ const { getTrackList } = useTrackList()
 const { playbackStatus, playTrack } = usePlayback()
 const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
 const { checkIsSelected, clearSelectedTracks, editTrackSelection, selectedTrackData } = useTrackSelection()
+const { getSettingValue } = useSettings()
 
 const { data: folderEntries, pending: isLoadingPlaylistData } = getTrackList(toRef(props))
 
@@ -140,7 +141,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
       :is-loading="isLoadingPlaylistData"
     />
     <LayoutTrackListColumns v-bind="props" />
-    <OnClickOutside @trigger="clearSelectedTracks">
+    <OnClickOutside @trigger="getSettingValue('general.click-outside-to-deselect') ? clearSelectedTracks() : null">
       <LayoutTrackListVirtualProvider
         v-if="shouldVirtualize || forceVirtualize"
         v-slot="{ containerProps, list, wrapperProps }"
