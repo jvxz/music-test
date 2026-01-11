@@ -1,68 +1,11 @@
 <script lang="ts" setup>
-const { createPlaylist, deletePlaylist, playlists, renamePlaylist } = useUserPlaylists()
+const { playlists } = useUserPlaylists()
 
-function handleRenameSubmit(playlistId: number, name: string | null | undefined) {
-  if (!name) {
-    return
-  }
-
-  renamePlaylist(playlistId, name)
-}
-
-const open = ref(false)
-let shouldOpen = false
-
-const debouncedOpen = useDebounceFn(() => {
-  if (shouldOpen) {
-    open.value = true
-  }
-}, 500)
-
-function handleDragOver() {
-  shouldOpen = true
-  debouncedOpen()
-}
+const { getLibraryFolders } = useLibrary()
+const { data: folders } = getLibraryFolders()
 </script>
 
 <template>
-  <div v-if="playlists" class="flex size-full flex-col gap-1">
-    <UContextMenu>
-      <UContextMenuTrigger as-child>
-        <CollapsibleRoot v-model:open="open">
-          <CollapsibleTrigger as-child>
-            <TauriDragoverProvider
-              class="group"
-              @over="handleDragOver"
-              @leave="() => shouldOpen = false"
-            >
-              <UButton
-                variant="ghost"
-                class="w-full justify-start text-foreground data-drag-over:bg-muted"
-              >
-                <Icon name="tabler:chevron-right" class="size-4 group-data-[state=open]:rotate-90" />
-                Playlists
-              </UButton>
-            </TauriDragoverProvider>
-          </CollapsibleTrigger>
-          <CollapsibleContent class="ml-3.5 space-y-px overflow-hidden border-l pl-1.5">
-            <LayoutLibraryListFolderItem
-              v-for="playlist in playlists"
-              :key="playlist.id"
-              :playlist="playlist"
-              @submit-rename="handleRenameSubmit(playlist.id, $event)"
-              @delete-playlist="deletePlaylist(playlist.id)"
-            />
-          </CollapsibleContent>
-        </CollapsibleRoot>
-      </UContextMenuTrigger>
-      <UContextMenuContent>
-        <UContextMenuLabel>
-          Playlists
-        </UContextMenuLabel>
-        <UContextMenuItem @click="createPlaylist({ name: 'New playlist' })">
-          New playlist
-        </UContextMenuItem>
-      </UContextMenuContent>
-    </UContextMenu>
-  </div>
+  <LayoutLibraryListPlaylistCollapsible v-if="playlists" :playlists="playlists" />
+  <LayoutLibraryListFolderCollapsible v-if="folders" :folders="folders" />
 </template>

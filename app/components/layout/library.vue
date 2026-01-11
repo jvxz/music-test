@@ -5,7 +5,6 @@ const { createPlaylist } = useUserPlaylists()
 <template>
   <div class="flex h-full flex-col gap-2 *:px-4 *:first:pt-4 *:last:pb-4">
     <LayoutLibraryActions />
-    <!-- <div class="bg-border h-px mx-4 my-2 p-0" /> -->
     <UContextMenu>
       <UContextMenuTrigger as-child>
         <LayoutLibraryList />

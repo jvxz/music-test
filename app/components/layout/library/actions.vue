@@ -1,7 +1,7 @@
 <template>
   <div>
     <UButton
-      class="w-full justify-start text-foreground data-drag-over:bg-muted"
+      :class="cn('w-full justify-start text-foreground data-drag-over:bg-muted', $route.name === 'library' && 'ghost-button-active')"
       variant="ghost"
       @click="navigateTo('/library')"
     >
