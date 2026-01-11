@@ -60,7 +60,7 @@ export function useUserPlaylists() {
     return fileEntries
   }
 
-  async function addToPlaylist(playlistId: number, tracks: TrackListEntry[]) {
+  async function addToPlaylist(playlistId: number, tracks: FileEntry[]) {
     const validTracks = tracks.filter(track => track.valid)
     if (!validTracks.length) {
       return emitError({
