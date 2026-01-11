@@ -59,25 +59,13 @@ async function handlePresetDelete() {
   setSettingValue('appearance.presets', presets)
   selectedPreset.value = null
 }
-
-// async function handlePresetRename() {
-//   if (!selectedPreset.value)
-//     return
-
-//   const presets = settings.value['appearance.presets']
-//   presets[presetName.value] = presets[selectedPreset.value.name] as Record<SettingsEntryKey & `appearance.token.${string}`, string>
-//   delete presets[selectedPreset.value.name]
-//   setSettingValue('appearance.presets', presets)
-
-//   presetName.value = ''
-// }
 </script>
 
 <template>
   <div class="flex w-full items-center gap-2">
     <UDropdownMenuRoot>
       <UDropdownMenuTrigger as-child>
-        <UButton variant="soft" class="w-42 justify-between">
+        <UButton variant="soft" class="w-full shrink justify-between">
           <span class="truncate">{{ selectedPreset?.name ?? 'Presets' }}</span> <Icon class="shrink-0" name="tabler:chevron-down" />
         </UButton>
       </UDropdownMenuTrigger>
