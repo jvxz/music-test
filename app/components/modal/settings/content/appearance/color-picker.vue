@@ -28,7 +28,7 @@ function handleColorPickerClick() {
 </script>
 
 <template>
-  <div class="flex flex-col gap-2 max-w-72">
+  <div class="flex flex-col gap-2">
     <ULabel class="text-sm">
       {{ label }}
     </ULabel>
