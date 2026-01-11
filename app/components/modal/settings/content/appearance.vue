@@ -4,13 +4,14 @@ const themeTokens = ['background', 'border', 'foreground', 'primary', 'surface',
 
 <template>
   <ModalSettingsContentLayout title="Appearance">
-    <div class="flex flex-col gap-4 w-full">
+    <div class="flex flex-col gap-4 w-full max-w-2/3">
       <ModalSettingsContentAppearancePresets />
       <ModalSettingsContentAppearanceColorPicker
-        v-for="token in themeTokens"
-        :key="token"
-        :setting-key="`appearance.token.${token}`"
+      v-for="token in themeTokens"
+      :key="token"
+      :setting-key="`appearance.token.${token}`"
       />
+      <ModalSettingsContentAppearanceFont />
     </div>
   </ModalSettingsContentLayout>
 </template>

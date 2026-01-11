@@ -4,7 +4,7 @@
 @custom-variant dark (&:where(.dark *));
 
 @theme inline {
-  --duration: 0.125s;
+  --duration: 0.1s;
   /* --text-multiplier: 1.175;
   --text-xl: calc(var(--text-lg) * var(--text-multiplier));
   --text-lg: calc(var(--text-base) * var(--text-multiplier));
@@ -18,9 +18,9 @@
   --text-xl: clamp(0.81rem, 1.74vi + 0.38rem, 1.77rem);
   --text-xxl: clamp(0.81rem, 2.42vi + 0.21rem, 2.14rem);
   --text-xxxl: clamp(0.81rem, 3.24vi + 0rem, 2.59rem);
-  /* --spacing: calc(var(--text-base) / 4.1); */
+  --spacing: calc(var(--text-base) / 4.275);
 
-  --font-sans: system-ui, -apple-system, sans-serif;
+  /* --font-sans: system-ui, -apple-system, sans-serif; */
   --font-mono: 'Paper Mono', monospace;
   --font-display: 'Funnel Display', monospace;
   --animate-accordion-down: accordion-down 0.15s;
@@ -231,6 +231,10 @@
       height: 0;
     }
   }
+}
+
+@utility ghost-button-active {
+  @apply bg-muted/80 text-foreground;
 }
 
 @utility animate-slide-down {

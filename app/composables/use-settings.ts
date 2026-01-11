@@ -1,7 +1,10 @@
 type SettingsEntryKeyFormat = `${typeof SETTINGS_MODAL_TABS[number]}.${string}`
 
 export interface Settings {
-  'appearance.font': 'SYSTEM' | (string & {})
+  'appearance.font.name': 'SYSTEM' | (string & {})
+  'appearance.font.weight': string
+  'appearance.font.variant': string
+  'general.click-outside-to-deselect': boolean
   'last-fm.username': string | null
   'last-fm.do-scrobbling': boolean
   'last-fm.do-now-playing-updates': boolean
@@ -23,7 +26,9 @@ type EnforcedSettingsKeys<T extends Record<string, any>> = {
 }
 
 export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
-  'appearance.font': 'SYSTEM',
+  'appearance.font.name': 'SYSTEM',
+  'appearance.font.variant': 'Normal',
+  'appearance.font.weight': '400',
   'appearance.presets': {
     Default: {
       'appearance.token.background': '#080808',
@@ -40,6 +45,7 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'appearance.token.muted': '#1D1D1D',
   'appearance.token.primary': '#5A907C',
   'appearance.token.surface': '#0E0E0E',
+  'general.click-outside-to-deselect': true,
   'last-fm.do-now-playing-updates': true,
   'last-fm.do-offline-scrobbling': true,
   'last-fm.do-scrobbling': true,
@@ -63,8 +69,8 @@ export const useSettings = createSharedComposable(() => {
     return computed({
       get: () => settings.value[key],
       set: (value) => {
-        if (!opts?.onBeforeChange?.(value))
-          return
+        // if (!opts?.onBeforeChange?.(value))
+        //   return
         settings.value = { ...settings.value, [key]: value }
         opts?.onChanged?.(value, settings.value[key])
       },
