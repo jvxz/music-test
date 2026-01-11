@@ -55,7 +55,7 @@ async function handleDrop(folderPaths: string[]) {
                   :value="folder.path"
                   as-child
                 >
-                  <button :title="folder.path" class="w-full truncate text-left select-none data-active:bg-muted">
+                  <button :title="folder.path" class="w-full truncate text-left select-none data-active:ghost-button-active">
                     {{ folder.path }}
                   </button>
                 </ToggleGroupItem>
