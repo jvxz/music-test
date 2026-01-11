@@ -4,11 +4,24 @@ const { currentTrack } = usePlayback()
 
 <template>
   <div class="grid size-full place-items-center">
-    <img
-      v-if="currentTrack?.path"
-      :data-cover-missing="!currentTrack?.tags.APIC ? '' : undefined"
-      :src="currentTrack?.full_uri"
-      class="h-full w-full object-contain data-cover-missing:scale-75 data-cover-missing:opacity-80 dark:data-cover-missing:invert"
-    />
+    <template v-if="currentTrack">
+      <img
+        v-if="currentTrack.tags.APIC"
+        :src="currentTrack.full_uri"
+        class="h-full w-full object-contain"
+      />
+      <div
+        v-else
+        class="grid h-full w-full place-items-center object-contain text-sm text-muted-foreground font-mono"
+      >
+        no cover
+      </div>
+    </template>
+    <!-- <div
+      v-else
+      class="grid h-full w-full place-items-center object-contain text-sm text-muted-foreground font-mono"
+    >
+      no track
+    </div> -->
   </div>
 </template>
