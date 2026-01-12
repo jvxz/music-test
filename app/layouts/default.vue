@@ -49,7 +49,7 @@ onBeforeMount(async () => {
         <LayoutSidebarRight />
       </SplitterPanel>
     </SplitterGroup>
-    <LayoutBottomBar/>
+    <LayoutBottomBar />
     <LayoutStatusBar />
   </div>
 </template>

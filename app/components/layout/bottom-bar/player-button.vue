@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<{
   <button v-if="variant === 'sub'" :class="cn('flex size-8 items-center justify-center active:text-muted-foreground', props.class)">
     <slot />
   </button>
-  <button v-else class="flex size-12 items-center justify-center rounded-full bg-foreground active:bg-muted-foreground">
+  <button v-else class="flex size-10 items-center justify-center rounded-full bg-foreground active:bg-muted-foreground">
     <slot />
   </button>
 </template>
