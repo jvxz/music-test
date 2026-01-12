@@ -69,7 +69,7 @@ const { currentTrack, playbackStatus, playPauseCurrentTrack } = usePlayback()
         </LayoutBottomBarPlayerButton>
       </div>
       <LayoutPlayerSeekBar
-        :show-duration="false"
+        show-duration="both-sides"
         :show-title="false"
         :classes="{
           container: 'w-full h-fit grow-0 translate-y-0',

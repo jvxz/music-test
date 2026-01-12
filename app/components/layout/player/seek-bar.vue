@@ -3,10 +3,10 @@ type ClassAttributeOptions = 'container' | 'thumb'
 
 withDefaults(defineProps<{
   showTitle?: boolean
-  showDuration?: boolean
   classes?: Partial<Record<ClassAttributeOptions, string>>
+  showDuration?: 'top-right' | 'top-left' | 'both-sides' | false
 }>(), {
-  showDuration: true,
+  showDuration: 'both-sides',
   showTitle: true,
 })
 
@@ -48,26 +48,37 @@ const computedPosition = computed(() => {
 
 <template>
   <div :class="cn('relative flex w-[45%] grow -translate-y-3 flex-col items-center gap-1 *:shrink-0', classes?.container)">
-    <LayoutBottomBarSeekBarTitle v-if="showTitle" :current-track />
-    <p v-if="showDuration" class="absolute right-0 bottom-0 text-sm text-muted-foreground">
+    <LayoutTopBarSeekBarTitle v-if="showTitle" :current-track />
+    <p
+      v-if="showDuration && ['top-right', 'top-left'].includes(showDuration)"
+      :class="cn('absolute right-0 bottom-0 text-sm text-muted-foreground', showDuration === 'top-right' ? 'right-0' : 'left-0')"
+    >
       {{ computedPosition }} / {{ computedDuration }}
     </p>
-    <SliderRoot
-      v-model:model-value="localPosition"
-      :max="playbackStatus?.duration ?? 0"
-      class="relative flex h-4 w-full grow"
-      :step="0.01"
-      @pointerdown="handlePointer('down')"
-      @pointerup="handlePointer('up')"
-    >
-      <SliderTrack class="absolute top-1/2 h-2 w-full grow -translate-y-1/2 bg-muted">
-        <SliderRange class="absolute top-1/2 h-2 -translate-y-1/2 bg-primary/25" />
-      </SliderTrack>
-      <SliderThumb
-        :class="cn('absolute top-1/2 h-2 w-4 -translate-y-1/2 bg-primary outline-none focus-visible:ring-0', classes?.thumb)"
+    <div class="flex w-full items-center gap-4">
+      <p v-if="showDuration === 'both-sides'" class="text-sm text-muted-foreground">
+        {{ computedPosition }}
+      </p>
+      <SliderRoot
+        v-model:model-value="localPosition"
+        :max="playbackStatus?.duration ?? 0"
+        class="relative flex h-4 w-full grow"
+        :step="0.01"
         @pointerdown="handlePointer('down')"
         @pointerup="handlePointer('up')"
-      />
-    </SliderRoot>
+      >
+        <SliderTrack class="absolute top-1/2 h-2 w-full grow -translate-y-1/2 bg-muted">
+          <SliderRange class="absolute top-1/2 h-2 -translate-y-1/2 bg-primary/25" />
+        </SliderTrack>
+        <SliderThumb
+          :class="cn('absolute top-1/2 h-2 w-4 -translate-y-1/2 bg-primary outline-none focus-visible:ring-0', classes?.thumb)"
+          @pointerdown="handlePointer('down')"
+          @pointerup="handlePointer('up')"
+        />
+      </SliderRoot>
+      <p v-if="showDuration === 'both-sides'" class="text-sm text-muted-foreground">
+        {{ computedDuration }}
+      </p>
+    </div>
   </div>
 </template>
