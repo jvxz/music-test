@@ -1,7 +1,10 @@
 <script lang="ts" setup>
+type ClassAttributeOptions = 'container' | 'thumb'
+
 withDefaults(defineProps<{
   showTitle?: boolean
   showDuration?: boolean
+  classes?: Partial<Record<ClassAttributeOptions, string>>
 }>(), {
   showDuration: true,
   showTitle: true,
@@ -44,7 +47,7 @@ const computedPosition = computed(() => {
 </script>
 
 <template>
-  <div class="relative flex w-[45%] grow -translate-y-3 flex-col items-center gap-1 *:shrink-0">
+  <div :class="cn('relative flex w-[45%] grow -translate-y-3 flex-col items-center gap-1 *:shrink-0', classes?.container)">
     <LayoutBottomBarSeekBarTitle v-if="showTitle" :current-track />
     <p v-if="showDuration" class="absolute right-0 bottom-0 text-sm text-muted-foreground">
       {{ computedPosition }} / {{ computedDuration }}
@@ -61,7 +64,7 @@ const computedPosition = computed(() => {
         <SliderRange class="absolute top-1/2 h-2 -translate-y-1/2 bg-primary/25" />
       </SliderTrack>
       <SliderThumb
-        class="absolute top-1/2 h-2 w-4 -translate-y-1/2 bg-primary outline-none focus-visible:ring-0"
+        :class="cn('absolute top-1/2 h-2 w-4 -translate-y-1/2 bg-primary outline-none focus-visible:ring-0', classes?.thumb)"
         @pointerdown="handlePointer('down')"
         @pointerup="handlePointer('up')"
       />

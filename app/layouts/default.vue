@@ -20,7 +20,7 @@ onBeforeMount(async () => {
 
 <template>
   <div class="flex h-screen flex-col">
-    <LayoutTopBar />
+    <!-- <LayoutTopBar /> -->
     <SplitterGroup
       direction="horizontal"
       class="flex size-full flex-1"
@@ -37,7 +37,7 @@ onBeforeMount(async () => {
       <SplitterResizeHandle />
       <SplitterPanel class="flex h-full flex-1 flex-col">
         <slot />
-        <LayoutWaveform />
+        <!-- <LayoutWaveform /> -->
       </SplitterPanel>
       <SplitterResizeHandle />
       <SplitterPanel
@@ -49,6 +49,7 @@ onBeforeMount(async () => {
         <LayoutSidebarRight />
       </SplitterPanel>
     </SplitterGroup>
+    <LayoutBottomBar/>
     <LayoutStatusBar />
   </div>
 </template>

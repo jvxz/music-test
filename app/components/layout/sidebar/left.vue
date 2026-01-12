@@ -14,11 +14,11 @@ const { layoutPanels } = usePersistentPanels('left', [75, 25])
       <LayoutLibrary />
     </SplitterPanel>
     <SplitterResizeHandle />
-    <SplitterPanel
+    <!-- <SplitterPanel
       :default-size="layoutPanels[1]"
       class="border-t"
     >
       <LayoutPanelCoverArt />
-    </SplitterPanel>
+    </SplitterPanel> -->
   </SplitterGroup>
 </template>
