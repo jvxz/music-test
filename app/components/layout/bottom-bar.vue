@@ -77,8 +77,16 @@ const { currentTrack, playbackStatus, playPauseCurrentTrack } = usePlayback()
         }"
       />
     </div>
-    <div class="flex-1">
-      test
+    <div class="flex flex-1 justify-end gap-4">
+      <LayoutPlayerVolume class="translate-y-0" />
+      <div class="flex items-center gap-2">
+        <UButton variant="ghost" size="icon">
+          <Icon name="tabler:info-circle" class="size-4!" />
+        </UButton>
+        <UButton variant="ghost" size="icon">
+          <Icon name="tabler:settings" class="size-4!" />
+        </UButton>
+      </div>
     </div>
   </div>
 </template>
