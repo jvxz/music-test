@@ -128,12 +128,26 @@ function handleRightClick(entry: TrackListEntry) {
   }
 }
 
+const { getSettingValueRef } = useSettings()
+const rowStyle = getSettingValueRef('track-list.row-style')
+// useStyleTag(computed(() => `
+//   .row-style-alternating-background {
+//     background-color: var(--background);
+//   }
+//   .row-style-bordered {
+//     border-bottom: 1px solid var(--border);
+//   }
+// `))
+
 onKeyStrokeSafe('ctrl_a', () => selectedTrackData.value.entries = folderEntries.value)
 onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
 </script>
 
 <template>
-  <div class="flex h-full flex-1 cursor-default flex-col select-none">
+  <div
+    :data-row-style="rowStyle"
+    class="group flex h-full flex-1 cursor-default flex-col select-none"
+  >
     <LayoutTrackListHeader
       :path
       :type
@@ -170,6 +184,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
                 :entry="entry.data"
                 :is-selected="checkIsSelected(entry.data)"
                 :is-playing="playbackStatus?.path === entry.data.path"
+                :is-even="entry.index % 2 === 0"
                 @row-drag-start="handleRowDragStart($event, checkIsSelected(entry.data))"
                 @mousedown.left="handleSelectDragStart(entry.data)"
                 @mouseover="handleDragHoverSelect(entry.data)"
@@ -193,7 +208,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
             }"
           >
             <LayoutTrackListRow
-              v-for="entry in folderEntries"
+              v-for="(entry, index) in folderEntries"
               :key="entry.path"
               v-memo="[
                 entry.path,
@@ -205,6 +220,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
               :entry="entry"
               :is-selected="checkIsSelected(entry)"
               :is-playing="playbackStatus?.path === entry.path"
+              :is-even="index % 2 === 0"
               @row-drag-start="handleRowDragStart($event, checkIsSelected(entry))"
               @mousedown.left="handleSelectDragStart(entry)"
               @mouseover="handleDragHoverSelect(entry)"

@@ -16,6 +16,7 @@ export interface Settings {
   'appearance.token.border': string
   'appearance.token.surface': string
   'appearance.presets': Record<string, Record<SettingsEntryKey & `appearance.token.${string}`, string>>
+  'track-list.row-style': 'alternating-background' | 'bordered' | 'none'
 }
 
 export type SettingsEntryKey = keyof Settings
@@ -50,6 +51,7 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'last-fm.do-offline-scrobbling': true,
   'last-fm.do-scrobbling': true,
   'last-fm.username': null,
+  'track-list.row-style': 'bordered',
 }
 
 export const useSettings = createSharedComposable(() => {
@@ -69,8 +71,8 @@ export const useSettings = createSharedComposable(() => {
     return computed({
       get: () => settings.value[key],
       set: (value) => {
-        // if (!opts?.onBeforeChange?.(value))
-        //   return
+        if (opts?.onBeforeChange && !opts?.onBeforeChange?.(value))
+          return
         settings.value = { ...settings.value, [key]: value }
         opts?.onChanged?.(value, settings.value[key])
       },

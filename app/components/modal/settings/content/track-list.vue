@@ -1,0 +1,36 @@
+<script lang="ts" setup>
+const { getSettingValueRef } = useSettings()
+
+const rowStyle = getSettingValueRef('track-list.row-style')
+</script>
+
+<template>
+  <ModalSettingsContentLayout title="Track list">
+    <div class="flex flex-col gap-2">
+      <ULabel>
+        Row style
+      </ULabel>
+      <UDropdownMenuRoot>
+        <UDropdownMenuTrigger as-child>
+          <UButton variant="soft" class="w-64 justify-between">
+            {{ sentenceCase(rowStyle) }}
+            <Icon name="tabler:chevron-down" />
+          </UButton>
+        </UDropdownMenuTrigger>
+        <UDropdownMenuContent class="w-(--reka-dropdown-menu-trigger-width)">
+          <UDropdownMenuRadioGroup v-model:model-value="rowStyle">
+            <UDropdownMenuRadioItem value="alternating-background">
+              Alternating background
+            </UDropdownMenuRadioItem>
+            <UDropdownMenuRadioItem value="bordered">
+              Bordered
+            </UDropdownMenuRadioItem>
+            <UDropdownMenuRadioItem value="none">
+              None
+            </UDropdownMenuRadioItem>
+          </UDropdownMenuRadioGroup>
+        </UDropdownMenuContent>
+      </UDropdownMenuRoot>
+    </div>
+  </ModalSettingsContentLayout>
+</template>

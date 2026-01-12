@@ -1,4 +1,11 @@
-export const SETTINGS_MODAL_TABS = ['general', 'library', 'appearance', 'last-fm', 'advanced'] as const
+export const SETTINGS_MODAL_TABS = [
+  'general',
+  'library',
+  'track-list',
+  'appearance',
+  'last-fm',
+  'advanced',
+] as const
 
 export function useSettingsModal() {
   const open = useState('settings-modal-open', () => false)

@@ -20,11 +20,11 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
       props.class,
     )"
   >
-    <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
+    <span class="pointer-events-none absolute left-2 flex h-full items-center justify-center">
       <DropdownMenuItemIndicator>
-        <Icon name="tabler:circle" class="size-2 fill-current" />
+        <Icon name="tabler:circle-filled" class="size-2.5! fill-current" />
       </DropdownMenuItemIndicator>
     </span>
-    <slot />
+    <span class="ps-4.5"><slot /></span>
   </DropdownMenuRadioItem>
 </template>
