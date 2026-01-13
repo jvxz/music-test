@@ -34,7 +34,7 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
   <div
     class="col-span-full grid grid-cols-subgrid not-last:border-b"
     :class="{
-      'border-transparent bg-primary/25': isSelected,
+      'border-transparent bg-primary/25 []': isSelected,
       'bg-danger/20': !entry.valid,
     }"
     v-bind="$attrs"
