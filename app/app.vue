@@ -6,6 +6,6 @@
     <ModalSettings />
   </NuxtLayout>
   <DevOnly>
-    <DebugFps />
+    <DebugDetails />
   </DevOnly>
 </template>
