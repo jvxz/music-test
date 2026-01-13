@@ -2,6 +2,7 @@ export default defineNuxtPlugin({
   dependsOn: ['tauri'],
   setup: () => {
     const { listen } = useTauri()
+    const { dragMeta } = useDrag()
 
     const x = shallowRef<number>(0)
     const y = shallowRef<number>(0)
@@ -12,6 +13,9 @@ export default defineNuxtPlugin({
 
     listen('tauri://drag-over', (e) => {
       const payload = e.payload as { position: { x: number, y: number } }
+      if (dragMeta.value === null) {
+        dragMeta.value = { key: 'UNKNOWN' }
+      }
 
       x.value = payload.position.x
       y.value = payload.position.y
@@ -26,8 +30,9 @@ export default defineNuxtPlugin({
       isDragging.value = false
 
       const payload = event.payload as { paths: string[] }
-
       droppedItemPaths.value = payload.paths
+
+      nextTick(() => dragMeta.value = null)
     })
 
     return {

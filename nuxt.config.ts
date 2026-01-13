@@ -74,12 +74,6 @@ export default defineNuxtConfig({
         ],
       },
       {
-        from: '@crabnebula/tauri-plugin-drag',
-        imports: [
-          'startDrag',
-        ],
-      },
-      {
         from: 'kysely',
         imports: [
           { name: 'Selectable', type: true },

@@ -1,18 +1,21 @@
 <script lang="ts" setup>
-import { resolveResource } from '@tauri-apps/api/path'
 
 const props = defineProps<{
   currentTrack: CurrentPlayingTrack | null
 }>()
 
+const { startDrag } = useDrag()
+
 async function handleDragStart() {
   if (!props.currentTrack)
     return
 
-  const icon = await resolveResource('icons/file-light.svg')
-
   await startDrag({
-    icon,
+    data: {
+      entries: [props.currentTrack],
+    },
+    key: 'track-list-entry',
+  }, {
     item: [props.currentTrack.path],
   })
 }
