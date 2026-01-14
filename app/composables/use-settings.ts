@@ -16,6 +16,11 @@ export interface Settings {
   'appearance.token.border': string
   'appearance.token.surface': string
   'appearance.presets': Record<string, Record<SettingsEntryKey & `appearance.token.${string}`, string>>
+  'layout.panel.bottom': LayoutPanelElementsSetting<'bottom'>
+  'layout.panel.left': LayoutPanelElementsSetting<'left'>
+  'layout.panel.main': LayoutPanelElementsSetting<'main'>
+  'layout.panel.right': LayoutPanelElementsSetting<'right'>
+  'layout.panel.top': LayoutPanelElementsSetting<'top'>
 }
 
 export type SettingsEntryKey = keyof Settings
@@ -50,6 +55,11 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'last-fm.do-offline-scrobbling': true,
   'last-fm.do-scrobbling': true,
   'last-fm.username': null,
+  'layout.panel.bottom': ['player'],
+  'layout.panel.left': ['library-view'],
+  'layout.panel.main': ['playlist-view'],
+  'layout.panel.right': ['cover-art'],
+  'layout.panel.top': ['playlist-view'],
 }
 
 export const useSettings = createSharedComposable(() => {
