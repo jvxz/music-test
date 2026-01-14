@@ -33,27 +33,32 @@ const panels: {
 </script>
 
 <template>
-  <ModalSettingsContentLayout title="Layout">
-    <div class="flex flex-col gap-6">
-      <div
-        v-for="panel in panels"
-        :key="panel.label"
-        class="flex items-start gap-2 overflow-hidden"
-      >
-        <div class="flex flex-col gap-2">
-          <div class="aspect-video w-24 rounded border flex">
-            <div :class="panel.class" />
+  <ModalSettingsContentLayout title="Layout" class="h-full">
+    <div class="flex h-full justify-between gap-4">
+      <div class="flex flex-col gap-6">
+        <TauriDragoverProvider
+          v-for="panel in panels"
+          :key="panel.label"
+          :acceptable-keys="['layout-element']"
+        >
+          <div class="group -m-2 flex items-start gap-2 overflow-hidden rounded p-2 data-drag-over:bg-muted/50">
+            <div class="flex flex-col gap-2">
+              <div class="flex aspect-video w-24 rounded border">
+                <div :class="panel.class" />
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <ULabel>
+                {{ panel.label }}
+              </ULabel>
+              <p class="text-sm text-muted-foreground">
+                (hidden, no elements contained)
+              </p>
+            </div>
           </div>
-        </div>
-        <div class="flex flex-col gap-2">
-          <ULabel>
-            {{ panel.label }}
-          </ULabel>
-          <p class="text-sm text-muted-foreground">
-            (hidden, no elements contained)
-          </p>
-        </div>
+        </TauriDragoverProvider>
       </div>
+      <ModalSettingsContentLayoutElements />
     </div>
   </ModalSettingsContentLayout>
 </template>
