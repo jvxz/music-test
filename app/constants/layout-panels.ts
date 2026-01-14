@@ -24,16 +24,20 @@ export const layoutPanels = {
     allowedElements: [
       'playlist-view',
       'player',
+      'cover-art',
     ],
     class: 'h-1/3 mt-auto w-full bg-muted/25 border-t',
+    key: 'bottom',
     label: 'Bottom panel',
   },
   left: {
     allowedElements: [
       'library-view',
       'metadata-view',
+      'cover-art',
     ],
     class: 'h-full bg-muted/25 w-1/4 border-r',
+    key: 'left',
     label: 'Left panel',
   },
   main: {
@@ -41,6 +45,7 @@ export const layoutPanels = {
       'playlist-view',
     ],
     class: 'w-1/2 bg-muted/25 mx-auto h-full border-x',
+    key: 'main',
     label: 'Main panel',
   },
   right: {
@@ -50,6 +55,7 @@ export const layoutPanels = {
       'library-view',
     ],
     class: 'h-full bg-muted/25 ml-auto w-1/4 border-l',
+    key: 'right',
     label: 'Right panel',
   },
   top: {
@@ -58,15 +64,19 @@ export const layoutPanels = {
       'player',
     ],
     class: 'h-1/3 w-full bg-muted/25 border-b',
+    key: 'top',
     label: 'Top panel',
   },
 } satisfies Record<LayoutPanelKey, {
   allowedElements: LayoutElementKey[]
+  key: LayoutPanelKey
   class: string
   label: string
 }>
 
-export type LayoutElementKey = (typeof layoutPanelElements)[number]['key']
+export type LayoutPanel = (typeof layoutPanels)[LayoutPanelKey]
 export type LayoutPanelKey = (typeof layoutPanelNames)[number]
 
 export type LayoutPanelElementsSetting<T extends LayoutPanelKey> = (typeof layoutPanels)[T]['allowedElements']
+
+export type LayoutElementKey = (typeof layoutPanelElements)[number]['key']

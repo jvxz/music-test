@@ -70,7 +70,7 @@ function checkMatch() {
     v-bind="$attrs"
   >
     <RekaSlot :data-drag-over="isOver ? '' : undefined">
-      <slot :is-over />
+      <slot :is-over :drag-meta />
     </RekaSlot>
   </div>
 </template>

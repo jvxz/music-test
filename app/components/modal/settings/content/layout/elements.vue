@@ -8,6 +8,7 @@ async function handleDragStart(element: (typeof layoutPanelElements)[number]) {
   await startDrag({
     data: {
       elementKey: element.key,
+      from: 'AVAILABLE_ELEMENTS',
     },
     key: 'layout-element',
   }, {
@@ -20,18 +21,25 @@ async function handleDragStart(element: (typeof layoutPanelElements)[number]) {
 </script>
 
 <template>
-  <div class="flex h-full w-1/3 flex-col gap-px">
-    <UButton
-      v-for="element in layoutPanelElements"
-      :key="element.key"
-      variant="ghost"
-      class="justify-start"
-      draggable="true"
-      @dragstart="handleDragStart(element)"
-      @dragend="elementDragging = null"
+  <TauriDragoverProvider v-slot="{ dragMeta }" :acceptable-keys="['layout-element']">
+    <div
+      class="flex h-fit w-1/3 flex-col gap-px rounded bg-muted/25 p-1"
+      :class="{
+        'data-drag-over:bg-danger/25': dragMeta?.key === 'layout-element' && dragMeta.data.from !== 'AVAILABLE_ELEMENTS',
+      }"
     >
-      <Icon name="tabler:grip-vertical" class="size-3.5!" />
-      <p>{{ element.label }}</p>
-    </UButton>
-  </div>
+      <UButton
+        v-for="element in layoutPanelElements"
+        :key="element.key"
+        variant="ghost"
+        class="justify-start"
+        draggable="true"
+        @dragstart="handleDragStart(element)"
+        @dragend="elementDragging = null"
+      >
+        <Icon name="tabler:grip-vertical" class="size-3.5!" />
+        <p>{{ element.label }}</p>
+      </UButton>
+    </div>
+  </TauriDragoverProvider>
 </template>

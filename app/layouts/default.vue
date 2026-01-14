@@ -20,7 +20,7 @@ onBeforeMount(async () => {
 
 <template>
   <div class="flex h-screen flex-col">
-    <!-- <LayoutTopBar /> -->
+    <LayoutTopBar />
     <SplitterGroup
       direction="horizontal"
       class="flex size-full flex-1"
