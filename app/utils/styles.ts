@@ -11,7 +11,7 @@ const interactiveStyles = {
       'hover:bg-danger/90 bg-danger/90 text-danger-foreground hover:bg-danger active:bg-danger border-danger',
     default:
       'bg-primary/85 border hover:bg-primary/90 border-primary active:bg-primary/85 text-primary-foreground',
-    ghost: 'hover:bg-muted/90 active:bg-muted/75 text-muted-foreground hover:text-foreground',
+    ghost: 'hover:bg-muted/90 active:bg-muted/75 text-muted-foreground hover:text-foreground active:text-foreground',
     link: 'text-primary underline-offset-4 hover:underline',
     outline:
     'hover:bg-muted/90 active:bg-muted/80 border bg-transparent',
