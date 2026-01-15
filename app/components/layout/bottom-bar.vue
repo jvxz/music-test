@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 const { currentTrack, playbackStatus, playPauseCurrentTrack } = usePlayback()
+
+const { getPanelElements } = useLayout()
+const bottomPanelElements = getPanelElements('bottom')
 </script>
 
 <template>
-  <div class="flex h-32 w-full items-center justify-between gap-4 border-t p-4">
+  <div v-if="bottomPanelElements.length" class="flex h-32 w-full items-center justify-between gap-4 border-t p-4">
     <div class="flex h-full flex-1 items-start gap-4">
       <LayoutPanelCoverArt
         class="flex h-full"

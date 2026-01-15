@@ -2,9 +2,9 @@
   <NuxtRouteAnnouncer />
   <NuxtLayout>
     <NuxtPage />
-    <ModalItemSearch />
-    <ModalSettings />
   </NuxtLayout>
+  <ModalItemSearch />
+  <ModalSettings />
   <DevOnly>
     <DebugDetails />
   </DevOnly>

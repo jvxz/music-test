@@ -115,7 +115,7 @@ function handleDrop(meta: DragMetaEntry, panelKey: LayoutPanelKey) {
               <UContextMenu>
                 <UContextMenuTrigger as-child>
                   <UButton
-                    variant="ghost"
+                    variant="soft"
                     :class="cn('justify-start', dragMeta?.key === 'layout-element' && 'pointer-events-none')"
                     draggable="true"
                     @dragstart="handleDragStart(element, panel.key)"

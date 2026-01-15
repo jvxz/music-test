@@ -1,5 +1,8 @@
 <script lang="ts" setup>
 const { layoutPanels } = usePersistentPanels('left', [75, 25])
+
+const { getPanelElements } = useLayout()
+const leftPanelElements = getPanelElements('left')
 </script>
 
 <template>
@@ -11,7 +14,7 @@ const { layoutPanels } = usePersistentPanels('left', [75, 25])
       :default-size="layoutPanels[0]"
       class="flex h-full flex-1 flex-col"
     >
-      <LayoutLibrary />
+      <LayoutLibrary v-if="leftPanelElements.includes('library-view')" />
     </SplitterPanel>
     <SplitterResizeHandle />
     <!-- <SplitterPanel

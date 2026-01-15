@@ -21,6 +21,11 @@ export interface Settings {
   'layout.panel.main': LayoutPanelElementsSetting<'main'>
   'layout.panel.right': LayoutPanelElementsSetting<'right'>
   'layout.panel.top': LayoutPanelElementsSetting<'top'>
+  'layout.panel-size.bottom': number
+  'layout.panel-size.left': number
+  'layout.panel-size.main': number
+  'layout.panel-size.right': number
+  'layout.panel-size.top': number
 }
 
 export type SettingsEntryKey = keyof Settings
@@ -55,6 +60,11 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'last-fm.do-offline-scrobbling': true,
   'last-fm.do-scrobbling': true,
   'last-fm.username': null,
+  'layout.panel-size.bottom': 12.5,
+  'layout.panel-size.left': 35,
+  'layout.panel-size.main': 12.5,
+  'layout.panel-size.right': 12.5,
+  'layout.panel-size.top': 12.5,
   'layout.panel.bottom': ['player'],
   'layout.panel.left': ['library-view'],
   'layout.panel.main': ['playlist-view'],
