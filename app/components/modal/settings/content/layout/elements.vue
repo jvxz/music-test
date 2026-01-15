@@ -18,10 +18,27 @@ async function handleDragStart(element: (typeof layoutPanelElements)[number]) {
     },
   })
 }
+
+const { removeElementFromPanel } = useLayout()
+
+async function handleDrop(_: string[], meta: DragMetaEntry) {
+  if (meta?.key !== 'layout-element')
+    return
+
+  if (meta.key === 'layout-element' && meta.data.from === 'AVAILABLE_ELEMENTS')
+    return
+
+  // assert because check for invalid key is done above
+  removeElementFromPanel(meta.data.from as LayoutPanelKey, meta.data.elementKey)
+}
 </script>
 
 <template>
-  <TauriDragoverProvider v-slot="{ dragMeta }" :acceptable-keys="['layout-element']">
+  <TauriDragoverProvider
+    v-slot="{ dragMeta }"
+    :acceptable-keys="['layout-element']"
+    @drop="handleDrop"
+  >
     <div
       class="flex h-fit w-1/3 flex-col gap-px rounded bg-muted/25 p-1"
       :class="{

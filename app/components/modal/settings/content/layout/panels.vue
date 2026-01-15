@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-const elementDragging = useState<LayoutElementKey | null>('layout-element-dragging', () => null)
-
 const { getSettingValue, settings } = useSettings()
 const panelElements = computedWithControl(settings, () => ({
   bottom: getSettingValue('layout.panel.bottom'),
@@ -11,6 +9,7 @@ const panelElements = computedWithControl(settings, () => ({
 }))
 
 const { dragMeta, startDrag } = useDrag()
+const { addElementToPanel, elementDragging } = useLayout()
 
 function getElementFromKey(key: LayoutElementKey) {
   return layoutPanelElements.find(element => element.key === key)
@@ -53,6 +52,16 @@ function isDraggingFromSamePanel(panel: LayoutPanel) {
 
   return dragMeta.value.key === 'layout-element' && dragMeta.value.data.from !== panel.key
 }
+
+function handleDrop(meta: DragMetaEntry, panelKey: LayoutPanelKey) {
+  if (meta?.key !== 'layout-element')
+    return
+
+  if (meta.key === 'layout-element' && meta.data.from !== 'AVAILABLE_ELEMENTS')
+    return
+
+  addElementToPanel(panelKey, meta.data.elementKey)
+}
 </script>
 
 <template>
@@ -62,6 +71,7 @@ function isDraggingFromSamePanel(panel: LayoutPanel) {
       v-slot="{ dragMeta }"
       :key="panel.label"
       :acceptable-keys="['layout-element']"
+      @drop="handleDrop(dragMeta, panel.key)"
     >
       <div
         class="-m-2 flex items-start gap-2 overflow-hidden rounded p-2"
