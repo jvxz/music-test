@@ -4,10 +4,10 @@ const { createPlaylist } = useUserPlaylists()
 
 <template>
   <div class="flex h-full flex-col gap-2 *:px-4 *:first:pt-4 *:last:pb-4">
-    <LayoutLibraryActions />
+    <LayoutPanelLibraryActions />
     <UContextMenu>
       <UContextMenuTrigger as-child>
-        <LayoutLibraryList />
+        <LayoutPanelLibraryList />
       </UContextMenuTrigger>
       <UContextMenuContent>
         <UContextMenuItem

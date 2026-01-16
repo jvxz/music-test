@@ -1,3 +1,4 @@
+/* eslint-disable perfectionist/sort-objects */
 export const layoutPanelElements = [{
   key: 'cover-art',
   label: 'Cover art',
@@ -17,18 +18,17 @@ export const layoutPanelElements = [{
 
 export const layoutPanelElementNames = layoutPanelElements.map(element => element.key)
 
-export const layoutPanelNames = ['bottom', 'left', 'main', 'right', 'top'] as const
+export const layoutPanelNames = ['top', 'left', 'main', 'right', 'bottom'] as const
 
 export const layoutPanels = {
-  bottom: {
+  top: {
     allowedElements: [
       'playlist-view',
       'player',
-      'cover-art',
     ],
-    class: 'h-1/3 mt-auto w-full bg-muted/25 border-t',
-    key: 'bottom',
-    label: 'Bottom panel',
+    class: 'h-1/3 w-full bg-muted/25 border-b',
+    key: 'top',
+    label: 'Top panel',
   },
   left: {
     allowedElements: [
@@ -58,14 +58,15 @@ export const layoutPanels = {
     key: 'right',
     label: 'Right panel',
   },
-  top: {
+  bottom: {
     allowedElements: [
       'playlist-view',
       'player',
+      'cover-art',
     ],
-    class: 'h-1/3 w-full bg-muted/25 border-b',
-    key: 'top',
-    label: 'Top panel',
+    class: 'h-1/3 mt-auto w-full bg-muted/25 border-t',
+    key: 'bottom',
+    label: 'Bottom panel',
   },
 } satisfies Record<LayoutPanelKey, {
   allowedElements: LayoutElementKey[]

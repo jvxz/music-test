@@ -18,6 +18,7 @@ onBeforeMount(async () => {
 
 const { getPanelElements, getPanelSize, handlePanelSizeChange } = useLayout()
 
+const topPanelElements = getPanelElements('top')
 const leftPanelElements = getPanelElements('left')
 const mainPanelElements = getPanelElements('main')
 const rightPanelElements = getPanelElements('right')
@@ -46,6 +47,7 @@ const onLayoutChange = useDebounceFn((sizes: number[]) => {
 
 <template>
   <div class="flex h-screen flex-col">
+    <div v-if="!topPanelElements.length" class="h-8 w-full border-b bg-background" />
     <LayoutTopBar />
     <SplitterGroup
       :key="visiblePanels.join('-')"

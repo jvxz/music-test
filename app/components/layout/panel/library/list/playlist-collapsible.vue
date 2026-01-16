@@ -50,7 +50,7 @@ function handleDragOver() {
             </TauriDragoverProvider>
           </CollapsibleTrigger>
           <CollapsibleContent class="ml-3.5 space-y-px overflow-hidden border-l pl-1.5">
-            <LayoutLibraryListPlaylistItem
+            <LayoutPanelLibraryListPlaylistItem
               v-for="playlist in playlists"
               :key="playlist.id"
               :playlist="playlist"
