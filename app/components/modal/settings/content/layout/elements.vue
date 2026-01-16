@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { startDrag } = useDrag()
+const { dragMeta, startDrag } = useDrag()
 const elementDragging = useState<LayoutElementKey | null>('layout-element-dragging', () => null)
 
 async function handleDragStart(element: (typeof layoutPanelElements)[number]) {
@@ -21,7 +21,7 @@ async function handleDragStart(element: (typeof layoutPanelElements)[number]) {
 
 const { removeElementFromPanel } = useLayout()
 
-async function handleDrop(_: string[], meta: DragMetaEntry) {
+async function handleDrop(meta: DragMetaEntry) {
   if (meta?.key !== 'layout-element')
     return
 
@@ -35,9 +35,8 @@ async function handleDrop(_: string[], meta: DragMetaEntry) {
 
 <template>
   <TauriDragoverProvider
-    v-slot="{ dragMeta }"
     :acceptable-keys="['layout-element']"
-    @drop="handleDrop"
+    @drop="handleDrop(dragMeta)"
   >
     <div
       class="flex h-fit w-1/3 flex-col gap-px rounded bg-muted/25 p-1"

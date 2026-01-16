@@ -64,7 +64,7 @@ export default defineNuxtConfig({
   ],
 
   imports: {
-    dirs: ['types', 'constants'],
+    dirs: ['types', 'constants/**'],
     presets: [
       {
         cache: true,

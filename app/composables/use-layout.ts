@@ -5,21 +5,31 @@ export function useLayout() {
 
   function addElementToPanel(panelKey: LayoutPanelKey, elementKey: LayoutElementKey) {
     const settingKey = getPanelSettingKey(panelKey, 'elements')
-
     const settingValue = getSettingValue(settingKey)
-    setSettingValue(settingKey, [...settingValue, elementKey])
+
+    // type assertion because unable to add to array of unknown types
+    setSettingValue(settingKey, [...settingValue, elementKey] as LayoutPanelSetting<typeof panelKey>)
   }
 
   function removeElementFromPanel(panelKey: LayoutPanelKey, elementKey: LayoutElementKey) {
     const settingKey = getPanelSettingKey(panelKey, 'elements')
-
     const settingValue = getSettingValue(settingKey)
-    setSettingValue(settingKey, settingValue.filter(value => value !== elementKey))
+
+    // type assertion because unable to filter array of unknown types
+    setSettingValue(settingKey, settingValue.filter(value => value !== elementKey) as LayoutPanelSetting<typeof panelKey>)
   }
 
-  function getPanelElements<T extends LayoutPanelKey>(panelKey: T): Ref<LayoutPanelElementsSetting<T>> {
+  function getPanelElements<T extends LayoutPanelKey>(panelKey: T): Ref<LayoutPanelSetting<T>> {
     const settingKey = getPanelSettingKey(panelKey, 'elements')
+
     return getSettingValueRef(settingKey)
+  }
+
+  function getElementSettings<T extends LayoutElementKey>(elementKey: T): Ref<LayoutElementSetting<T>> {
+    const settingKey = getElementSettingKey(elementKey)
+
+    // type assertion because unable to get value of unknown type
+    return getSettingValueRef(settingKey) as Ref<LayoutElementSetting<T>>
   }
 
   function getPanelSize<T extends LayoutPanelKey>(panelKey: T): Ref<number> {
@@ -39,15 +49,30 @@ export function useLayout() {
   function getPanelSettingKey(panelKey: LayoutPanelKey, type: 'size'): `layout.panel-size.${LayoutPanelKey}`
   function getPanelSettingKey(panelKey: LayoutPanelKey, type = 'elements' as 'elements' | 'size') {
     if (type === 'elements') {
-      return `layout.panel.${panelKey}` satisfies SettingsEntryKey
+      const key = `layout.panel.${panelKey}` satisfies SettingsEntryKey
+      if (!key.startsWith('layout.panel.')) {
+        throw new Error(`Attempted to get panel elements for invalid panel key: ${key}`)
+      }
+
+      return key
     }
 
-    return `layout.panel-${type}.${panelKey}` satisfies SettingsEntryKey
+    const key = `layout.panel-${type}.${panelKey}` satisfies SettingsEntryKey
+    if (!key.startsWith(`layout.panel-${type}.`)) {
+      throw new Error(`Attempted to get panel ${type} for invalid panel key: ${key}`)
+    }
+
+    return key
+  }
+
+  function getElementSettingKey(elementKey: LayoutElementKey): `layout.element.${LayoutElementKey}` {
+    return `layout.element.${elementKey}` satisfies SettingsEntryKey
   }
 
   return {
     addElementToPanel,
     elementDragging,
+    getElementSettings,
     getPanelElements,
     getPanelSize,
     handlePanelSizeChange,

@@ -1,29 +1,10 @@
 /* eslint-disable perfectionist/sort-objects */
-export const layoutPanelElements = [{
-  key: 'cover-art',
-  label: 'Cover art',
-}, {
-  key: 'library-view',
-  label: 'Library view',
-}, {
-  key: 'metadata-view',
-  label: 'Metadata view',
-}, {
-  key: 'player',
-  label: 'Player',
-}, {
-  key: 'playlist-view',
-  label: 'Playlist view',
-}] as const
-
-export const layoutPanelElementNames = layoutPanelElements.map(element => element.key)
-
 export const layoutPanelNames = ['top', 'left', 'main', 'right', 'bottom'] as const
 
 export const layoutPanels = {
   top: {
     allowedElements: [
-      'playlist-view',
+      'track-list',
       'player',
     ],
     class: 'h-1/3 w-full bg-muted/25 border-b',
@@ -42,7 +23,7 @@ export const layoutPanels = {
   },
   main: {
     allowedElements: [
-      'playlist-view',
+      'track-list',
     ],
     class: 'w-1/2 bg-muted/25 mx-auto h-full border-x',
     key: 'main',
@@ -60,7 +41,7 @@ export const layoutPanels = {
   },
   bottom: {
     allowedElements: [
-      'playlist-view',
+      'track-list',
       'player',
       'cover-art',
     ],
@@ -78,6 +59,4 @@ export const layoutPanels = {
 export type LayoutPanel = (typeof layoutPanels)[LayoutPanelKey]
 export type LayoutPanelKey = (typeof layoutPanelNames)[number]
 
-export type LayoutPanelSetting<T extends LayoutPanelKey> = (typeof layoutPanels)[T]['allowedElements'] | (string & {})[] // for generic checking, eg. .filter()
-
-export type LayoutElementKey = (typeof layoutPanelElements)[number]['key'] | (string & {})
+export type LayoutPanelSetting<T extends LayoutPanelKey> = (typeof layoutPanels)[T]['allowedElements']

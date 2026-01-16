@@ -26,6 +26,11 @@ export interface Settings {
   'layout.panel-size.main': number
   'layout.panel-size.right': number
   'layout.panel-size.top': number
+  'layout.element.player': LayoutElementSetting<'player'>
+  'layout.element.track-list': LayoutElementSetting<'track-list'>
+  'layout.element.library-view': LayoutElementSetting<'library-view'>
+  'layout.element.metadata-view': LayoutElementSetting<'metadata-view'>
+  'layout.element.cover-art': LayoutElementSetting<'cover-art'>
 }
 
 export type SettingsEntryKey = keyof Settings
@@ -60,6 +65,11 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'last-fm.do-offline-scrobbling': true,
   'last-fm.do-scrobbling': true,
   'last-fm.username': null,
+  'layout.element.cover-art': defaultLayoutElementSettings['cover-art'],
+  'layout.element.library-view': defaultLayoutElementSettings['library-view'],
+  'layout.element.metadata-view': defaultLayoutElementSettings['metadata-view'],
+  'layout.element.player': defaultLayoutElementSettings.player,
+  'layout.element.track-list': defaultLayoutElementSettings['track-list'],
   'layout.panel-size.bottom': 12.5,
   'layout.panel-size.left': 35,
   'layout.panel-size.main': 12.5,
@@ -67,9 +77,9 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'layout.panel-size.top': 12.5,
   'layout.panel.bottom': ['player'],
   'layout.panel.left': ['library-view'],
-  'layout.panel.main': ['playlist-view'],
+  'layout.panel.main': ['track-list'],
   'layout.panel.right': ['cover-art'],
-  'layout.panel.top': ['playlist-view'],
+  'layout.panel.top': ['track-list'],
 }
 
 export const useSettings = createSharedComposable(() => {

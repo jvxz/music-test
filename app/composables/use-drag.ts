@@ -5,7 +5,7 @@ export type DragMetaEntry
   = | {
     key: 'layout-element'
     data: {
-      elementKey: string
+      elementKey: LayoutElementKey
       from: LayoutPanelKey | 'AVAILABLE_ELEMENTS'
     }
   }
