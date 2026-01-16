@@ -9,7 +9,7 @@ const panelElements = computedWithControl(settings, () => ({
 }))
 
 const { dragMeta, startDrag } = useDrag()
-const { addElementToPanel, elementDragging } = useLayout()
+const { addElementToPanel, elementDragging, removeElementFromPanel } = useLayout()
 
 function getElementFromKey(key: LayoutElementKey) {
   return layoutPanelElements.find(element => element.key === key)
@@ -57,8 +57,12 @@ function handleDrop(meta: DragMetaEntry, panelKey: LayoutPanelKey) {
   if (meta?.key !== 'layout-element')
     return
 
-  if (meta.key === 'layout-element' && meta.data.from !== 'AVAILABLE_ELEMENTS')
+  if (meta.data.from === panelKey)
     return
+
+  if (meta.data.from !== 'AVAILABLE_ELEMENTS') {
+    removeElementFromPanel(meta.data.from, meta.data.elementKey)
+  }
 
   addElementToPanel(panelKey, meta.data.elementKey)
 }
