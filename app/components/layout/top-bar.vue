@@ -25,10 +25,13 @@ const panelElements = getSettingValueRef('layout.panel.top')
         <LayoutTopBarRepeat />
       </div>
     </template> -->
-    <LayoutPanel
-      v-for="element in panelElements"
-      :key="element"
-      :element="element"
-    />
+    <SplitterGroup direction="horizontal">
+      <LayoutPanel
+        v-for="(element, idx) in panelElements"
+        :key="element"
+        :element="element"
+        :with-resize-handle="idx !== panelElements.length - 1"
+      />
+    </SplitterGroup>
   </div>
 </template>

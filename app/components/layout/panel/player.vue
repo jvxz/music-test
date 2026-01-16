@@ -1,11 +1,15 @@
 <script lang="ts" setup>
 const { currentTrack, playbackStatus, playPauseCurrentTrack } = usePlayback()
+
+const { getElementSettings } = useLayout()
+const elementSettings = getElementSettings('player')
 </script>
 
 <template>
   <div class="flex size-full items-center justify-between gap-4 p-4">
     <div class="flex h-full flex-1 items-start gap-4">
       <LayoutPanelCoverArt
+        v-if="elementSettings.showTrackCover"
         class="flex h-full"
         no-cover-text=""
         :classes="{

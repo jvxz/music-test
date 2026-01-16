@@ -5,10 +5,13 @@ const panelElements = getSettingValueRef('layout.panel.bottom')
 
 <template>
   <div class="h-32 border-t">
-    <LayoutPanel
-      v-for="element in panelElements"
-      :key="element"
-      :element="element"
-    />
+    <SplitterGroup direction="horizontal">
+      <LayoutPanel
+        v-for="(element, idx) in panelElements"
+        :key="element"
+        :element="element"
+        :with-resize-handle="idx !== panelElements.length - 1"
+      />
+    </SplitterGroup>
   </div>
 </template>

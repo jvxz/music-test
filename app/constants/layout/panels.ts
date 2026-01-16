@@ -4,7 +4,7 @@ export const layoutPanelNames = ['top', 'left', 'main', 'right', 'bottom'] as co
 export const layoutPanels = {
   top: {
     allowedElements: [
-      'track-list',
+      'cover-art',
       'player',
     ],
     class: 'h-1/3 w-full bg-muted/25 border-b',
@@ -41,7 +41,6 @@ export const layoutPanels = {
   },
   bottom: {
     allowedElements: [
-      'track-list',
       'player',
       'cover-art',
     ],

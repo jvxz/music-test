@@ -35,6 +35,7 @@ interface LayoutElementSettings extends Record<LayoutElementKey, unknown> {
   'player': {
     seekBarThin: boolean
     seekBarThumbShape: 'line' | 'circle'
+    showTrackCover: boolean
   }
   'track-list': {
     rowStyle: 'bordered' | 'alternating' | 'none'
@@ -54,6 +55,7 @@ export const defaultLayoutElementSettings = {
   'player': {
     seekBarThin: false,
     seekBarThumbShape: 'circle' as 'line' | 'circle',
+    showTrackCover: true,
   },
   'track-list': {
     rowStyle: 'bordered',

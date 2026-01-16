@@ -8,15 +8,14 @@ const leftPanelElements = getPanelElements('left')
 <template>
   <SplitterGroup
     direction="vertical"
-    class="*:not-last:border-b"
     @layout="layoutPanels = $event"
   >
-    <template v-for="(element, idx) in leftPanelElements" :key="element">
-      <LayoutPanel
-        :element="element"
-        as-splitter-panel
-      />
-      <SplitterResizeHandle v-if="idx !== leftPanelElements.length - 1" />
-    </template>
+    <LayoutPanel
+      v-for="(element, idx) in leftPanelElements"
+      :key="element"
+      :element="element"
+      as-splitter-panel
+      :with-resize-handle="idx !== leftPanelElements.length - 1"
+    />
   </SplitterGroup>
 </template>

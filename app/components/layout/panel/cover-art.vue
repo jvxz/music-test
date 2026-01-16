@@ -10,11 +10,11 @@ const { currentTrack } = usePlayback()
 </script>
 
 <template>
-  <div :class="cn('flex', props.classes?.root)">
+  <div :class="cn('flex size-full items-center justify-center', props.classes?.root)">
     <img
       v-if="currentTrack && currentTrack.tags.APIC"
       :src="currentTrack?.full_uri"
-      :class="cn('h-full', props.classes?.img)"
+      :class="cn('h-full object-contain', props.classes?.img)"
     />
     <div
       v-else

@@ -79,7 +79,7 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'layout.panel.left': ['library-view'],
   'layout.panel.main': ['track-list'],
   'layout.panel.right': ['cover-art'],
-  'layout.panel.top': ['track-list'],
+  'layout.panel.top': [],
 }
 
 export const useSettings = createSharedComposable(() => {

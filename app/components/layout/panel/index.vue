@@ -2,10 +2,13 @@
 import type { SplitterPanelEmits, SplitterPanelProps } from 'reka-ui'
 import { useForwardPropsEmits } from 'reka-ui'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   element: LayoutElementKey
   asSplitterPanel?: boolean
-} & SplitterPanelProps>()
+  withResizeHandle?: boolean
+} & SplitterPanelProps>(), {
+  asSplitterPanel: true,
+})
 
 const emits = defineEmits<SplitterPanelEmits>()
 const forwarded = useForwardPropsEmits(props, emits)
@@ -28,6 +31,7 @@ const [DefinePanels, ReusePanels] = createReusableTemplate()
     >
       <ReusePanels />
     </SplitterPanel>
+    <SplitterResizeHandle v-if="withResizeHandle" class="bg-border data-[orientation=horizontal]:h-full data-[orientation=horizontal]:w-px data-[orientation=vertical]:h-px data-[orientation=vertical]:w-full" />
   </template>
   <template v-else>
     <ReusePanels />

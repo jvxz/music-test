@@ -37,13 +37,8 @@ function handlePointer(type: 'up' | 'down') {
   }
 }
 
-const computedDuration = computed(() => {
-  return formatDuration(playbackStatus.value?.duration ?? 0, 's')
-})
-
-const computedPosition = computed(() => {
-  return formatDuration(playbackStatus.value?.position ?? 0, 's')
-})
+const computedDuration = computed(() => formatDuration(playbackStatus.value?.duration ?? 0, 's'))
+const computedPosition = computed(() => formatDuration(playbackStatus.value?.position ?? 0, 's'))
 </script>
 
 <template>
