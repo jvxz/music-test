@@ -22,6 +22,7 @@ const topPanelElements = getPanelElements('top')
 const leftPanelElements = getPanelElements('left')
 const mainPanelElements = getPanelElements('main')
 const rightPanelElements = getPanelElements('right')
+const bottomPanelElements = getPanelElements('bottom')
 
 const leftPanelSize = getPanelSize('left')
 const mainPanelSize = getPanelSize('main')
@@ -47,8 +48,8 @@ const onLayoutChange = useDebounceFn((sizes: number[]) => {
 
 <template>
   <div class="flex h-screen flex-col">
-    <div v-if="!topPanelElements.length" class="h-8 w-full border-b bg-background" />
-    <LayoutTopBar />
+    <div class="h-8 w-full border-b bg-background" />
+    <LayoutTopBar v-if="topPanelElements.length" />
     <SplitterGroup
       :key="visiblePanels.join('-')"
       direction="horizontal"
@@ -89,7 +90,7 @@ const onLayoutChange = useDebounceFn((sizes: number[]) => {
         </SplitterPanel>
       </template>
     </SplitterGroup>
-    <LayoutBottomBar />
+    <LayoutBottomBar v-if="bottomPanelElements.length" />
     <!-- <LayoutStatusBar /> -->
   </div>
 </template>

@@ -1,18 +1,11 @@
 <script lang="ts" setup>
-const { playbackStatus, playPauseCurrentTrack } = usePlayback()
-
-function handlePlayPause() {
-  const action = playbackStatus.value?.is_playing ? 'Pause' : 'Resume'
-  playPauseCurrentTrack(action)
-}
-
 const { getSettingValueRef } = useSettings()
 const panelElements = getSettingValueRef('layout.panel.top')
 </script>
 
 <template>
-  <div v-if="panelElements.length" class="flex h-32 items-center gap-24 border-b px-16 *:h-8 *:shrink-0">
-    <template v-if="panelElements.includes('player')">
+  <div class="h-32 border-b">
+    <!-- <template v-if="panelElements.includes('player')">
       <div class="flex flex-1 items-center justify-between *:active:text-muted-foreground">
         <div class="flex items-center gap-1">
           <button>
@@ -31,6 +24,11 @@ const panelElements = getSettingValueRef('layout.panel.top')
       <div class="flex flex-1 items-center justify-between">
         <LayoutTopBarRepeat />
       </div>
-    </template>
+    </template> -->
+    <LayoutPanel
+      v-for="element in panelElements"
+      :key="element"
+      :element="element"
+    />
   </div>
 </template>

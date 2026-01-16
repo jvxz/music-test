@@ -15,6 +15,7 @@ const [DefinePanels, ReusePanels] = createReusableTemplate()
 
 <template>
   <DefinePanels>
+    <LayoutPanelPlayer v-if="element === 'player'" />
     <LayoutPanelCoverArt v-if="element === 'cover-art'" />
     <LayoutPanelMetadata v-if="element === 'metadata-view'" />
     <LayoutPanelLibrary v-if="element === 'library-view'" />
