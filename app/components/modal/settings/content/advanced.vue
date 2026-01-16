@@ -1,9 +1,5 @@
-<script lang="ts" setup>
-
-</script>
-
 <template>
-  <ModalSettingsContentLayout title="Advanced">
+  <ModalSettingsContentTabLayout title="Advanced">
     Advanced settings
-  </ModalSettingsContentLayout>
+  </ModalSettingsContentTabLayout>
 </template>

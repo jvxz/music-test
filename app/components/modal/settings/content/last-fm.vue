@@ -52,7 +52,7 @@ const { isOnline } = useNetwork()
 </script>
 
 <template>
-  <ModalSettingsContentLayout title="Last.fm" class="flex *:h-full">
+  <ModalSettingsContentTabLayout title="Last.fm" class="flex *:h-full">
     <div class="flex w-full flex-col items-center gap-2">
       <div class="flex w-full items-center gap-2">
         <ULabel for="doScrobbling">
@@ -176,5 +176,5 @@ const { isOnline } = useNetwork()
         <div class="size-[72px] rounded border border-dashed border-muted"></div>
       </template>
     </div>
-  </ModalSettingsContentLayout>
+  </ModalSettingsContentTabLayout>
 </template>

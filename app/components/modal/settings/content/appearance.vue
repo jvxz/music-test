@@ -3,15 +3,15 @@ const themeTokens = ['background', 'border', 'foreground', 'primary', 'surface',
 </script>
 
 <template>
-  <ModalSettingsContentLayout title="Appearance">
-    <div class="flex flex-col gap-4 w-full max-w-2/3">
+  <ModalSettingsContentTabLayout title="Appearance">
+    <div class="flex w-full max-w-2/3 flex-col gap-4">
       <ModalSettingsContentAppearancePresets />
       <ModalSettingsContentAppearanceColorPicker
-      v-for="token in themeTokens"
-      :key="token"
-      :setting-key="`appearance.token.${token}`"
+        v-for="token in themeTokens"
+        :key="token"
+        :setting-key="`appearance.token.${token}`"
       />
       <ModalSettingsContentAppearanceFont />
     </div>
-  </ModalSettingsContentLayout>
+  </ModalSettingsContentTabLayout>
 </template>

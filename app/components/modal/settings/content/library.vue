@@ -31,14 +31,14 @@ async function handleDrop(folderPaths: string[]) {
 </script>
 
 <template>
-  <ModalSettingsContentLayout>
+  <ModalSettingsContentTabLayout>
     <h2 class="shrink-0 text-lg font-medium">
       Monitored folders
     </h2>
     <div class="flex flex-col gap-1">
       <TauriDragoverProvider v-slot="{ isOver }" @drop="handleDrop">
         <UCard class="relative gap-0 bg-background p-1 px-2 font-mono text-sm">
-          <div v-show="isOver" class="pointer-events-none absolute inset-0 bg-background/50 grid place-items-center" >
+          <div v-show="isOver" class="pointer-events-none absolute inset-0 grid place-items-center bg-background/50">
             Drop to add folder
           </div>
           <ToggleGroupRoot
@@ -85,5 +85,5 @@ async function handleDrop(folderPaths: string[]) {
         </UButton>
       </div>
     </div>
-  </ModalSettingsContentLayout>
+  </ModalSettingsContentTabLayout>
 </template>

@@ -5,7 +5,7 @@ const clickOutsideToDeselect = getSettingValueRef('general.click-outside-to-dese
 </script>
 
 <template>
-  <ModalSettingsContentLayout title="General">
+  <ModalSettingsContentTabLayout title="General">
     <div class="flex gap-2">
       <USwitch
         id="clickOutsideToDeselect"
@@ -15,5 +15,5 @@ const clickOutsideToDeselect = getSettingValueRef('general.click-outside-to-dese
         Click outside of track list to deselect
       </ULabel>
     </div>
-  </ModalSettingsContentLayout>
+  </ModalSettingsContentTabLayout>
 </template>
