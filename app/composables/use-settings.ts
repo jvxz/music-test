@@ -16,11 +16,11 @@ export interface Settings {
   'appearance.token.border': string
   'appearance.token.surface': string
   'appearance.presets': Record<string, Record<SettingsEntryKey & `appearance.token.${string}`, string>>
-  'layout.panel.bottom': LayoutPanelElementsSetting<'bottom'>
-  'layout.panel.left': LayoutPanelElementsSetting<'left'>
-  'layout.panel.main': LayoutPanelElementsSetting<'main'>
-  'layout.panel.right': LayoutPanelElementsSetting<'right'>
-  'layout.panel.top': LayoutPanelElementsSetting<'top'>
+  'layout.panel.bottom': LayoutPanelSetting<'bottom'>
+  'layout.panel.left': LayoutPanelSetting<'left'>
+  'layout.panel.main': LayoutPanelSetting<'main'>
+  'layout.panel.right': LayoutPanelSetting<'right'>
+  'layout.panel.top': LayoutPanelSetting<'top'>
   'layout.panel-size.bottom': number
   'layout.panel-size.left': number
   'layout.panel-size.main': number

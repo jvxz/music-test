@@ -78,6 +78,6 @@ export const layoutPanels = {
 export type LayoutPanel = (typeof layoutPanels)[LayoutPanelKey]
 export type LayoutPanelKey = (typeof layoutPanelNames)[number]
 
-export type LayoutPanelElementsSetting<T extends LayoutPanelKey> = (typeof layoutPanels)[T]['allowedElements'] | (string & {})[] // for generic checking, eg. .filter()
+export type LayoutPanelSetting<T extends LayoutPanelKey> = (typeof layoutPanels)[T]['allowedElements'] | (string & {})[] // for generic checking, eg. .filter()
 
 export type LayoutElementKey = (typeof layoutPanelElements)[number]['key'] | (string & {})
