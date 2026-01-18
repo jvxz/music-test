@@ -16,6 +16,15 @@ export type DragMetaEntry
     }
   }
   | {
+    key: 'TEST'
+    data: {
+      item: {
+        id: number
+        name: string
+      }
+    }
+  }
+  | {
     key: 'UNKNOWN'
     data?: never
   }

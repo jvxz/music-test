@@ -19,6 +19,10 @@ export const sortTrackList = createUnrefFn((trackList: TrackListEntry[], sortBy:
       bValue = b.tags[sortBy]
     }
 
+    if (!Number.isNaN(Number(aValue)) && !Number.isNaN(Number(bValue))) {
+      return Number(aValue) - Number(bValue)
+    }
+
     if (aValue === undefined && bValue === undefined)
       return 0
     if (aValue === undefined)

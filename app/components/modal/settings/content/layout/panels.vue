@@ -1,40 +1,8 @@
 <script lang="ts" setup>
-const { getSettingValue, settings } = useSettings()
-const panelElements = computedWithControl(settings, () => ({
-  bottom: getSettingValue('layout.panel.bottom'),
-  left: getSettingValue('layout.panel.left'),
-  main: getSettingValue('layout.panel.main'),
-  right: getSettingValue('layout.panel.right'),
-  top: getSettingValue('layout.panel.top'),
-}))
+const { dragMeta } = useDrag()
+const { addElementToPanel, elementDragging, getAllPanelElements, removeElementFromPanel } = useLayout()
 
-const { dragMeta, startDrag } = useDrag()
-const { addElementToPanel, elementDragging, removeElementFromPanel } = useLayout()
-
-function getElementFromKey(key: LayoutElementKey) {
-  return layoutPanelElements.find(element => element.key === key)
-}
-
-async function handleDragStart(elementKey: LayoutElementKey, panelKey: LayoutPanelKey) {
-  const element = getElementFromKey(elementKey)
-  if (!element)
-    return
-
-  elementDragging.value = element.key
-
-  await startDrag({
-    data: {
-      elementKey: element.key,
-      from: panelKey,
-    },
-    key: 'layout-element',
-  }, {
-    item: {
-      data: element.key,
-      types: ['public.plain-text'],
-    },
-  })
-}
+const panelElements = getAllPanelElements()
 
 function isDraggingAllowedElement(dragMeta: DragMetaEntry, panel: LayoutPanel) {
   if (!elementDragging.value)
@@ -111,34 +79,7 @@ function handleDrop(meta: DragMetaEntry, panelKey: LayoutPanelKey) {
             (hidden, no elements contained)
           </p>
           <div v-else class="flex flex-col gap-1">
-            <div
-              v-for="element in panelElements[panel.key]"
-              :key="element"
-              class="flex w-fit items-center gap-1"
-            >
-              <UContextMenu>
-                <UContextMenuTrigger as-child>
-                  <UButton
-                    variant="soft"
-                    :class="cn('justify-start', dragMeta?.key === 'layout-element' && 'pointer-events-none')"
-                    draggable="true"
-                    @dragstart="handleDragStart(element, panel.key)"
-                    @dragend="elementDragging = null"
-                  >
-                    <Icon name="tabler:grip-vertical" class="size-3.5!" />
-                    <p>{{ sentenceCase(element) }}</p>
-                  </UButton>
-                </UContextMenuTrigger>
-                <UContextMenuContent>
-                  <UContextMenuItem>
-                    Remove
-                  </UContextMenuItem>
-                  <UContextMenuItem>
-                    Edit
-                  </UContextMenuItem>
-                </UContextMenuContent>
-              </UContextMenu>
-            </div>
+            <ModalSettingsContentLayoutPanelsElements :panel-key="panel.key" />
           </div>
         </div>
       </div>

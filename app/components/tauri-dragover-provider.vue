@@ -4,6 +4,7 @@ import { computed } from 'vue'
 
 const props = defineProps<{
   acceptableKeys?: DragMetaEntryKey | DragMetaEntryKey[]
+  class?: string
 }>()
 
 const emits = defineEmits<{
@@ -66,7 +67,7 @@ function checkMatch() {
 <template>
   <div
     ref="elRef"
-    class="contents"
+    :class="props.class ? 'contents' : props.class"
     v-bind="$attrs"
   >
     <RekaSlot :data-drag-over="isOver ? '' : undefined">

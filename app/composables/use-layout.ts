@@ -1,5 +1,5 @@
 export function useLayout() {
-  const { getSettingValue, getSettingValueRef, setSettingValue } = useSettings()
+  const { getSettingValue, getSettingValueRef, setSettingValue, settings } = useSettings()
 
   const elementDragging = useState<LayoutElementKey | null>('layout-element-dragging', () => null)
 
@@ -36,6 +36,14 @@ export function useLayout() {
     const settingKey = getPanelSettingKey(panelKey, 'size')
     return getSettingValueRef(settingKey)
   }
+
+  const getAllPanelElements = () => computedWithControl(settings, () => ({
+    bottom: getSettingValue('layout.panel.bottom'),
+    left: getSettingValue('layout.panel.left'),
+    main: getSettingValue('layout.panel.main'),
+    right: getSettingValue('layout.panel.right'),
+    top: getSettingValue('layout.panel.top'),
+  }))
 
   function getPanelElementSizes<T extends LayoutPanelKey>(panelKey: T): Ref<number[]> {
     const settingKey = getPanelSettingKey(panelKey, 'element-sizes')
@@ -101,6 +109,7 @@ export function useLayout() {
   return {
     addElementToPanel,
     elementDragging,
+    getAllPanelElements,
     getElementSettings,
     getPanelElements,
     getPanelElementSizes,
