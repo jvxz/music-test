@@ -38,12 +38,6 @@ const visiblePanels = computed(() => {
     panels.push('right')
   return panels
 })
-
-const onLayoutChange = useDebounceFn((sizes: number[]) => {
-  visiblePanels.value.forEach((key, index) => {
-    handlePanelSizeChange(key, sizes[index])
-  })
-}, 200)
 </script>
 
 <template>
@@ -54,7 +48,7 @@ const onLayoutChange = useDebounceFn((sizes: number[]) => {
       :key="visiblePanels.join('-')"
       direction="horizontal"
       class="flex size-full flex-1"
-      @layout="onLayoutChange"
+      @layout="sizes => handlePanelSizeChange(['left', 'main', 'right'], sizes)"
     >
       <template v-if="leftPanelElements.length">
         <SplitterPanel

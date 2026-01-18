@@ -37,13 +37,21 @@ export function useLayout() {
     return getSettingValueRef(settingKey)
   }
 
-  const handlePanelSizeChange = (panelKey: LayoutPanelKey, size: number | undefined) => {
-    if (size === undefined)
-      return
+  const handlePanelSizeChange = useDebounceFn((panelKeyOrder: LayoutPanelKey[], sizes: number[]) => {
+    for (const [index, panelKey] of panelKeyOrder.entries()) {
+      if (!getPanelElements(panelKey).value.length)
+        continue
 
-    const settingKey = getPanelSettingKey(panelKey, 'size')
-    setSettingValue(settingKey, size)
-  }
+      if (sizes[index] === undefined) {
+        console.error(`Panel ${panelKey} size is undefined`)
+        continue
+      }
+
+      const settingKey = getPanelSettingKey(panelKey, 'size')
+
+      setSettingValue(settingKey, sizes[index])
+    }
+  }, 200)
 
   function getPanelSettingKey(panelKey: LayoutPanelKey, type: 'elements'): `layout.panel.${LayoutPanelKey}`
   function getPanelSettingKey(panelKey: LayoutPanelKey, type: 'size'): `layout.panel-size.${LayoutPanelKey}`
