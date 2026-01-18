@@ -16,6 +16,7 @@ export interface Settings {
   'appearance.token.border': string
   'appearance.token.surface': string
   'appearance.presets': Record<string, Record<SettingsEntryKey & `appearance.token.${string}`, string>>
+  'layout.allow-resizing': boolean
   'layout.panel.bottom': LayoutPanelSetting<'bottom'>
   'layout.panel.left': LayoutPanelSetting<'left'>
   'layout.panel.main': LayoutPanelSetting<'main'>
@@ -26,6 +27,11 @@ export interface Settings {
   'layout.panel-size.main': number
   'layout.panel-size.right': number
   'layout.panel-size.top': number
+  'layout.panel-element-sizes.bottom': number[]
+  'layout.panel-element-sizes.left': number[]
+  'layout.panel-element-sizes.main': number[]
+  'layout.panel-element-sizes.right': number[]
+  'layout.panel-element-sizes.top': number[]
   'layout.element.player': LayoutElementSetting<'player'>
   'layout.element.track-list': LayoutElementSetting<'track-list'>
   'layout.element.library-view': LayoutElementSetting<'library-view'>
@@ -65,11 +71,17 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'last-fm.do-offline-scrobbling': true,
   'last-fm.do-scrobbling': true,
   'last-fm.username': null,
+  'layout.allow-resizing': true,
   'layout.element.cover-art': defaultLayoutElementSettings['cover-art'],
   'layout.element.library-view': defaultLayoutElementSettings['library-view'],
   'layout.element.metadata-view': defaultLayoutElementSettings['metadata-view'],
   'layout.element.player': defaultLayoutElementSettings.player,
   'layout.element.track-list': defaultLayoutElementSettings['track-list'],
+  'layout.panel-element-sizes.bottom': [100],
+  'layout.panel-element-sizes.left': [100],
+  'layout.panel-element-sizes.main': [100],
+  'layout.panel-element-sizes.right': [100],
+  'layout.panel-element-sizes.top': [100],
   'layout.panel-size.bottom': 12.5,
   'layout.panel-size.left': 35,
   'layout.panel-size.main': 12.5,

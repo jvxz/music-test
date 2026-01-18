@@ -37,6 +37,11 @@ export function useLayout() {
     return getSettingValueRef(settingKey)
   }
 
+  function getPanelElementSizes<T extends LayoutPanelKey>(panelKey: T): Ref<number[]> {
+    const settingKey = getPanelSettingKey(panelKey, 'element-sizes')
+    return getSettingValueRef(settingKey)
+  }
+
   const handlePanelSizeChange = useDebounceFn((panelKeyOrder: LayoutPanelKey[], sizes: number[]) => {
     for (const [index, panelKey] of panelKeyOrder.entries()) {
       if (!getPanelElements(panelKey).value.length)
@@ -53,13 +58,29 @@ export function useLayout() {
     }
   }, 200)
 
+  const handlePanelElementsSizeChange = useDebounceFn((panelKey: LayoutPanelKey, sizes: number[]) => {
+    const settingKey = getPanelSettingKey(panelKey, 'element-sizes')
+
+    setSettingValue(settingKey, sizes)
+  }, 200)
+
   function getPanelSettingKey(panelKey: LayoutPanelKey, type: 'elements'): `layout.panel.${LayoutPanelKey}`
   function getPanelSettingKey(panelKey: LayoutPanelKey, type: 'size'): `layout.panel-size.${LayoutPanelKey}`
-  function getPanelSettingKey(panelKey: LayoutPanelKey, type = 'elements' as 'elements' | 'size') {
+  function getPanelSettingKey(panelKey: LayoutPanelKey, type: 'element-sizes'): `layout.panel-element-sizes.${LayoutPanelKey}`
+  function getPanelSettingKey(panelKey: LayoutPanelKey, type = 'elements' as 'elements' | 'size' | 'element-sizes') {
     if (type === 'elements') {
       const key = `layout.panel.${panelKey}` satisfies SettingsEntryKey
       if (!key.startsWith('layout.panel.')) {
         throw new Error(`Attempted to get panel elements for invalid panel key: ${key}`)
+      }
+
+      return key
+    }
+
+    if (type === 'element-sizes') {
+      const key = `layout.panel-element-sizes.${panelKey}` satisfies SettingsEntryKey
+      if (!key.startsWith('layout.panel-element-sizes.')) {
+        throw new Error(`Attempted to get panel element sizes for invalid panel key: ${key}`)
       }
 
       return key
@@ -82,7 +103,9 @@ export function useLayout() {
     elementDragging,
     getElementSettings,
     getPanelElements,
+    getPanelElementSizes,
     getPanelSize,
+    handlePanelElementsSizeChange,
     handlePanelSizeChange,
     removeElementFromPanel,
   }

@@ -1,18 +1,22 @@
 <script lang="ts" setup>
-const { getPanelElements } = useLayout()
+const { getPanelElements, getPanelElementSizes } = useLayout()
+
 const rightPanelElements = getPanelElements('right')
+const rightPanelElementSizes = getPanelElementSizes('right')
 </script>
 
 <template>
-  <SplitterGroup direction="vertical">
-    <template v-for="(element, idx) in rightPanelElements" :key="element">
-      <SplitterPanel class="flex h-full flex-1 flex-col">
-        <LayoutPanel
-          :key="element"
-          :element="element"
-        />
-      </SplitterPanel>
-      <SplitterResizeHandle v-if="idx !== rightPanelElements.length - 1" class="bg-border h-px" />
-    </template>
-  </SplitterGroup>
+  <LayoutPanelSplitterGroup
+    panel-key="right"
+    direction="vertical"
+  >
+    <LayoutPanel
+      v-for="(element, idx) in rightPanelElements"
+      :key="element"
+      :element="element"
+      as-splitter-panel
+      :with-resize-handle="idx !== rightPanelElements.length - 1"
+      :default-size="rightPanelElementSizes[idx]"
+    />
+  </LayoutPanelSplitterGroup>
 </template>

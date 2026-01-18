@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-const { layoutPanels } = usePersistentPanels('left', [75, 25])
+const { getPanelElements, getPanelElementSizes } = useLayout()
 
-const { getPanelElements } = useLayout()
 const leftPanelElements = getPanelElements('left')
+const leftPanelElementSizes = getPanelElementSizes('left')
 </script>
 
 <template>
-  <SplitterGroup
+  <LayoutPanelSplitterGroup
+    panel-key="left"
     direction="vertical"
-    @layout="layoutPanels = $event"
   >
     <LayoutPanel
       v-for="(element, idx) in leftPanelElements"
@@ -16,6 +16,7 @@ const leftPanelElements = getPanelElements('left')
       :element="element"
       as-splitter-panel
       :with-resize-handle="idx !== leftPanelElements.length - 1"
+      :default-size="leftPanelElementSizes[idx]"
     />
-  </SplitterGroup>
+  </LayoutPanelSplitterGroup>
 </template>

@@ -38,6 +38,9 @@ const visiblePanels = computed(() => {
     panels.push('right')
   return panels
 })
+
+const { getSettingValueRef } = useSettings()
+const allowResizing = getSettingValueRef('layout.allow-resizing')
 </script>
 
 <template>
@@ -61,7 +64,7 @@ const visiblePanels = computed(() => {
         >
           <LayoutSidebarLeft />
         </SplitterPanel>
-        <SplitterResizeHandle />
+        <SplitterResizeHandle :disabled="!allowResizing" />
       </template>
       <SplitterPanel
         v-if="mainPanelElements.length"
@@ -72,7 +75,7 @@ const visiblePanels = computed(() => {
         <slot />
       </SplitterPanel>
       <template v-if="rightPanelElements.length">
-        <SplitterResizeHandle />
+        <SplitterResizeHandle :disabled="!allowResizing" />
         <SplitterPanel
           key="right"
           :max-size="35"

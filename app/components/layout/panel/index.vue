@@ -8,12 +8,16 @@ const props = withDefaults(defineProps<{
   withResizeHandle?: boolean
 } & SplitterPanelProps>(), {
   asSplitterPanel: true,
+  minSize: 7.5,
 })
 
 const emits = defineEmits<SplitterPanelEmits>()
 const forwarded = useForwardPropsEmits(props, emits)
 
 const [DefinePanels, ReusePanels] = createReusableTemplate()
+
+const { getSettingValueRef } = useSettings()
+const allowResizing = getSettingValueRef('layout.allow-resizing')
 </script>
 
 <template>
@@ -31,7 +35,11 @@ const [DefinePanels, ReusePanels] = createReusableTemplate()
     >
       <ReusePanels />
     </SplitterPanel>
-    <SplitterResizeHandle v-if="withResizeHandle" class="bg-border data-[orientation=horizontal]:h-full data-[orientation=horizontal]:w-px data-[orientation=vertical]:h-px data-[orientation=vertical]:w-full" />
+    <SplitterResizeHandle
+      v-if="withResizeHandle"
+      :disabled="!allowResizing"
+      class="bg-border data-[orientation=horizontal]:h-full data-[orientation=horizontal]:w-px data-[orientation=vertical]:h-px data-[orientation=vertical]:w-full"
+    />
   </template>
   <template v-else>
     <ReusePanels />
