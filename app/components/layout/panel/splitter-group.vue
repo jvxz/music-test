@@ -6,12 +6,14 @@ const props = defineProps<{
   class?: string
 } & SplitterGroupProps>()
 
-const { handlePanelElementsSizeChange } = useLayout()
+const { getPanelElements, handlePanelElementsSizeChange } = useLayout()
+const panelElements = getPanelElements(props.panelKey)
 </script>
 
 <template>
   <SplitterGroup
     v-bind="props"
+    :key="panelElements.join('-')"
     :class="cn('flex size-full flex-1', props.class)"
     @layout="(sizes: number[]) => handlePanelElementsSizeChange(panelKey, sizes)"
   >
