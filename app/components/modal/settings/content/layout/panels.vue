@@ -12,7 +12,7 @@ const containerHoverClass = computed(() => {
   if (!elementDraggingData.value)
     return ''
 
-  if (!isElementAllowedInPanel(props.panel.key, elementDraggingData.value.element, { allowSelf: true }))
+  if (!isElementAllowedInPanel(props.panel.key, elementDraggingData.value.element) && elementDraggingData.value.from !== props.panel.key)
     return 'opacity-50'
 
   if (!isOutsideContainer.value)

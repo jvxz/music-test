@@ -109,13 +109,11 @@ export function useLayout() {
     return `layout.element.${elementKey}` satisfies SettingsEntryKey
   }
 
-  function isElementAllowedInPanel(panelKey: LayoutPanelKey, elementKey: LayoutElementKey, opts?: {
-    allowSelf?: boolean
-  }): boolean {
+  function isElementAllowedInPanel(panelKey: LayoutPanelKey, elementKey: LayoutElementKey): boolean {
     const allowedElements = layoutPanels[panelKey].allowedElements as readonly LayoutElementKey[]
     const existingElements = getPanelElements(panelKey).value as LayoutElementKey[]
 
-    return allowedElements.includes(elementKey) && (!existingElements.includes(elementKey) || !!opts?.allowSelf)
+    return allowedElements.includes(elementKey) && !existingElements.includes(elementKey)
   }
 
   return {
