@@ -1,61 +1,78 @@
 <script lang="ts" setup>
-const { dragMeta, startDrag } = useDrag()
-const elementDragging = useState<LayoutElementKey | null>('layout-element-dragging', () => null)
+import { useDraggable } from 'vue-draggable-plus'
 
-async function handleDragStart(element: (typeof layoutPanelElements)[number]) {
-  elementDragging.value = element.key
+const { elementDraggingData } = useLayout()
 
-  await startDrag({
-    data: {
-      elementKey: element.key,
-      from: 'AVAILABLE_ELEMENTS',
-    },
-    key: 'layout-element',
-  }, {
-    item: {
-      data: element.key,
-      types: ['public.plain-text'],
-    },
-  })
-}
+const listEl = shallowRef<HTMLDivElement | null>(null)
+const { isOutside: isOutsideList } = useMouseInElement(listEl)
 
-const { removeElementFromPanel } = useLayout()
+const list = shallowRef([...layoutPanelElementKeys])
+const initialList = list.value
 
-async function handleDrop(meta: DragMetaEntry) {
-  if (meta?.key !== 'layout-element')
-    return
+useDraggable(listEl, list, {
+  animation: 0,
+  direction: 'vertical',
+  fallbackOnBody: true,
+  forceFallback: true,
+  ghostClass: 'sortable-ghost-item',
+  group: {
+    name: 'layout-elements',
+    pull: 'clone',
+  },
+  onEnd: () => {
+    list.value = initialList
+    elementDraggingData.value = null
+  },
+  onStart: evt => elementDraggingData.value = { element: evt.data, from: 'AVAILABLE_ELEMENTS' },
+  selectedClass: 'bg-blue-500',
+  sort: false,
+})
 
-  if (meta.key === 'layout-element' && meta.data.from === 'AVAILABLE_ELEMENTS')
-    return
-
-  // assert because check for invalid key is done above
-  removeElementFromPanel(meta.data.from as LayoutPanelKey, meta.data.elementKey)
-}
+useStyleTag(computed(() => elementDraggingData.value && elementDraggingData.value.from !== 'AVAILABLE_ELEMENTS'
+  ? `
+  .sortable-ghost-item {
+    display: none !important;
+  }
+`
+  : ''))
 </script>
 
 <template>
-  <TauriDragoverProvider
-    :acceptable-keys="['layout-element']"
-    @drop="handleDrop(dragMeta)"
-  >
-    <div
-      class="flex h-fit w-1/3 flex-col gap-px rounded bg-muted/25 p-1"
+  <div class="relative -m-1 flex h-fit w-1/4 flex-col gap-1 p-2">
+    <ULabel
+      class="font-medium"
       :class="{
-        'data-drag-over:bg-danger/25': dragMeta?.key === 'layout-element' && dragMeta.data.from !== 'AVAILABLE_ELEMENTS',
+        'opacity-30': elementDraggingData && elementDraggingData.from !== 'AVAILABLE_ELEMENTS',
+      }"
+    >
+      Available elements
+    </ULabel>
+    <div
+      ref="listEl"
+      class="flex h-fit shrink-0 flex-col gap-1 rounded py-1"
+      :class="{
+        'opacity-25': elementDraggingData && elementDraggingData.from !== 'AVAILABLE_ELEMENTS',
       }"
     >
       <UButton
         v-for="element in layoutPanelElements"
+        :id="element.key"
         :key="element.key"
         variant="ghost"
-        class="justify-start"
         draggable="true"
-        @dragstart="handleDragStart(element)"
-        @dragend="elementDragging = null"
+
+        class="justify-start rounded-r-none transition-none duration-0 active:bg-inherit active:text-muted-foreground"
       >
         <Icon name="tabler:grip-vertical" class="size-3.5!" />
         <p>{{ element.label }}</p>
       </UButton>
     </div>
-  </TauriDragoverProvider>
+    <div
+      v-if="elementDraggingData && elementDraggingData.from !== 'AVAILABLE_ELEMENTS'"
+      class="pointer-events-none absolute inset-0 flex size-full font-medium items-center justify-center rounded"
+      :class="!isOutsideList && 'bg-muted/40'"
+    >
+      Drop to delete
+    </div>
+  </div>
 </template>

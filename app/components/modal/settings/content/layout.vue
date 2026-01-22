@@ -5,8 +5,15 @@ const allowResizing = getSettingValueRef('layout.allow-resizing')
 
 <template>
   <ModalSettingsContentTabLayout title="Layout" class="flex h-full flex-col gap-4">
-    <div class="flex justify-between gap-4">
-      <ModalSettingsContentLayoutPanels />
+    <div class="relative flex justify-between gap-4">
+      <div class="flex w-1/2 flex-col gap-6">
+        <ModalSettingsContentLayoutPanels
+          v-for="panel in layoutPanels"
+          :key="panel.label"
+          :panel
+        />
+      </div>
+
       <ModalSettingsContentLayoutElements />
     </div>
     <USeparator />

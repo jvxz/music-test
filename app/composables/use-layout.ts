@@ -1,7 +1,10 @@
 export function useLayout() {
   const { getSettingValue, getSettingValueRef, setSettingValue, settings } = useSettings()
 
-  const elementDragging = useState<LayoutElementKey | null>('layout-element-dragging', () => null)
+  const elementDraggingData = useState<{
+    from: LayoutPanelKey | 'AVAILABLE_ELEMENTS'
+    element: LayoutElementKey
+  } | null>('layout-element-dragging-data', () => null)
 
   function addElementToPanel(panelKey: LayoutPanelKey, elementKey: LayoutElementKey) {
     const settingKey = getPanelSettingKey(panelKey, 'elements')
@@ -106,9 +109,18 @@ export function useLayout() {
     return `layout.element.${elementKey}` satisfies SettingsEntryKey
   }
 
+  function isElementAllowedInPanel(panelKey: LayoutPanelKey, elementKey: LayoutElementKey, opts?: {
+    allowSelf?: boolean
+  }): boolean {
+    const allowedElements = layoutPanels[panelKey].allowedElements as readonly LayoutElementKey[]
+    const existingElements = getPanelElements(panelKey).value as LayoutElementKey[]
+
+    return allowedElements.includes(elementKey) && (!existingElements.includes(elementKey) || !!opts?.allowSelf)
+  }
+
   return {
     addElementToPanel,
-    elementDragging,
+    elementDraggingData,
     getAllPanelElements,
     getElementSettings,
     getPanelElements,
@@ -116,6 +128,7 @@ export function useLayout() {
     getPanelSize,
     handlePanelElementsSizeChange,
     handlePanelSizeChange,
+    isElementAllowedInPanel,
     removeElementFromPanel,
   }
 }

@@ -15,7 +15,7 @@ const interactiveStyles = {
     link: 'text-primary underline-offset-4 hover:underline',
     outline:
     'hover:bg-muted/90 active:bg-muted/80 border bg-transparent',
-    soft: 'text-muted-foreground hover:text-foreground hover:bg-muted/90 active:bg-muted/80 border bg-card',
+    soft: 'text-muted-foreground hover:text-foreground active:text-foreground hover:bg-muted/90 active:bg-muted/80 border bg-card',
   },
 }
 

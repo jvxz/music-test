@@ -1,60 +1,66 @@
 <script lang="ts" setup>
+import { VueDraggable } from 'vue-draggable-plus'
+
 const props = defineProps<{
   panelKey: LayoutPanelKey
 }>()
 
-const { dragMeta, startDrag } = useDrag()
-const { getPanelElements } = useLayout()
+const { elementDraggingData, getPanelElements, isElementAllowedInPanel, removeElementFromPanel } = useLayout()
 const panelElements = getPanelElements(props.panelKey)
-
-async function handleDragStart(elementKey: LayoutElementKey, panelKey: LayoutPanelKey) {
-  const element = getElementFromKey(elementKey)
-  if (!element)
-    return
-
-  await startDrag({
-    data: {
-      elementKey: element.key,
-      from: panelKey,
-    },
-    key: 'layout-element',
-  }, {
-    item: {
-      data: element.key,
-      types: ['public.plain-text'],
-    },
-  })
-}
-
-function getElementFromKey(key: LayoutElementKey) {
-  return layoutPanelElements.find(element => element.key === key)
-}
-
-const { getDropoverProps, handleDragStart: handleSortDragStart } = useSortable(panelElements)
 </script>
 
 <template>
-  <TauriDragoverProvider
-    v-for="element in panelElements"
-    :key="element"
-    class="flex w-fit flex-col items-center gap-px"
-    v-bind="getDropoverProps(element)"
+  <VueDraggable
+    id="panel-elements"
+    :key="panelElements.join(',')"
+    v-model="panelElements"
+    :animation="100"
+    direction="vertical"
+    fallback-class="opacity-25"
+    :fallback-on-body="true"
+    :force-fallback="true"
+    :group="{
+      name: 'layout-elements',
+      pull: true,
+      put: (_to, _from, dragEl) => {
+        const newElement = dragEl.id as LayoutElementKey
+
+        return isElementAllowedInPanel(props.panelKey, newElement)
+      },
+    }"
+    selected-class="bg-blue-500"
+    class="relative flex flex-col gap-1 empty:before:absolute empty:before:inset-0 empty:before:text-sm empty:before:text-muted-foreground empty:before:content-['(hidden,_no_elements_contained)']"
+    @end="(evt) => {
+      if (evt.from !== evt.to) {
+        removeElementFromPanel(props.panelKey, evt.data)
+      }
+      elementDraggingData = null
+    }"
+    @start="evt => elementDraggingData = { element: evt.data, from: props.panelKey }"
   >
-    <UContextMenu>
+    <UContextMenu
+      v-for="element in panelElements"
+      :key="element"
+    >
       <UContextMenuTrigger as-child>
-        <UButton
-          variant="soft"
-          :class="cn('justify-start', dragMeta?.key !== 'layout-element' && 'pointer-events-none')"
-          draggable="true"
-          @dragstart="handleSortDragStart(element, () => handleDragStart(element, props.panelKey))"
-          @dragend="dragMeta = null"
+        <div
+          :id="element"
+          class="flex items-center w-fit"
         >
-          <Icon name="tabler:grip-vertical" class="size-3.5!" />
-          <p>{{ sentenceCase(element) }}</p>
-        </UButton>
+          <UButton
+            variant="ghost"
+            class="justify-start transition-none duration-0 active:bg-inherit active:text-muted-foreground rounded-r-none"
+          >
+            <Icon name="tabler:grip-vertical" class="size-3.5!" />
+            <p>{{ sentenceCase(element) }}</p>
+          </UButton>
+          <UButton variant="ghost" size="icon" class="transition-none duration-0 rounded-l-none">
+            <Icon name="tabler:pencil" class="size-3.5!" />
+          </UButton>
+        </div>
       </UContextMenuTrigger>
       <UContextMenuContent>
-        <UContextMenuItem>
+        <UContextMenuItem @click="removeElementFromPanel(props.panelKey, element)">
           Remove
         </UContextMenuItem>
         <UContextMenuItem>
@@ -62,5 +68,5 @@ const { getDropoverProps, handleDragStart: handleSortDragStart } = useSortable(p
         </UContextMenuItem>
       </UContextMenuContent>
     </UContextMenu>
-  </TauriDragoverProvider>
+  </VueDraggable>
 </template>

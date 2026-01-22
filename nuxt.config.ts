@@ -68,6 +68,13 @@ export default defineNuxtConfig({
     presets: [
       {
         cache: true,
+        from: 'vue-draggable-plus',
+        imports: [
+          'useDraggable',
+        ],
+      },
+      {
+        cache: true,
         from: 'text-case',
         imports: [
           'sentenceCase',
