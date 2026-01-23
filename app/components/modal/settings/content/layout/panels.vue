@@ -29,21 +29,9 @@ const containerHoverClass = computed(() => {
     :class="containerHoverClass"
   >
     <div class="flex shrink-0 flex-col gap-2">
-      <UContextMenu>
-        <UContextMenuTrigger>
-          <div class="flex aspect-video w-24 rounded border">
-            <div :class="panel.class" />
-          </div>
-        </UContextMenuTrigger>
-        <UContextMenuContent>
-          <UContextMenuItem>
-            Reset to default
-          </UContextMenuItem>
-          <UContextMenuItem>
-            Clear all elements
-          </UContextMenuItem>
-        </UContextMenuContent>
-      </UContextMenu>
+      <div class="flex aspect-video w-24 rounded border">
+        <div :class="panel.class" />
+      </div>
     </div>
     <div class="flex w-2/5 flex-col gap-2">
       <div class="flex items-center gap-2">

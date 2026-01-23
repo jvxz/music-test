@@ -15,6 +15,7 @@ const allowResizing = getSettingValueRef('layout.allow-resizing')
       </div>
 
       <ModalSettingsContentLayoutElements />
+      <ModalSettingsContentLayoutElementSettings />
     </div>
     <USeparator />
     <div class="shrink-0">

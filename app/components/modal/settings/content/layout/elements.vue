@@ -69,7 +69,7 @@ useStyleTag(computed(() => elementDraggingData.value && elementDraggingData.valu
     </div>
     <div
       v-if="elementDraggingData && elementDraggingData.from !== 'AVAILABLE_ELEMENTS'"
-      class="pointer-events-none absolute inset-0 flex size-full font-medium items-center justify-center rounded"
+      class="pointer-events-none absolute inset-0 flex size-full items-center justify-center rounded font-medium"
       :class="!isOutsideList && 'bg-muted/40'"
     >
       Drop to delete

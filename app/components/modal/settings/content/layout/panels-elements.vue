@@ -5,7 +5,7 @@ const props = defineProps<{
   panelKey: LayoutPanelKey
 }>()
 
-const { elementDraggingData, getPanelElements, isElementAllowedInPanel, removeElementFromPanel } = useLayout()
+const { elementDraggingData, elementSettingsToShow, getPanelElements, isElementAllowedInPanel, removeElementFromPanel } = useLayout()
 const panelElements = getPanelElements(props.panelKey)
 </script>
 
@@ -54,7 +54,7 @@ const panelElements = getPanelElements(props.panelKey)
             <Icon name="tabler:grip-vertical" class="size-3.5!" />
             <p>{{ sentenceCase(element) }}</p>
           </UButton>
-          <UButton variant="ghost" size="icon" class="transition-none duration-0 rounded-l-none">
+          <UButton @click="elementSettingsToShow = element" variant="ghost" size="icon" class="transition-none duration-0 rounded-l-none">
             <Icon name="tabler:pencil" class="size-3.5!" />
           </UButton>
         </div>
@@ -63,7 +63,7 @@ const panelElements = getPanelElements(props.panelKey)
         <UContextMenuItem @click="removeElementFromPanel(props.panelKey, element)">
           Remove
         </UContextMenuItem>
-        <UContextMenuItem>
+        <UContextMenuItem @click="elementSettingsToShow = element">
           Edit
         </UContextMenuItem>
       </UContextMenuContent>

@@ -6,6 +6,8 @@ export function useLayout() {
     element: LayoutElementKey
   } | null>('layout-element-dragging-data', () => null)
 
+  const elementSettingsToShow = useState<LayoutElementKey | undefined>('layout-element-settings-to-show', () => undefined)
+
   function addElementToPanel(panelKey: LayoutPanelKey, elementKey: LayoutElementKey) {
     const settingKey = getPanelSettingKey(panelKey, 'elements')
     const settingValue = getSettingValue(settingKey)
@@ -119,6 +121,7 @@ export function useLayout() {
   return {
     addElementToPanel,
     elementDraggingData,
+    elementSettingsToShow,
     getAllPanelElements,
     getElementSettings,
     getPanelElements,
