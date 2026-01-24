@@ -23,9 +23,6 @@ export const layoutPanelElements: LayoutElement[] = [{
 }]
 
 interface LayoutElementSettings extends Record<LayoutElementKey, unknown> {
-  'cover-art': {
-    roundedCorners: boolean
-  }
   'library-view': {
     showFolders: boolean
   }
@@ -33,19 +30,19 @@ interface LayoutElementSettings extends Record<LayoutElementKey, unknown> {
     frames: string[]
   }
   'player': {
-    seekBarThin: boolean
+    seekBarThickness: number
     seekBarThumbShape: 'line' | 'circle'
     showTrackCover: boolean
+    roundTrackCover: boolean
   }
   'track-list': {
     rowStyle: 'bordered' | 'alternating' | 'none'
   }
+  'cover-art': unknown
 }
 
 export const defaultLayoutElementSettings = {
-  'cover-art': {
-    roundedCorners: false,
-  },
+  'cover-art': {},
   'library-view': {
     showFolders: true,
   },
@@ -53,7 +50,8 @@ export const defaultLayoutElementSettings = {
     frames: ['TIT2', 'TPE1', 'TALB', 'TPE2'],
   },
   'player': {
-    seekBarThin: false,
+    roundTrackCover: true,
+    seekBarThickness: 2,
     seekBarThumbShape: 'circle' as 'line' | 'circle',
     showTrackCover: true,
   },
