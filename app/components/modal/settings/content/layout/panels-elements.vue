@@ -7,6 +7,11 @@ const props = defineProps<{
 
 const { elementDraggingData, elementSettingsToShow, getPanelElements, isElementAllowedInPanel, removeElementFromPanel } = useLayout()
 const panelElements = getPanelElements(props.panelKey)
+
+function hasSettings(elementKey: LayoutElementKey) {
+  const obj = defaultLayoutElementSettings[elementKey]
+  return Object.keys(obj).length > 0
+}
 </script>
 
 <template>
@@ -45,16 +50,23 @@ const panelElements = getPanelElements(props.panelKey)
       <UContextMenuTrigger as-child>
         <div
           :id="element"
-          class="flex items-center w-fit"
+          class="flex w-fit items-center"
         >
           <UButton
             variant="ghost"
-            class="justify-start transition-none duration-0 active:bg-inherit active:text-muted-foreground rounded-r-none"
+            class="justify-start transition-none duration-0 active:bg-inherit active:text-muted-foreground"
+            :class="hasSettings(element) ? 'rounded-r-none' : ''"
           >
             <Icon name="tabler:grip-vertical" class="size-3.5!" />
             <p>{{ sentenceCase(element) }}</p>
           </UButton>
-          <UButton @click="elementSettingsToShow = element" variant="ghost" size="icon" class="transition-none duration-0 rounded-l-none">
+          <UButton
+            v-if="hasSettings(element)"
+            variant="ghost"
+            size="icon"
+            class="rounded-l-none transition-none duration-0"
+            @click="elementSettingsToShow = element"
+          >
             <Icon name="tabler:pencil" class="size-3.5!" />
           </UButton>
         </div>
