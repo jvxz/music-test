@@ -45,7 +45,7 @@ const allowResizing = getSettingValueRef('layout.allow-resizing')
 
 <template>
   <div class="flex h-screen flex-col">
-    <div class="h-8 w-full border-b bg-background" />
+    <div class="h-[28px] w-full border-b bg-background" />
     <LayoutTopBar v-if="topPanelElements.length" />
     <SplitterGroup
       :key="visiblePanels.join('-')"
