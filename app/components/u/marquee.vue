@@ -16,6 +16,7 @@ export interface MarqueeProps {
   pauseOnClick: boolean
   pause: boolean
   gap: string
+  speed: number
 }
 
 export default defineComponent({
@@ -100,6 +101,11 @@ export default defineComponent({
     animateOnOverflowOnly: {
       type: Boolean as PropType<MarqueeProps['animateOnOverflowOnly']>,
       default: false,
+    },
+
+    speed: {
+      type: Number as PropType<MarqueeProps['speed']>,
+      default: 50,
     },
   },
 
@@ -334,7 +340,7 @@ export default defineComponent({
       const cssVariables = {
         '--delay': `${props.delay}s`,
         '--direction': `${props.direction}`,
-        '--duration': `${props.duration}s`,
+        '--duration': `${computedDuration.value}s`,
         '--gap': props.gap,
         '--gradient-color': `rgba(${props.gradientColor[0]}, ${props.gradientColor[1]}, ${props.gradientColor[2]}, 1), rgba(${props.gradientColor[0]}, ${props.gradientColor[1]}, ${props.gradientColor[2]}, 0)`,
         '--gradient-length': `${gradientLength.value}`,
@@ -368,6 +374,23 @@ export default defineComponent({
         return true
       }
       return false
+    })
+
+    // Calculate duration based on speed (pixels per second) for consistent animation speed
+    const computedDuration = computed(() => {
+      if (props.speed <= 0) {
+        // Use legacy duration prop when speed is not set
+        return props.duration
+      }
+
+      const contentSize = props.vertical ? contentHeight.value : contentWidth.value
+
+      if (contentSize <= 0) {
+        return props.duration // fallback until content is measured
+      }
+
+      // duration = distance / speed
+      return contentSize / props.speed
     })
 
     const setupMarquee = async () => {
@@ -442,6 +465,7 @@ export default defineComponent({
       checkForClone,
       cloneAmount,
       componentKey,
+      computedDuration,
       containerHeight,
       containerWidth,
       contentHeight,
