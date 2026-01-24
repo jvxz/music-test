@@ -22,7 +22,11 @@ export default defineNuxtPlugin({
       ...settingsFromPrefs,
     }
 
-    watchDebounced(settings, () => tauriStore.set('settings', settings.value), { debounce: 500 })
+    watchDebounced(settings, () => tauriStore.set('settings', settings.value), {
+      debounce: 500,
+      // TODO: find better solution for deep watching
+      deep: true,
+    })
 
     errorHook.on((error) => {
       message(error.data, { kind: 'error', title: ERROR_TITLE_MAP[error.type] })
