@@ -10,15 +10,18 @@ const elementSettings = getElementSettings('player')
     <div class="flex h-full flex-1 items-start gap-4">
       <LayoutPanelCoverArt
         v-if="elementSettings.showTrackCover"
-        class="flex h-full"
         no-cover-text=""
         :classes="{
-          noCoverText: 'border rounded border-dashed border-primary',
-          img: 'rounded',
-          root: 'shrink-0',
+          noCoverText: 'border border-dashed border-primary',
+          img: elementSettings.roundTrackCover ? 'rounded' : '',
+          root: 'aspect-square',
+        }"
+        :img="{
+          width: 100,
+          height: 100,
         }"
       />
-      <div class="flex h-full flex-col gap-1">
+      <div class="flex w-full flex-col gap-1">
         <div class="flex items-center gap-2">
           <UMarquee
             :key="currentTrack?.tags.TIT2 ?? currentTrack?.name"
@@ -27,7 +30,7 @@ const elementSettings = getElementSettings('player')
             :delay="2"
             gap="0.5rem"
             :pause-on-hover="true"
-            class="max-w-64"
+            class="max-w-64 w-fit!"
           >
             <p :title="currentTrack?.tags.TIT2 ?? currentTrack?.name" class="font-medium">
               {{ currentTrack?.tags.TIT2 ?? currentTrack?.name }}
