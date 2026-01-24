@@ -13,4 +13,13 @@ const elementSettings = getElementSettings('player')
     :disabled="!elementSettings.showTrackCover"
     label="Round track cover corners"
   />
+  <FormSelect
+    v-model:model-value="elementSettings.titlePosition"
+    :values="['center', 'left']"
+    label="Track info position"
+  />
+  <FormCheckbox
+    v-model:model-value="elementSettings.marqueeText"
+    label="Marquee track info"
+  />
 </template>
