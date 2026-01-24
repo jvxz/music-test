@@ -13,12 +13,12 @@ const { currentTrack } = usePlayback()
 </script>
 
 <template>
-  <div :class="cn('aspect-square items-center justify-center', props.classes?.root)">
+  <div :class="cn('flex items-center justify-center', props.classes?.root)">
     <img
       v-if="currentTrack && currentTrack.tags.APIC"
       v-bind="img"
       :src="currentTrack?.full_uri"
-      :class="cn('h-full object-cover', props.classes?.img)"
+      :class="cn('h-full object-contain', props.classes?.img)"
     />
     <div
       v-else
