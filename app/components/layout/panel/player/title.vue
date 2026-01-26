@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import UMarquee from '~/components/u/marquee.vue'
-
 const props = defineProps<{
   currentTrack: CurrentPlayingTrack | null
 }>()

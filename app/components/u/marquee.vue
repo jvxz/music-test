@@ -1,601 +1,341 @@
-<!-- https://github.com/megasanjay/vue3-marquee/blob/main/packages/vue3-marquee/src/vue3-marquee.vue -->
-<script lang="ts">
-export interface MarqueeProps {
-  vertical: boolean
-  direction: 'normal' | 'reverse'
-  duration: number
-  delay: number
-  loop: number
-  clone: boolean
-  animateOnOverflowOnly: boolean
-  gradient: boolean
-  gradientColor: any
-  gradientWidth: string
-  gradientLength: string
-  pauseOnHover: boolean
-  pauseOnClick: boolean
-  pause: boolean
-  gap: string
-  speed: number
+<!-- https://github.com/hanzydev/vue-fast-marquee/tree/main/src -->
+<script setup lang="ts">
+import type { CSSProperties } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+
+interface MarqueeProps {
+  /**
+   * @description Inline style for the container div
+   * @type {CSSProperties}
+   * @default {}
+   */
+  style?: CSSProperties
+  /**
+   * @description Class name to style the container div
+   * @type {any}
+   * @default ""
+   */
+  class?: any
+  /**
+   * @description Whether to automatically fill blank space in the marquee with copies of the children or not
+   * @type {boolean}
+   * @default false
+   */
+  autoFill?: boolean
+  /**
+   * @description Whether to play or pause the marquee
+   * @type {boolean}
+   * @default true
+   */
+  play?: boolean
+  /**
+   * @description Whether to pause the marquee when hovered
+   * @type {boolean}
+   * @default false
+   */
+  pauseOnHover?: boolean
+  /**
+   * @description Whether to pause the marquee when clicked
+   * @type {boolean}
+   * @default false
+   */
+  pauseOnClick?: boolean
+  /**
+   * @description The direction the marquee is sliding
+   * @type {"left" | "right" | "up" | "down"}
+   * @default "left"
+   */
+  direction?: 'left' | 'right' | 'up' | 'down'
+  /**
+   * @description Speed calculated as pixels/second
+   * @type {number}
+   * @default 50
+   */
+  speed?: number
+  /**
+   * @description Duration to delay the animation after render, in seconds
+   * @type {number}
+   * @default 0
+   */
+  delay?: number
+  /**
+   * @description The number of times the marquee should loop, 0 is equivalent to infinite
+   * @type {number}
+   * @default 0
+   */
+  loop?: number
+  /**
+   * @description Whether to show the gradient or not
+   * @type {boolean}
+   * @default false
+   */
+  gradient?: boolean
+  /**
+   * @description The color of the gradient
+   * @type {string}
+   * @default "white"
+   */
+  gradientColor?: string
+  /**
+   * @description The width of the gradient on either side
+   * @type {number | string}
+   * @default 200
+   */
+  gradientWidth?: number | string
+  /**
+   * @description Only scroll if content overflows the container
+   * @type {boolean}
+   * @default false
+   */
+  onlyScrollIfNeeded?: boolean
 }
 
-export default defineComponent({
+const {
+  autoFill = false,
+  class: className = '',
+  delay = 1,
+  direction = 'left',
+  gradient = false,
+  gradientColor = 'white',
+  gradientWidth = 200,
+  loop = 0,
+  onlyScrollIfNeeded = true,
+  pauseOnClick = false,
+  pauseOnHover = false,
+  play = true,
+  speed = 50,
+  style = () => ({}),
+} = defineProps<MarqueeProps>()
 
-  emits: [
-    'onComplete',
-    'onLoopComplete',
-    'onPause',
-    'onResume',
-    'onOverflowDetected',
-    'onOverflowCleared',
-  ],
-  props: {
-    vertical: {
-      type: Boolean as PropType<MarqueeProps['vertical']>,
-      default: false,
-    },
+const emit = defineEmits<{
+  (event: 'finish'): void
+  (event: 'cycleComplete'): void
+}>()
 
-    direction: {
-      type: String as PropType<MarqueeProps['direction']>,
-      default: 'normal',
-    },
+const containerRef = ref<HTMLDivElement>()
+const marqueeRef = ref<HTMLDivElement>()
 
-    duration: {
-      type: Number as PropType<MarqueeProps['duration']>,
-      default: 20,
-    },
+const containerWidth = ref(0)
+const marqueeWidth = ref(0)
+const multiplier = ref(1)
+const isMounted = ref(false)
+const resizeObserver = ref<ResizeObserver>()
 
-    delay: {
-      type: Number as PropType<MarqueeProps['delay']>,
-      default: 0,
-    },
+const isOverflowing = computed(() => {
+  return marqueeWidth.value > containerWidth.value
+})
 
-    loop: {
-      type: Number as PropType<MarqueeProps['loop']>,
-      default: 0,
-    },
+const shouldAnimate = computed(() => {
+  if (onlyScrollIfNeeded && !isOverflowing.value) {
+    return false
+  }
+  return play
+})
 
-    clone: {
-      type: Boolean as PropType<MarqueeProps['clone']>,
-      default: false,
-    },
+const duration = computed(() => {
+  if (autoFill) {
+    return (marqueeWidth.value * multiplier.value) / speed
+  }
+  else {
+    return marqueeWidth.value < containerWidth.value
+      ? containerWidth.value / speed
+      : marqueeWidth.value / speed
+  }
+})
 
-    gradient: {
-      type: Boolean as PropType<MarqueeProps['gradient']>,
-      default: false,
-    },
+const containerStyle = computed(() => ({
+  ...style,
+  '--pause-on-click':
+        !shouldAnimate.value || (pauseOnHover && !pauseOnClick) || pauseOnClick ? 'paused' : 'running',
+  '--pause-on-hover': !shouldAnimate.value || pauseOnHover ? 'paused' : 'running',
+  '--transform':
+        direction === 'up' ? 'rotate(-90deg)' : direction === 'down' ? 'rotate(90deg)' : 'none',
+  '--width': direction === 'up' || direction === 'down' ? `100vh` : '100%',
+}))
 
-    gradientColor: {
-      type: Array as PropType<MarqueeProps['gradientColor']>,
-      default: () => [255, 255, 255],
-    },
+const gradientStyle = computed(() => ({
+  '--gradient-color': gradientColor,
+  '--gradient-width': typeof gradientWidth === 'number' ? `${gradientWidth}px` : gradientWidth,
+}))
 
-    gradientWidth: {
-      type: String as PropType<MarqueeProps['gradientWidth']>,
-    },
+const marqueeStyle = computed(() => ({
+  '--delay': `${delay}s`,
+  '--direction': direction === 'left' ? 'normal' : 'reverse',
+  '--duration': `${duration.value}s`,
+  '--iteration-count': loop ? `${loop}` : 'infinite',
+  '--min-width': autoFill ? `auto` : '100%',
+  '--play': shouldAnimate.value ? 'running' : 'paused',
+}))
 
-    gradientLength: {
-      type: String as PropType<MarqueeProps['gradientLength']>,
-    },
+const parentStyle = computed(() => ({
+  '--transform':
+        direction === 'up' ? 'rotate(90deg)' : direction === 'down' ? 'rotate(-90deg)' : 'none',
+}))
 
-    pauseOnHover: {
-      type: Boolean as PropType<MarqueeProps['pauseOnHover']>,
-      default: false,
-    },
+function calculateWidth() {
+  if (marqueeRef.value && containerRef.value) {
+    const containerRect = containerRef.value.getBoundingClientRect()
+    const marqueeRect = marqueeRef.value.getBoundingClientRect()
 
-    pauseOnClick: {
-      type: Boolean as PropType<MarqueeProps['pauseOnClick']>,
-      default: false,
-    },
+    let _containerWidth = containerRect.width
+    let _marqueeWidth = marqueeRect.width
 
-    pause: {
-      type: Boolean as PropType<MarqueeProps['pause']>,
-      default: false,
-    },
-
-    gap: {
-      type: String as PropType<MarqueeProps['gap']>,
-      default: '0',
-    },
-
-    animateOnOverflowOnly: {
-      type: Boolean as PropType<MarqueeProps['animateOnOverflowOnly']>,
-      default: false,
-    },
-
-    speed: {
-      type: Number as PropType<MarqueeProps['speed']>,
-      default: 50,
-    },
-  },
-
-  setup(props, { emit }) {
-    const cloneAmount = ref(0)
-
-    const minWidth = ref('100%')
-    const minHeight = ref('100%')
-
-    const componentKey = ref(0)
-
-    const verticalAnimationPause = ref(false)
-
-    const animateOnOverflowPause = ref(true)
-
-    const containerWidth = ref(0)
-    const contentWidth = ref(0)
-
-    const containerHeight = ref(0)
-    const contentHeight = ref(0)
-
-    const mouseOverMarquee = ref(false)
-    const mouseDownMarquee = ref(false)
-
-    const loopCounter = ref(0)
-    const loopInterval = ref<any>(null)
-
-    const gradientLength = ref('200px')
-
-    const ready = ref(false)
-
-    const marqueeContent = ref<HTMLDivElement | any>(null)
-    const marqueeOverlayContainer = ref<HTMLDivElement | any>(null)
-
-    const checkForClone = async () => {
-      if (props.vertical) {
-        // pause the animation to prevent flickering
-        verticalAnimationPause.value = true
-      }
-
-      setInterval(() => {
-        minWidth.value = '0%'
-        minHeight.value = '0%'
-
-        if (
-          marqueeContent.value !== null
-          && marqueeOverlayContainer.value !== null
-          && marqueeContent.value
-          && marqueeOverlayContainer.value
-        ) {
-          if (
-            props.vertical
-            && 'clientHeight' in marqueeContent.value
-            && 'clientHeight' in marqueeOverlayContainer.value
-          ) {
-            contentHeight.value = marqueeContent.value.clientHeight
-            containerHeight.value = marqueeOverlayContainer.value.clientHeight
-
-            const localCloneAmount = Math.ceil(
-              containerHeight.value / contentHeight.value,
-            )
-
-            cloneAmount.value = props.animateOnOverflowOnly
-              ? 0
-              : Number.isFinite(localCloneAmount)
-                ? localCloneAmount
-                : 0
-
-            // resume the animation
-            verticalAnimationPause.value = false
-
-            return cloneAmount.value
-          }
-          else if (
-            !props.vertical
-            && 'clientWidth' in marqueeContent.value
-            && 'clientWidth' in marqueeOverlayContainer.value
-          ) {
-            contentWidth.value = marqueeContent.value.clientWidth
-            containerWidth.value = marqueeOverlayContainer.value.clientWidth
-
-            if (props.animateOnOverflowOnly && ready.value) {
-              if (contentWidth.value <= containerWidth.value) {
-                animateOnOverflowPause.value = true
-                emit('onOverflowCleared')
-              }
-              else {
-                animateOnOverflowPause.value = false
-                emit('onOverflowDetected')
-              }
-
-              return 0 // don't clone if animateOnOverflowOnly is true
-            }
-
-            const localCloneAmount = Math.ceil(
-              containerWidth.value / contentWidth.value,
-            )
-
-            cloneAmount.value = Number.isFinite(localCloneAmount)
-              ? localCloneAmount
-              : 0
-
-            return cloneAmount.value
-          }
-          else {
-            minWidth.value = '100%'
-            minHeight.value = '100%'
-            return 0
-          }
-        }
-        else {
-          minWidth.value = '100%'
-          minHeight.value = '100%'
-          return 0
-        }
-      }, 100)
+    if (direction === 'up' || direction === 'down') {
+      _containerWidth = containerRect.height
+      _marqueeWidth = marqueeRect.height
     }
 
-    const ForcesUpdate = async () => {
-      await checkForClone()
-
-      componentKey.value++
+    if (autoFill && _containerWidth && _marqueeWidth) {
+      multiplier.value
+        = _marqueeWidth < _containerWidth ? Math.ceil(_containerWidth / _marqueeWidth) : 1
+    }
+    else {
+      multiplier.value = 1
     }
 
-    watch(contentWidth, async () => {
-      if (props.clone) {
-        ForcesUpdate()
+    containerWidth.value = _containerWidth
+    marqueeWidth.value = _marqueeWidth
+  }
+}
+
+function multiplyChildren(multiplier: number) {
+  return Array.from<number>({ length: Number.isFinite(multiplier) && multiplier >= 0 ? multiplier : 0 })
+}
+
+watch([() => autoFill, () => direction, isMounted, containerRef], () => {
+  if (isMounted.value) {
+    calculateWidth()
+
+    if (marqueeRef.value && containerRef.value) {
+      if (resizeObserver.value) {
+        resizeObserver.value.disconnect()
       }
-    })
 
-    watch(containerWidth, async () => {
-      if (props.clone || props.animateOnOverflowOnly) {
-        ForcesUpdate()
-      }
-    })
-
-    // watch pauseAnimation for emitting events
-    watch(
-      () => props.pause,
-      (newVal, oldVal) => {
-        if (newVal !== oldVal) {
-          if (newVal) {
-            emit('onResume')
-          }
-          else {
-            emit('onPause')
-          }
-        }
-      },
-    )
-
-    const hoverStarted = () => {
-      if (props.pauseOnHover) {
-        emit('onPause')
-
-        mouseOverMarquee.value = true
-      }
+      resizeObserver.value = new ResizeObserver(() => calculateWidth())
+      resizeObserver.value.observe(containerRef.value)
+      resizeObserver.value.observe(marqueeRef.value)
     }
+  }
+})
 
-    const hoverEnded = () => {
-      if (props.pauseOnHover) {
-        emit('onResume')
-
-        mouseOverMarquee.value = false
-      }
-    }
-
-    const mouseDown = () => {
-      if (props.pauseOnClick) {
-        emit('onPause')
-
-        mouseDownMarquee.value = true
-      }
-    }
-
-    const mouseUp = () => {
-      if (props.pauseOnClick) {
-        emit('onResume')
-
-        mouseDownMarquee.value = false
-      }
-    }
-
-    const animationState = computed(() => {
-      if (props.pause) {
-        return 'paused'
-      }
-
-      if (props.vertical && verticalAnimationPause.value) {
-        return 'paused'
-      }
-
-      if (props.animateOnOverflowOnly && animateOnOverflowPause.value) {
-        return 'paused'
-      }
-
-      return 'running'
-    })
-
-    const hoverAnimationState = computed(() => {
-      if (
-        props.pauseOnHover
-        && (mouseOverMarquee.value || mouseDownMarquee.value)
-      ) {
-        return 'paused'
-      }
-
-      if (!props.pauseOnHover && animationState.value === 'paused') {
-        return 'paused'
-      }
-
-      return 'running'
-    })
-
-    const clickAnimationState = computed(() => {
-      if (props.pauseOnHover && mouseOverMarquee.value) {
-        return 'paused'
-      }
-
-      if (props.pauseOnClick && mouseDownMarquee.value) {
-        return 'paused'
-      }
-
-      if (!props.pauseOnHover && animationState.value === 'paused') {
-        return 'paused'
-      }
-
-      return 'running'
-    })
-
-    const getCurrentStyle: any = computed(() => {
-      const cssVariables = {
-        '--delay': `${props.delay}s`,
-        '--direction': `${props.direction}`,
-        '--duration': `${computedDuration.value}s`,
-        '--gap': props.gap,
-        '--gradient-color': `rgba(${props.gradientColor[0]}, ${props.gradientColor[1]}, ${props.gradientColor[2]}, 1), rgba(${props.gradientColor[0]}, ${props.gradientColor[1]}, ${props.gradientColor[2]}, 0)`,
-        '--gradient-length': `${gradientLength.value}`,
-        '--loops': `${props.loop === 0 ? 'infinite' : props.loop}`,
-        '--min-height': `${minHeight.value}`,
-        '--min-width': `${minWidth.value}`,
-        '--pauseAnimation': `${animationState.value}`,
-        '--pauseOnClick': `${clickAnimationState.value}`,
-        '--pauseOnHover': `${hoverAnimationState.value}`,
-      }
-
-      const animationStyles = {
-        '--orientation': 'scrollX',
-        'orientation': 'horizontal',
-      }
-
-      if (props.vertical) {
-        animationStyles['--orientation'] = 'scrollY'
-      }
-
-      const styles = {
-        ...cssVariables,
-        ...animationStyles,
-      }
-
-      return styles
-    })
-
-    const showGradient = computed(() => {
-      if (props.gradient) {
-        return true
-      }
-      return false
-    })
-
-    // Calculate duration based on speed (pixels per second) for consistent animation speed
-    const computedDuration = computed(() => {
-      if (props.speed <= 0) {
-        // Use legacy duration prop when speed is not set
-        return props.duration
-      }
-
-      const contentSize = props.vertical ? contentHeight.value : contentWidth.value
-
-      if (contentSize <= 0) {
-        return props.duration // fallback until content is measured
-      }
-
-      // duration = distance / speed
-      return contentSize / props.speed
-    })
-
-    const setupMarquee = async () => {
-      if (props.vertical) {
-        minHeight.value = '100%'
-        minWidth.value = 'auto'
-
-        if (props.animateOnOverflowOnly) {
-          console.warn(
-            'The `animateOnOverflowOnly` prop is not supported for vertical marquees.',
-          )
-        }
-      }
-      else {
-        minHeight.value = 'auto'
-
-        if (props.animateOnOverflowOnly) {
-          minWidth.value = 'auto'
-        }
-        else {
-          minWidth.value = '100%'
-        }
-      }
-
-      // Deprecate the gradientWidth prop in favor of gradientLength
-      if (props.gradient) {
-        if (props.gradientWidth) {
-          console.warn(
-            'The `gradientWidth` prop has been deprecated and will be removed in a future release. Please use `gradientLength` instead.',
-          )
-
-          gradientLength.value = props.gradientWidth
-        }
-        else if (props.gradientLength) {
-          gradientLength.value = props.gradientLength
-        }
-      }
-
-      if (props.clone || props.animateOnOverflowOnly) {
-        await checkForClone()
-        ForcesUpdate()
-        ready.value = true
-      }
-      else {
-        ready.value = true
-      }
-    }
-
-    onMounted(async () => {
-      setupMarquee()
-
-      loopInterval.value = setInterval(() => {
-        loopCounter.value++
-
-        if (props.loop !== 0 && loopCounter.value === props.loop) {
-          emit('onComplete')
-          clearInterval(loopInterval.value)
-        }
-
-        emit('onLoopComplete')
-
-        // Converting the duration into milliseconds here
-      }, props.duration * 1000)
-    })
-
-    onBeforeUnmount(() => {
-      clearInterval(loopInterval.value)
-    })
-
-    return {
-      animateOnOverflowPause,
-      checkForClone,
-      cloneAmount,
-      componentKey,
-      computedDuration,
-      containerHeight,
-      containerWidth,
-      contentHeight,
-      contentWidth,
-      ForcesUpdate,
-      getCurrentStyle,
-      hoverEnded,
-      hoverStarted,
-      loopCounter,
-      loopInterval,
-      marqueeContent,
-      marqueeOverlayContainer,
-      minHeight,
-      minWidth,
-      mouseDown,
-      mouseDownMarquee,
-      mouseOverMarquee,
-      mouseUp,
-      ready,
-      setupMarquee,
-      showGradient,
-    }
-  },
+onMounted(() => {
+  isMounted.value = true
 })
 </script>
 
 <template>
   <div
-    v-if="ready"
-    :key="componentKey"
-    class="vue3-marquee"
-    :class="{ vertical, horizontal: !vertical }"
-    :style="getCurrentStyle"
-    @mouseenter="hoverStarted"
-    @mouseleave="hoverEnded"
-    @mousedown="mouseDown"
-    @mouseup="mouseUp"
+    v-if="isMounted"
+    ref="containerRef"
+    class="vfm-marquee-container"
+    :class="[className]"
+    :style="containerStyle"
   >
     <div
-      ref="marqueeOverlayContainer"
-      class="transparent-overlay"
-      :aria-hidden="true"
-    ></div>
-
+      v-if="gradient"
+      :style="gradientStyle"
+      class="vfm-overlay"
+    />
     <div
-      v-if="showGradient"
-      :aria-hidden="true"
-      class="overlay"
-      :class="{ vertical, horizontal: !vertical }"
-    ></div>
-
-    <div ref="marqueeContent" class="marquee">
-      <slot></slot>
-    </div>
-
-    <div
-      v-if="
-        !animateOnOverflowOnly
-          || (animateOnOverflowOnly && !animateOnOverflowPause)
-      "
-      :aria-hidden="true"
-      class="marquee"
+      class="vfm-marquee"
+      :style="marqueeStyle"
+      @animationiteration="emit('cycleComplete')"
+      @animationend="emit('finish')"
     >
-      <slot></slot>
+      <div
+        ref="marqueeRef"
+        :style="parentStyle"
+        class="vfm-parent"
+      >
+        <slot />
+      </div>
+      <div
+        v-for="i in multiplyChildren(shouldAnimate ? multiplier - 1 : 0)"
+        :key="i"
+        :style="parentStyle"
+        class="vfm-parent"
+      >
+        <slot />
+      </div>
     </div>
-
     <div
-      v-for="num in cloneAmount"
-      :key="num"
-      :aria-hidden="true"
-      class="marquee cloned"
+      v-if="shouldAnimate"
+      class="vfm-marquee"
+      :style="marqueeStyle"
     >
-      <slot></slot>
+      <div
+        v-for="_ in multiplyChildren(multiplier)"
+        :key="_"
+        :style="parentStyle"
+        class="vfm-parent"
+      >
+        <slot />
+      </div>
     </div>
   </div>
 </template>
 
 <style>
-.vue3-marquee {
-  display: flex !important;
+.vfm-marquee-container {
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: row;
   position: relative;
-  gap: var(--gap);
+  width: var(--width);
+  transform: var(--transform);
 }
 
-.vue3-marquee.horizontal {
-  overflow-x: hidden !important;
-  flex-direction: row !important;
+.vfm-marquee-container:hover div {
+  animation-play-state: var(--pause-on-hover);
+}
+
+.vfm-marquee-container:active div {
+  animation-play-state: var(--pause-on-click);
+}
+
+.vfm-overlay {
+  position: absolute;
   width: 100%;
-  height: max-content;
-}
-
-.vue3-marquee.vertical {
-  overflow-y: hidden !important;
-  flex-direction: column !important;
   height: 100%;
-  width: max-content;
 }
 
-.vue3-marquee:hover > .marquee {
-  animation-play-state: var(--pauseOnHover);
+.vfm-overlay::before,
+.vfm-overlay::after {
+  background: linear-gradient(to right, var(--gradient-color), rgb(255, 255, 255, 0));
+  content: '';
+  height: 100%;
+  position: absolute;
+  width: var(--gradient-width);
+  z-index: 2;
+  pointer-events: none;
+  touch-action: none;
 }
 
-.vue3-marquee:active > .marquee {
-  animation-play-state: var(--pauseOnClick);
+.vfm-overlay::after {
+  right: 0;
+  top: 0;
+  transform: rotateZ(180deg);
 }
 
-.vue3-marquee > .marquee {
+.vfm-overlay::before {
+  left: 0;
+  top: 0;
+}
+
+.vfm-marquee {
   flex: 0 0 auto;
   min-width: var(--min-width);
-  min-height: var(--min-height);
   z-index: 1;
-
-  animation: var(--orientation) var(--duration) linear var(--delay) var(--loops);
-  animation-play-state: var(--pauseAnimation);
-  animation-direction: var(--direction);
-}
-
-.vue3-marquee.horizontal > .marquee {
   display: flex;
   flex-direction: row;
   align-items: center;
+  animation: scroll var(--duration) linear var(--delay) var(--iteration-count);
+  animation-play-state: var(--play);
+  animation-delay: var(--delay);
+  animation-direction: var(--direction);
 }
 
-.vue3-marquee.vertical > .marquee {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-@keyframes scrollX {
+@keyframes scroll {
   0% {
     transform: translateX(0%);
   }
@@ -604,68 +344,15 @@ export default defineComponent({
   }
 }
 
-@keyframes scrollY {
-  0% {
-    transform: translateY(0%);
-  }
-  100% {
-    transform: translateY(-100%);
-  }
+.vfm-parent {
+  flex: 0 0 auto;
+  display: flex;
+  min-width: auto;
+  flex-direction: row;
+  align-items: center;
 }
 
-.vue3-marquee > .overlay {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-.vue3-marquee > .transparent-overlay {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-.vue3-marquee > .overlay::before,
-.vue3-marquee > .overlay::after {
-  content: '';
-  position: absolute;
-  z-index: 2;
-}
-
-.vue3-marquee.horizontal > .overlay::before,
-.vue3-marquee.horizontal > .overlay::after {
-  background: linear-gradient(to right, var(--gradient-color));
-  height: 100%;
-  width: var(--gradient-length);
-}
-
-.vue3-marquee.vertical > .overlay::before,
-.vue3-marquee.vertical > .overlay::after {
-  background: linear-gradient(to bottom, var(--gradient-color));
-  height: var(--gradient-length);
-  width: 100%;
-}
-
-.vue3-marquee.horizontal > .overlay::after {
-  transform: rotateZ(180deg);
-}
-
-.vue3-marquee.vertical > .overlay::after {
-  transform: rotateZ(-180deg);
-}
-
-.vue3-marquee > .overlay::before {
-  left: 0;
-  top: 0;
-}
-
-.vue3-marquee.horizontal > .overlay::after {
-  right: 0;
-  top: 0;
-}
-
-.vue3-marquee.vertical > .overlay::after {
-  left: 0;
-  bottom: 0;
+.vfm-parent > * {
+  transform: var(--transform);
 }
 </style>
