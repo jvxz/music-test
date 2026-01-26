@@ -64,19 +64,20 @@ export default defineNuxtConfig({
   ],
 
   imports: {
-    dirs: ['types'],
+    dirs: ['types', 'constants/**'],
     presets: [
+      {
+        cache: true,
+        from: 'vue-draggable-plus',
+        imports: [
+          'useDraggable',
+        ],
+      },
       {
         cache: true,
         from: 'text-case',
         imports: [
           'sentenceCase',
-        ],
-      },
-      {
-        from: '@crabnebula/tauri-plugin-drag',
-        imports: [
-          'startDrag',
         ],
       },
       {

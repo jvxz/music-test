@@ -1,27 +1,30 @@
 <script lang="ts" setup>
+import type { ImgHTMLAttributes } from 'vue'
+
+type ClassAttributeNames = 'img' | 'noCoverText' | 'root'
+
+const props = defineProps<{
+  noCoverText?: string
+  classes?: Partial<Record<ClassAttributeNames, string | string[]>>
+  img?: ImgHTMLAttributes
+}>()
+
 const { currentTrack } = usePlayback()
 </script>
 
 <template>
-  <div class="grid size-full place-items-center">
-    <template v-if="currentTrack">
-      <img
-        v-if="currentTrack.tags.APIC"
-        :src="currentTrack.full_uri"
-        class="h-full w-full object-contain"
-      />
-      <div
-        v-else
-        class="grid h-full w-full place-items-center object-contain text-sm text-muted-foreground font-mono"
-      >
-        no cover
-      </div>
-    </template>
-    <!-- <div
+  <div :class="cn('flex items-center justify-center', props.classes?.root)">
+    <img
+      v-if="currentTrack && currentTrack.tags.APIC"
+      v-bind="img"
+      :src="currentTrack?.full_uri"
+      :class="cn('h-full object-contain', props.classes?.img)"
+    />
+    <div
       v-else
-      class="grid h-full w-full place-items-center object-contain text-sm text-muted-foreground font-mono"
+      :class="cn('grid aspect-square size-full place-items-center font-mono text-sm text-muted-foreground', props.classes?.noCoverText)"
     >
-      no track
-    </div> -->
+      {{ noCoverText ?? 'no cover' }}
+    </div>
   </div>
 </template>

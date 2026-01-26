@@ -2,18 +2,37 @@
 import { Slot as RekaSlot } from 'reka-ui'
 import { computed } from 'vue'
 
+const props = defineProps<{
+  acceptableKeys?: DragMetaEntryKey | DragMetaEntryKey[]
+  class?: string
+}>()
+
 const emits = defineEmits<{
-  drop: [itemPaths: string[]]
+  drop: [itemPaths: string[], meta: DragMetaEntry]
   over: []
   leave: []
 }>()
 
 const { $dragHandler } = useNuxtApp()
+const { dragMeta } = useDrag()
 
 const elRef = shallowRef<HTMLElement | null>(null)
 
 const isOver = computed(() => {
-  if (!$dragHandler.isDragging.value)
+  const isAcceptable = () => {
+    if (!props.acceptableKeys)
+      return true
+
+    if (dragMeta.value === null)
+      return false
+
+    if (Array.isArray(props.acceptableKeys))
+      return props.acceptableKeys.includes(dragMeta.value?.key)
+
+    return props.acceptableKeys === dragMeta.value?.key
+  }
+
+  if (!$dragHandler.isDragging.value || !isAcceptable())
     return false
 
   return checkMatch()
@@ -30,7 +49,7 @@ watch(isOver, () => {
 
 watch($dragHandler.droppedItemPaths, () => {
   if (checkMatch()) {
-    emits('drop', $dragHandler.droppedItemPaths.value)
+    emits('drop', $dragHandler.droppedItemPaths.value, dragMeta.value)
   }
 })
 
@@ -48,11 +67,11 @@ function checkMatch() {
 <template>
   <div
     ref="elRef"
-    class="contents"
+    :class="props.class ? 'contents' : props.class"
     v-bind="$attrs"
   >
     <RekaSlot :data-drag-over="isOver ? '' : undefined">
-      <slot :is-over />
+      <slot :is-over :drag-meta />
     </RekaSlot>
   </div>
 </template>

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { TrackListInput } from '~/types'
-import { resolveResource } from '@tauri-apps/api/path'
 import { OnClickOutside } from '@vueuse/components'
 
 const props = defineProps<TrackListInput & {
@@ -45,6 +44,8 @@ useEventListener('mouseup', () => {
   contextMenuEntries.value = selectedTrackData.value.entries
 })
 
+const { startDrag } = useDrag()
+
 async function handleRowDragStart(e: DragEvent, wasEntrySelected: boolean) {
   e.preventDefault()
 
@@ -55,9 +56,12 @@ async function handleRowDragStart(e: DragEvent, wasEntrySelected: boolean) {
 
   if (wasEntrySelected) {
     isDraggingEntries = true
-    const icon = await resolveResource(`icons/file-light.svg`)
     await startDrag({
-      icon,
+      data: {
+        entries: selectedTrackData.value.entries,
+      },
+      key: 'track-list-entry',
+    }, {
       item: selectedTrackData.value.entries.map(entry => entry.path),
     })
   }

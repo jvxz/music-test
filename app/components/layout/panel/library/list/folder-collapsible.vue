@@ -21,7 +21,7 @@ const open = shallowRef(false)
             </UButton>
           </CollapsibleTrigger>
           <CollapsibleContent class="ml-3.5 space-y-px overflow-hidden border-l pl-1.5">
-            <LayoutLibraryListFolderItem
+            <LayoutPanelLibraryListFolderItem
               v-for="folder in folders"
               :key="folder.path"
               :folder="folder"

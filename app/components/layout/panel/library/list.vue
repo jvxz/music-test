@@ -6,6 +6,6 @@ const { data: folders } = getLibraryFolders()
 </script>
 
 <template>
-  <LayoutLibraryListPlaylistCollapsible v-if="playlists" :playlists="playlists" />
-  <LayoutLibraryListFolderCollapsible v-if="folders" :folders="folders" />
+  <LayoutPanelLibraryListPlaylistCollapsible v-if="playlists" :playlists="playlists" />
+  <LayoutPanelLibraryListFolderCollapsible v-if="folders" :folders="folders" />
 </template>

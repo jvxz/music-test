@@ -16,6 +16,27 @@ export interface Settings {
   'appearance.token.border': string
   'appearance.token.surface': string
   'appearance.presets': Record<string, Record<SettingsEntryKey & `appearance.token.${string}`, string>>
+  'layout.allow-resizing': boolean
+  'layout.panel.bottom': LayoutPanelSetting<'bottom'>
+  'layout.panel.left': LayoutPanelSetting<'left'>
+  'layout.panel.main': LayoutPanelSetting<'main'>
+  'layout.panel.right': LayoutPanelSetting<'right'>
+  'layout.panel.top': LayoutPanelSetting<'top'>
+  'layout.panel-size.bottom': number
+  'layout.panel-size.left': number
+  'layout.panel-size.main': number
+  'layout.panel-size.right': number
+  'layout.panel-size.top': number
+  'layout.panel-element-sizes.bottom': number[]
+  'layout.panel-element-sizes.left': number[]
+  'layout.panel-element-sizes.main': number[]
+  'layout.panel-element-sizes.right': number[]
+  'layout.panel-element-sizes.top': number[]
+  'layout.element.player': LayoutElementSetting<'player'>
+  'layout.element.track-list': LayoutElementSetting<'track-list'>
+  'layout.element.library-view': LayoutElementSetting<'library-view'>
+  'layout.element.metadata-view': LayoutElementSetting<'metadata-view'>
+  'layout.element.cover-art': LayoutElementSetting<'cover-art'>
   'track-list.row-style': 'alternating-background' | 'bordered' | 'none'
 }
 
@@ -51,7 +72,6 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'last-fm.do-offline-scrobbling': true,
   'last-fm.do-scrobbling': true,
   'last-fm.username': null,
-  'track-list.row-style': 'bordered',
 }
 
 export const useSettings = createSharedComposable(() => {

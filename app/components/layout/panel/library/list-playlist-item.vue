@@ -22,7 +22,6 @@ async function handleDrop(itemPaths: string[]) {
 
 const route = useRoute()
 const urlPlaylistId = computed(() => 'id' in route.params ? Number(route.params.id) : null)
-
 </script>
 
 <template>
@@ -34,7 +33,10 @@ const urlPlaylistId = computed(() => 'id' in route.params ? Number(route.params.
   >
     <UContextMenu>
       <UContextMenuTrigger as-child :disabled="isEditing">
-        <TauriDragoverProvider @drop="handleDrop">
+        <TauriDragoverProvider
+          :acceptable-keys="['track-list-entry', 'UNKNOWN']"
+          @drop="handleDrop"
+        >
           <UButton
             variant="ghost"
             class="group w-full justify-start text-foreground data-drag-over:bg-muted"

@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+const props = defineProps<{
+  class?: string
+}>()
 const { playbackStatus, setVolume, toggleMute } = usePlayback()
 
 function handleScroll(event: WheelEvent) {
@@ -12,7 +15,7 @@ function handleScroll(event: WheelEvent) {
 </script>
 
 <template>
-  <div class="flex -translate-y-[3px] items-center gap-2">
+  <div :class="cn('flex -translate-y-[3px] items-center gap-2', props.class)">
     <button class="size-5" @click="toggleMute()">
       <Icon :name="playbackStatus?.is_muted ? 'mdi:volume-mute' : 'mdi:volume-source'" class="size-5!" />
     </button>

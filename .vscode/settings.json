@@ -19,7 +19,8 @@
   "tailwindCSS.experimental.classRegex": [
     "tw`(.*?)`",
     "tw\\('(.*?)'\\)",
-    "tw\\(\\s*('(.*?)'|\"(.*?)\")\\s*\\)"
+    "tw\\(\\s*('(.*?)'|\"(.*?)\")\\s*\\)",
+    [":classes=\"\\{([^}]*)\\}(?=\")", "(['\"`]([^'\"`]*?)['\"`])"]
   ],
   "editor.quickSuggestions": {
     "strings": true

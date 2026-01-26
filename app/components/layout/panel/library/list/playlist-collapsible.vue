@@ -36,12 +36,13 @@ function handleDragOver() {
           <CollapsibleTrigger as-child>
             <TauriDragoverProvider
               class="group"
+              :acceptable-keys="['track-list-entry', 'UNKNOWN']"
               @over="handleDragOver"
               @leave="() => shouldOpen = false"
             >
               <UButton
                 variant="ghost"
-                class="w-full justify-start text-foreground data-drag-over:bg-muted mb-px"
+                class="mb-px w-full justify-start text-foreground data-drag-over:bg-muted"
               >
                 <Icon name="tabler:chevron-right" class="size-4 group-data-[state=open]:rotate-90" />
                 Playlists
@@ -49,7 +50,7 @@ function handleDragOver() {
             </TauriDragoverProvider>
           </CollapsibleTrigger>
           <CollapsibleContent class="ml-3.5 space-y-px overflow-hidden border-l pl-1.5">
-            <LayoutLibraryListPlaylistItem
+            <LayoutPanelLibraryListPlaylistItem
               v-for="playlist in playlists"
               :key="playlist.id"
               :playlist="playlist"
