@@ -37,7 +37,6 @@ export interface Settings {
   'layout.element.library-view': LayoutElementSetting<'library-view'>
   'layout.element.metadata-view': LayoutElementSetting<'metadata-view'>
   'layout.element.cover-art': LayoutElementSetting<'cover-art'>
-  'track-list.row-style': 'alternating-background' | 'bordered' | 'none'
 }
 
 export type SettingsEntryKey = keyof Settings
@@ -72,6 +71,27 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'last-fm.do-offline-scrobbling': true,
   'last-fm.do-scrobbling': true,
   'last-fm.username': null,
+  'layout.allow-resizing': true,
+  'layout.element.cover-art': defaultLayoutElementSettings['cover-art'],
+  'layout.element.library-view': defaultLayoutElementSettings['library-view'],
+  'layout.element.metadata-view': defaultLayoutElementSettings['metadata-view'],
+  'layout.element.player': defaultLayoutElementSettings.player,
+  'layout.element.track-list': defaultLayoutElementSettings['track-list'],
+  'layout.panel-element-sizes.bottom': [100],
+  'layout.panel-element-sizes.left': [100],
+  'layout.panel-element-sizes.main': [100],
+  'layout.panel-element-sizes.right': [100],
+  'layout.panel-element-sizes.top': [100],
+  'layout.panel-size.bottom': 12.5,
+  'layout.panel-size.left': 35,
+  'layout.panel-size.main': 12.5,
+  'layout.panel-size.right': 12.5,
+  'layout.panel-size.top': 12.5,
+  'layout.panel.bottom': ['player'],
+  'layout.panel.left': ['library-view'],
+  'layout.panel.main': ['track-list'],
+  'layout.panel.right': ['cover-art'],
+  'layout.panel.top': [],
 }
 
 export const useSettings = createSharedComposable(() => {
