@@ -22,4 +22,9 @@ const elementSettings = getElementSettings('player')
     v-model:model-value="elementSettings.marqueeText"
     label="Marquee track info"
   />
+  <FormSelect
+    v-model:model-value="elementSettings.controlsPosition"
+    :values="['center', 'left']"
+    label="Controls position"
+  />
 </template>

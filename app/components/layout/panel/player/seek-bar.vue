@@ -2,15 +2,13 @@
 type ClassAttributeOptions = 'container' | 'thumb'
 
 withDefaults(defineProps<{
-  showTitle?: boolean
   classes?: Partial<Record<ClassAttributeOptions, string>>
   showDuration?: 'top-right' | 'top-left' | 'both-sides' | false
 }>(), {
   showDuration: 'both-sides',
-  showTitle: true,
 })
 
-const { currentTrack, playbackStatus, seekCurrentTrack } = usePlayback()
+const { playbackStatus, seekCurrentTrack } = usePlayback()
 
 const isChangingPosition = ref(false)
 const localPosition = ref([playbackStatus.value?.position ?? 0])
@@ -43,15 +41,14 @@ const computedPosition = computed(() => formatDuration(playbackStatus.value?.pos
 
 <template>
   <div :class="cn('relative flex w-[45%] grow -translate-y-3 flex-col items-center gap-1 *:shrink-0', classes?.container)">
-    <LayoutTopBarSeekBarTitle v-if="showTitle" :current-track />
     <p
       v-if="showDuration && ['top-right', 'top-left'].includes(showDuration)"
-      :class="cn('absolute right-0 bottom-0 text-sm text-muted-foreground', showDuration === 'top-right' ? 'right-0' : 'left-0')"
+      :class="cn('absolute right-0 bottom-0 text-xs text-muted-foreground', showDuration === 'top-right' ? 'right-0' : 'left-0')"
     >
       {{ computedPosition }} / {{ computedDuration }}
     </p>
     <div class="flex w-full items-center gap-4">
-      <p v-if="showDuration === 'both-sides'" class="text-sm text-muted-foreground">
+      <p v-if="showDuration === 'both-sides'" class="text-xs text-muted-foreground">
         {{ computedPosition }}
       </p>
       <SliderRoot
@@ -71,7 +68,7 @@ const computedPosition = computed(() => formatDuration(playbackStatus.value?.pos
           @pointerup="handlePointer('up')"
         />
       </SliderRoot>
-      <p v-if="showDuration === 'both-sides'" class="text-sm text-muted-foreground">
+      <p v-if="showDuration === 'both-sides'" class="text-xs text-muted-foreground">
         {{ computedDuration }}
       </p>
     </div>

@@ -4,7 +4,7 @@ const panelElements = getSettingValueRef('layout.panel.top')
 </script>
 
 <template>
-  <div class="h-32 border-b">
+  <div class="h-fit border-b">
     <LayoutPanelSplitterGroup panel-key="top" direction="horizontal">
       <LayoutPanel
         v-for="(element, idx) in panelElements"

@@ -36,6 +36,7 @@ interface LayoutElementSettings extends Record<LayoutElementKey, unknown> {
     roundTrackCover: boolean
     titlePosition: 'center' | 'left'
     marqueeText: boolean
+    controlsPosition: 'left' | 'center' | 'right'
   }
   'track-list': {
     rowStyle: 'bordered' | 'alternating' | 'none'
@@ -52,10 +53,11 @@ export const defaultLayoutElementSettings = {
     frames: ['TIT2', 'TPE1', 'TALB', 'TPE2'],
   },
   'player': {
+    controlsPosition: 'left',
     marqueeText: true,
     roundTrackCover: true,
     seekBarThickness: 2,
-    seekBarThumbShape: 'circle' as 'line' | 'circle',
+    seekBarThumbShape: 'circle',
     showTrackCover: true,
     titlePosition: 'left',
   },
