@@ -133,15 +133,7 @@ function handleRightClick(entry: TrackListEntry) {
 }
 
 const { getSettingValueRef } = useSettings()
-const rowStyle = getSettingValueRef('track-list.row-style')
-// useStyleTag(computed(() => `
-//   .row-style-alternating-background {
-//     background-color: var(--background);
-//   }
-//   .row-style-bordered {
-//     border-bottom: 1px solid var(--border);
-//   }
-// `))
+const rowStyle = computed(() => getSettingValueRef('layout.element.track-list').value.rowStyle)
 
 onKeyStrokeSafe('ctrl_a', () => selectedTrackData.value.entries = folderEntries.value)
 onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])

@@ -2,7 +2,6 @@ export const SETTINGS_MODAL_TABS = [
   'general',
   'library',
   'layout',
-  'track-list',
   'appearance',
   'last-fm',
   'advanced',

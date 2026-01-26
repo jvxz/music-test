@@ -33,7 +33,7 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
 
 <template>
   <div
-    class="col-span-full grid grid-cols-subgrid group-data-[row-style=bordered]:not-last:gap-0 group-data-[row-style=bordered]:not-last:border-b group-data-[row-style=alternating-background]:data-is-even:bg-muted/25"
+    class="col-span-full grid grid-cols-subgrid group-data-[row-style=bordered]:not-last:gap-0 group-data-[row-style=bordered]:not-last:border-b group-data-[row-style=alternating]:data-is-even:bg-muted/25"
     :class="{
       'border-transparent bg-primary/25!': isSelected,
       'bg-danger/20': !entry.valid,
