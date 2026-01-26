@@ -3,6 +3,8 @@ const { currentTrack } = usePlayback()
 
 const { getElementSettings } = useLayout()
 const elementSettings = getElementSettings('player')
+
+const { toggleSettingsModal } = useSettingsModal()
 </script>
 
 <template>
@@ -42,7 +44,11 @@ const elementSettings = getElementSettings('player')
         <UButton variant="ghost" size="icon">
           <Icon name="tabler:info-circle" class="size-4!" />
         </UButton>
-        <UButton variant="ghost" size="icon">
+        <UButton
+          variant="ghost"
+          size="icon"
+          @click="toggleSettingsModal()"
+        >
           <Icon name="tabler:settings" class="size-4!" />
         </UButton>
       </div>
