@@ -3,6 +3,7 @@ defineProps<{
   entry: TrackListEntry
   isSelected: boolean
   isPlaying: boolean
+  isEven: boolean
 }>()
 
 const emits = defineEmits<{
@@ -32,12 +33,13 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
 
 <template>
   <div
-    class="col-span-full grid grid-cols-subgrid not-last:border-b"
+    class="col-span-full grid grid-cols-subgrid group-data-[row-style=bordered]:not-last:gap-0 group-data-[row-style=bordered]:not-last:border-b group-data-[row-style=alternating-background]:data-is-even:bg-muted/25"
     :class="{
-      'border-transparent bg-primary/25': isSelected,
+      'border-transparent bg-primary/25!': isSelected,
       'bg-danger/20': !entry.valid,
     }"
     v-bind="$attrs"
+    :data-is-even="isEven ? '' : undefined"
     @dblclick.left="emits('playTrack', entry)"
     @dragstart="emits('rowDragStart', $event)"
   >
