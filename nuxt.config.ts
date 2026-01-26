@@ -2,6 +2,14 @@ import tailwindcss from '@tailwindcss/vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 export default defineNuxtConfig({
+  $development: {
+    app: {
+      head: {
+        script: [{ src: 'http://localhost:8098' }],
+      },
+    },
+  },
+
   app: {
     head: {
       charset: 'utf-8',
