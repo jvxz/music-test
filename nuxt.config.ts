@@ -122,6 +122,12 @@ export default defineNuxtConfig({
     },
   },
 
+  routeRules: {
+    '/playground': {
+      appLayout: false,
+    },
+  },
+
   ssr: false,
 
   vite: {
