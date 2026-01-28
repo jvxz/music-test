@@ -33,7 +33,7 @@ const visiblePanels = computed(() => {
 
 <template>
   <div class="flex h-screen flex-col">
-    <div class="h-[28px] w-full border-b bg-background" />
+    <div data-tauri-drag-region class="h-[28px] w-full border-b bg-background" />
     <LayoutTopBar v-if="settings.layout.panel.top.elements.length" />
     <SplitterGroup
       :key="visiblePanels.join('-')"
