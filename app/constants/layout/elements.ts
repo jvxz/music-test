@@ -40,6 +40,7 @@ export interface LayoutElementSettings extends Record<LayoutElementKey, unknown>
   }
   trackList: {
     rowStyle: 'bordered' | 'alternating' | 'none'
+    columnFrames: (Id3FrameId | 'PLAYING')[]
   }
   coverArt: unknown
 }
@@ -62,6 +63,7 @@ export const defaultLayoutElementSettings = {
     titlePosition: 'left',
   },
   trackList: {
+    columnFrames: ['APIC', 'PLAYING', 'TIT2', 'TPE1', 'TALB', 'TYER', 'TCON', 'TRCK'],
     rowStyle: 'bordered',
   },
 } satisfies LayoutElementSettings
