@@ -292,6 +292,7 @@ pub async fn run() {
       tauri_plugin_window_state::Builder::default()
         // don't save visible state, messes up manual visible states
         .with_state_flags(StateFlags::all() & !StateFlags::VISIBLE)
+        .with_filter(|label| label.contains("main"))
         .build(),
     )
     .plugin(
