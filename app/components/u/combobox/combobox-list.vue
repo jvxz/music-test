@@ -21,12 +21,12 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
 
 <template>
   <ComboboxContent
-      data-slot="combobox-list"
-      v-bind="{ ...$attrs, ...forwarded }"
-      :class="cn(popoverStyles.content, 'absolute w-full overflow-hidden top-(--reka-combobox-trigger-height) mt-1', props.class)"
-    >
-      <slot />
-    </ComboboxContent>
+    data-slot="combobox-list"
+    v-bind="{ ...$attrs, ...forwarded }"
+    :class="cn(popoverStyles.content, 'absolute top-(--reka-combobox-trigger-height) mt-1 w-full overflow-hidden', props.class)"
+  >
+    <slot />
+  </ComboboxContent>
   <!-- <ComboboxPortal class="relative">
     <ComboboxContent
       data-slot="combobox-list"
