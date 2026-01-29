@@ -1,0 +1,151 @@
+name: Build Test Binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: 'Platforms to build (comma-separated)'
+        required: true
+        type: choice
+        options:
+          - 'all'
+          - 'macos-intel'
+          - 'macos-arm'
+          - 'linux'
+          - 'windows'
+          - 'macos-all'
+        default: 'all'
+      debug_build:
+        description: 'Build in debug mode (faster, larger binaries)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set build matrix
+        id: set-matrix
+        run: |
+          case "${{ inputs.platforms }}" in
+            "all")
+              echo 'matrix={"include":[{"platform":"macos-latest","name":"macOS-Intel","args":"--target x86_64-apple-darwin"},{"platform":"macos-latest","name":"macOS-ARM","args":"--target aarch64-apple-darwin"},{"platform":"ubuntu-22.04","name":"Linux","args":""},{"platform":"windows-latest","name":"Windows","args":""}]}' >> $GITHUB_OUTPUT
+              ;;
+            "macos-intel")
+              echo 'matrix={"include":[{"platform":"macos-latest","name":"macOS-Intel","args":"--target x86_64-apple-darwin"}]}' >> $GITHUB_OUTPUT
+              ;;
+            "macos-arm")
+              echo 'matrix={"include":[{"platform":"macos-latest","name":"macOS-ARM","args":"--target aarch64-apple-darwin"}]}' >> $GITHUB_OUTPUT
+              ;;
+            "macos-all")
+              echo 'matrix={"include":[{"platform":"macos-latest","name":"macOS-Intel","args":"--target x86_64-apple-darwin"},{"platform":"macos-latest","name":"macOS-ARM","args":"--target aarch64-apple-darwin"}]}' >> $GITHUB_OUTPUT
+              ;;
+            "linux")
+              echo 'matrix={"include":[{"platform":"ubuntu-22.04","name":"Linux","args":""}]}' >> $GITHUB_OUTPUT
+              ;;
+            "windows")
+              echo 'matrix={"include":[{"platform":"windows-latest","name":"Windows","args":""}]}' >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+  build:
+    needs: prepare
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+
+    runs-on: ${{ matrix.platform }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.6
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: ${{ matrix.args }} ${{ inputs.debug_build && '--debug' || '' }}
+          # Don't create a release, just build
+          tagName: ''
+
+      - name: Prepare artifacts (macOS)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          mkdir -p artifacts
+          # Copy DMG and app bundles
+          find src-tauri/target -name "*.dmg" -exec cp {} artifacts/ \;
+          find src-tauri/target -name "*.app" -type d -exec zip -r "artifacts/{}.zip" {} \;
+
+      - name: Prepare artifacts (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          mkdir -p artifacts
+          # Copy AppImage and deb packages
+          find src-tauri/target/release/bundle -name "*.AppImage" -exec cp {} artifacts/ \;
+          find src-tauri/target/release/bundle -name "*.deb" -exec cp {} artifacts/ \;
+
+      - name: Prepare artifacts (Windows)
+        if: matrix.platform == 'windows-latest'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts
+          # Copy MSI and setup executables
+          Get-ChildItem -Path src-tauri/target/release/bundle -Recurse -Include *.msi,*.exe | Copy-Item -Destination artifacts/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: swim-${{ matrix.name }}-${{ github.sha }}
+          path: artifacts/*
+          if-no-files-found: error
+          retention-days: 30
+
+  summary:
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Build summary
+        run: |
+          echo "## Build Complete 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Platform: **${{ inputs.platforms }}**" >> $GITHUB_STEP_SUMMARY
+          echo "Debug Mode: **${{ inputs.debug_build }}**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Download Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "Artifacts are available in the workflow run summary above." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation Notes" >> $GITHUB_STEP_SUMMARY
+          echo "- **macOS**: After installing, run \`xattr -c /Applications/swim.app\` before launching" >> $GITHUB_STEP_SUMMARY
+          echo "- **Linux**: Make AppImage executable with \`chmod +x *.AppImage\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Windows**: Run the MSI installer or setup executable" >> $GITHUB_STEP_SUMMARY
