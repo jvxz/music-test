@@ -28,6 +28,7 @@ tauri-plugin-notification = "2.3.1"
 tauri-plugin-os = "2.3.1"
 tauri-plugin-fs = "2.4.2"
 tauri-plugin-store = "2.4.0"
+tauri-plugin-vue = "2.1.0"
 tokio = "1.48.0"
 taurpc = "0.5.2"
 specta = { version = "=2.0.0-rc.22", features = [ "derive" ] }

@@ -1,3 +1,5 @@
+import { createStore } from '@tauri-store/vue'
+
 type SettingsEntryKeyFormat = `${typeof SETTINGS_MODAL_TABS[number]}.${string}`
 
 export interface Settings {
@@ -94,8 +96,18 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   'layout.panel.top': [],
 }
 
+export function useSettingsData() {
+  return createStore('settings', DEFAULT_SETTINGS, {
+    save: true,
+    saveInterval: 300,
+    saveOnChange: true,
+    saveStrategy: 'debounce',
+    sync: true,
+  })
+}
+
 export const useSettings = createSharedComposable(() => {
-  const settings = useState<Settings>('settings')
+  const settings = useSettingsData()
 
   function getSettingValue<T extends SettingsEntryKey>(key: T): SettingsEntryValue<T> {
     return settings.value[key]
