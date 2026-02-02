@@ -398,7 +398,6 @@ pub async fn run() {
     .register_asynchronous_uri_scheme_protocol("cover-thumbnail", |ctx, req, responder| {
       cover_protocol::handler(ctx, req, responder, cover_protocol::CoverMode::Thumbnail)
     })
-    .plugin(tauri_plugin_vue::init())
     .plugin(tauri_plugin_pinia::init())
     .plugin(tauri_plugin_system_fonts::init())
     .plugin(tauri_plugin_drag::init())
