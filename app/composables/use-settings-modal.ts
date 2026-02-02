@@ -3,7 +3,7 @@ export const SETTINGS_MODAL_TABS = [
   'library',
   'layout',
   'appearance',
-  'last-fm',
+  'lastFm',
   'advanced',
 ] as const
 
