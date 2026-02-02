@@ -1,3 +1,4 @@
+import type { Pinia } from 'pinia'
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import { message } from '@tauri-apps/plugin-dialog'
@@ -5,11 +6,10 @@ import { createPlugin } from '@tauri-store/pinia'
 
 export default defineNuxtPlugin({
   name: 'tauri',
-  setup: async (app) => {
-    const rpc = createTauRPCProxy()
+  setup: async ({ $pinia, hook }) => {
+    ($pinia as Pinia).use(createPlugin())
 
-    const pinia = usePinia()
-    pinia.use(createPlugin())
+    const rpc = createTauRPCProxy()
 
     const tauriStore = await useTauriStoreLoad('prefs.json', {
       autoSave: true,
@@ -26,7 +26,7 @@ export default defineNuxtPlugin({
       message(error.data, { kind: 'error', title: ERROR_TITLE_MAP[error.type] })
     })
 
-    app.hook('vue:error', (err) => {
+    hook('vue:error', (err) => {
       if (err instanceof Error) {
         message(err.message, { kind: 'error', title: ERROR_TITLE_MAP.Other })
       }
