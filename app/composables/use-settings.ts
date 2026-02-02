@@ -1,5 +1,3 @@
-import { createStore } from '@tauri-store/vue'
-
 type SettingsEntryKeyFormat = `${typeof SETTINGS_MODAL_TABS[number]}`
 
 export interface Settings {
@@ -173,54 +171,66 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   },
 }
 
-export function useSettingsData() {
-  return createStore('settings', DEFAULT_SETTINGS, {
+export const useSettings = defineStore('settings', () => {
+  const settings = reactive(DEFAULT_SETTINGS)
+
+  return {
+    settings,
+  }
+}, {
+  tauri: {
     save: true,
     saveInterval: 300,
     saveOnChange: true,
     saveStrategy: 'debounce',
     sync: true,
-  })
-}
-
-export const useSettings = createSharedComposable(() => {
-  const settings = useSettingsData()
-
-  function getSettingValue<T extends SettingsEntryKey>(key: T): SettingsEntryValue<T> {
-    return settings.value[key]
-  }
-
-  function getSettingValueRef<T extends SettingsEntryKey>(
-    key: T,
-    opts?: {
-      onChanged?: (value: SettingsEntryValue<T>, oldValue: SettingsEntryValue<T>) => void
-      onBeforeChange?: (value: SettingsEntryValue<T>) => boolean
-    },
-  ): Ref<SettingsEntryValue<T>> {
-    return computed({
-      get: () => settings.value[key],
-      set: (value) => {
-        if (opts?.onBeforeChange && !opts?.onBeforeChange?.(value))
-          return
-        settings.value = { ...settings.value, [key]: value }
-        opts?.onChanged?.(value, settings.value[key])
-      },
-    })
-  }
-
-  function setSettingValue<T extends SettingsEntryKey>(key: T, value: SettingsEntryValue<T>) {
-    settings.value = { ...settings.value, [key]: value }
-  }
-
-  function setSettingValues<T extends Record<SettingsEntryKey, SettingsEntryValue<SettingsEntryKey>>>(values: T) {
-    settings.value = { ...settings.value, ...values }
-  }
-
-  return {
-    getSettingValue,
-    getSettingValueRef,
-    setSettingValue,
-    setSettingValues,
-    settings,
-  }
+  },
 })
+
+// export function useSettingsData() {
+//   return createStore('settings', DEFAULT_SETTINGS, {
+//     save: true,
+//     saveInterval: 300,
+//     saveOnChange: true,
+//     saveStrategy: 'debounce',
+//     sync: true,
+//   })
+// }
+
+// export const useSettings = createSharedComposable(() => {
+//   const settings = useSettingsData()
+
+//   function getSettingValueRef<T extends SettingsEntryKey>(
+//     key: T,
+//     opts?: {
+//       onChanged?: (value: SettingsEntryValue<T>, oldValue: SettingsEntryValue<T>) => void
+//       onBeforeChange?: (value: SettingsEntryValue<T>) => boolean
+//     },
+//   ): Ref<SettingsEntryValue<T>> {
+//     return computed({
+//       get: () => settings.value[key],
+//       set: (value) => {
+//         if (opts?.onBeforeChange && !opts?.onBeforeChange?.(value))
+//           return
+//         settings.value = { ...settings.value, [key]: value }
+//         opts?.onChanged?.(value, settings.value[key])
+//       },
+//     })
+//   }
+
+//   function setSettingValue<T extends SettingsEntryKey>(key: T, value: SettingsEntryValue<T>) {
+//     settings.value = { ...settings.value, [key]: value }
+//   }
+
+//   function setSettingValues<T extends Record<SettingsEntryKey, SettingsEntryValue<SettingsEntryKey>>>(values: T) {
+//     settings.value = { ...settings.value, ...values }
+//   }
+
+//   return {
+//     getSettingValue,
+//     getSettingValueRef,
+//     setSettingValue,
+//     setSettingValues,
+//     settings,
+//   }
+// })
