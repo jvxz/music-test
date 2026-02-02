@@ -37,41 +37,26 @@ export interface Settings {
     doNowPlayingUpdates: boolean
     doOfflineScrobbling: boolean
   }
-  // 'last-fm.username': string | null
-  // 'last-fm.do-scrobbling': boolean
-  // 'last-fm.do-now-playing-updates': boolean
-  // 'last-fm.do-offline-scrobbling': boolean
 
   layout: {
     allowResizing: boolean
-    panel: {
-      bottom: LayoutPanelSetting<'bottom'>
-      left: LayoutPanelSetting<'left'>
-      main: LayoutPanelSetting<'main'>
-      right: LayoutPanelSetting<'right'>
-      top: LayoutPanelSetting<'top'>
-    }
-    panelSizes: {
-      bottom: number
-      left: number
-      main: number
-      right: number
-      top: number
-    }
-    panelElementSizes: {
-      bottom: number[]
-      left: number[]
-      main: number[]
-      right: number[]
-      top: number[]
-    }
-    element: {
-      player: LayoutElementSetting<'player'>
-      trackList: LayoutElementSetting<'track-list'>
-      libraryView: LayoutElementSetting<'library-view'>
-      metadataView: LayoutElementSetting<'metadata-view'>
-      coverArt: LayoutElementSetting<'cover-art'>
-    }
+    // panel: Record<LayoutPanelKey, LayoutPanelSetting>
+    // panelSizes: {
+    //   bottom: number
+    //   left: number
+    //   main: number
+    //   right: number
+    //   top: number
+    // }
+    // panelElementSizes: {
+    //   bottom: number[]
+    //   left: number[]
+    //   main: number[]
+    //   right: number[]
+    //   top: number[]
+    // }
+    panel: Record<LayoutPanelKey, LayoutPanelSetting>
+    element: LayoutElementSettings
   }
   // 'layout.allow-resizing': boolean
   // 'layout.panel.bottom': LayoutPanelSetting<'bottom'>
@@ -91,9 +76,9 @@ export interface Settings {
   // 'layout.panel-element-sizes.top': number[]
   // 'layout.element.player': LayoutElementSetting<'player'>
   // 'layout.element.track-list': LayoutElementSetting<'track-list'>
-  // 'layout.element.library-view': LayoutElementSetting<'library-view'>
-  // 'layout.element.metadata-view': LayoutElementSetting<'metadata-view'>
-  // 'layout.element.cover-art': LayoutElementSetting<'cover-art'>
+  // 'layout.element.libraryView': LayoutElementSetting<'libraryView'>
+  // 'layout.element.metadataView': LayoutElementSetting<'metadataView'>
+  // 'layout.element.coverArt': LayoutElementSetting<'coverArt'>
 }
 
 export type SettingsEntryKey = keyof Settings
@@ -141,96 +126,79 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   layout: {
     allowResizing: true,
     element: {
-      coverArt: defaultLayoutElementSettings['cover-art'],
-      libraryView: defaultLayoutElementSettings['library-view'],
-      metadataView: defaultLayoutElementSettings['metadata-view'],
+      coverArt: defaultLayoutElementSettings.coverArt,
+      libraryView: defaultLayoutElementSettings.libraryView,
+      metadataView: defaultLayoutElementSettings.metadataView,
       player: defaultLayoutElementSettings.player,
-      trackList: defaultLayoutElementSettings['track-list'],
+      trackList: defaultLayoutElementSettings.trackList,
     },
     panel: {
-      bottom: ['player'],
-      left: ['library-view'],
-      main: ['track-list'],
-      right: ['cover-art'],
-      top: [],
+      bottom: {
+        elements: ['player'],
+        elementSizes: [100],
+        size: 12.5,
+      },
+      left: {
+        elements: ['libraryView'],
+        elementSizes: [100],
+        size: 35,
+      },
+      main: {
+        elements: ['trackList'],
+        elementSizes: [100],
+        size: 12.5,
+      },
+      right: {
+        elements: ['coverArt'],
+        elementSizes: [100],
+        size: 35,
+      },
+      top: {
+        elements: [],
+        elementSizes: [],
+        size: 12.5,
+      },
     },
-    panelElementSizes: {
-      bottom: [100],
-      left: [100],
-      main: [100],
-      right: [100],
-      top: [100],
-    },
-    panelSizes: {
-      bottom: 12.5,
-      left: 35,
-      main: 12.5,
-      right: 12.5,
-      top: 12.5,
-    },
+    // element: {
+    // coverArt: defaultLayoutElementSettings.coverArt,
+    //   libraryView: defaultLayoutElementSettings.libraryView,
+    //   metadataView: defaultLayoutElementSettings.metadataView,
+    //   player: defaultLayoutElementSettings.player,
+    //   trackList: defaultLayoutElementSettings.trackList,
+    // },
+    // panelElements: {
+    //   bottom: ['player'],
+    //   left: ['libraryView'],
+    //   main: ['trackList'],
+    //   right: ['coverArt'],
+    //   top: [],
+    // },
+    // panelElementSizes: {
+    //   bottom: [100],
+    //   left: [100],
+    //   main: [100],
+    //   right: [100],
+    //   top: [100],
+    // },
+    // panelSizes: {
+    //   bottom: 12.5,
+    //   left: 35,
+    //   main: 12.5,
+    //   right: 12.5,
+    //   top: 12.5,
+    // },
   },
 }
 
-export const useSettings = defineStore('settings', () => {
-  const settings = reactive(DEFAULT_SETTINGS)
-
-  return {
-    settings,
-  }
-}, {
+export const useSettings = defineStore('settings', () => reactive(DEFAULT_SETTINGS), {
   tauri: {
-    save: true,
-    saveInterval: 300,
+    saveInterval: 500,
     saveOnChange: true,
+    saveOnExit: true,
     saveStrategy: 'debounce',
-    sync: true,
+    sync: false,
+    syncInterval: 100,
+    syncStrategy: 'debounce',
   },
+
 })
-
-// export function useSettingsData() {
-//   return createStore('settings', DEFAULT_SETTINGS, {
-//     save: true,
-//     saveInterval: 300,
-//     saveOnChange: true,
-//     saveStrategy: 'debounce',
-//     sync: true,
-//   })
-// }
-
-// export const useSettings = createSharedComposable(() => {
-//   const settings = useSettingsData()
-
-//   function getSettingValueRef<T extends SettingsEntryKey>(
-//     key: T,
-//     opts?: {
-//       onChanged?: (value: SettingsEntryValue<T>, oldValue: SettingsEntryValue<T>) => void
-//       onBeforeChange?: (value: SettingsEntryValue<T>) => boolean
-//     },
-//   ): Ref<SettingsEntryValue<T>> {
-//     return computed({
-//       get: () => settings.value[key],
-//       set: (value) => {
-//         if (opts?.onBeforeChange && !opts?.onBeforeChange?.(value))
-//           return
-//         settings.value = { ...settings.value, [key]: value }
-//         opts?.onChanged?.(value, settings.value[key])
-//       },
-//     })
-//   }
-
-//   function setSettingValue<T extends SettingsEntryKey>(key: T, value: SettingsEntryValue<T>) {
-//     settings.value = { ...settings.value, [key]: value }
-//   }
-
-//   function setSettingValues<T extends Record<SettingsEntryKey, SettingsEntryValue<SettingsEntryKey>>>(values: T) {
-//     settings.value = { ...settings.value, ...values }
-//   }
-
-//   return {
-//     getSettingValue,
-//     getSettingValueRef,
-//     setSettingValue,
-//     setSettingValues,
-//     settings,
-//   }
-// })
