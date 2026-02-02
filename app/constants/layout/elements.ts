@@ -3,33 +3,33 @@ interface LayoutElement {
   label: string
 }
 
-export const layoutPanelElementKeys = ['cover-art', 'library-view', 'metadata-view', 'player', 'track-list'] as const
+export const layoutPanelElementKeys = ['coverArt', 'libraryView', 'metadataView', 'player', 'trackList'] as const
 
 export const layoutPanelElements: LayoutElement[] = [{
-  key: 'cover-art',
+  key: 'coverArt',
   label: 'Cover art',
 }, {
-  key: 'library-view',
+  key: 'libraryView',
   label: 'Library view',
 }, {
-  key: 'metadata-view',
+  key: 'metadataView',
   label: 'Metadata view',
 }, {
   key: 'player',
   label: 'Player',
 }, {
-  key: 'track-list',
+  key: 'trackList',
   label: 'Track list',
 }]
 
-interface LayoutElementSettings extends Record<LayoutElementKey, unknown> {
-  'library-view': {
+export interface LayoutElementSettings extends Record<LayoutElementKey, unknown> {
+  libraryView: {
     showFolders: boolean
   }
-  'metadata-view': {
+  metadataView: {
     frames: string[]
   }
-  'player': {
+  player: {
     seekBarThickness: number
     seekBarThumbShape: 'line' | 'circle'
     showTrackCover: boolean
@@ -38,21 +38,21 @@ interface LayoutElementSettings extends Record<LayoutElementKey, unknown> {
     marqueeText: boolean
     controlsPosition: 'left' | 'center' | 'right'
   }
-  'track-list': {
+  trackList: {
     rowStyle: 'bordered' | 'alternating' | 'none'
   }
-  'cover-art': unknown
+  coverArt: unknown
 }
 
 export const defaultLayoutElementSettings = {
-  'cover-art': {},
-  'library-view': {
+  coverArt: {},
+  libraryView: {
     showFolders: true,
   },
-  'metadata-view': {
+  metadataView: {
     frames: ['TIT2', 'TPE1', 'TALB', 'TPE2'],
   },
-  'player': {
+  player: {
     controlsPosition: 'left',
     marqueeText: true,
     roundTrackCover: true,
@@ -61,11 +61,11 @@ export const defaultLayoutElementSettings = {
     showTrackCover: true,
     titlePosition: 'left',
   },
-  'track-list': {
+  trackList: {
     rowStyle: 'bordered',
   },
 } satisfies LayoutElementSettings
 
 export type LayoutElementKey = (typeof layoutPanelElementKeys)[number]
 
-export type LayoutElementSetting<T extends LayoutElementKey> = LayoutElementSettings[T]
+export type LayoutElementSetting<T extends LayoutElementKey = LayoutElementKey> = LayoutElementSettings[T]
