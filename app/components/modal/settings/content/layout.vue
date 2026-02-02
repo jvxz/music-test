@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-const { getSettingValueRef } = useSettings()
-const allowResizing = getSettingValueRef('layout.allow-resizing')
+const settings = useSettings()
 </script>
 
 <template>
@@ -20,7 +19,7 @@ const allowResizing = getSettingValueRef('layout.allow-resizing')
     <USeparator />
     <div class="shrink-0">
       <div class="flex items-center gap-2">
-        <UCheckbox id="allowResizing" v-model:model-value="allowResizing" />
+        <UCheckbox id="allowResizing" v-model:model-value="settings.layout.allowResizing" />
         <ULabel for="allowResizing">
           Allow resizing
         </ULabel>

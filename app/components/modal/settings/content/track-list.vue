@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-const { getSettingValueRef } = useSettings()
+const settings = useSettings()
 
-const rowStyle = getSettingValueRef('track-list.row-style')
+const rowStyle = settings.layout.element.trackList.rowStyle
 </script>
 
 <template>

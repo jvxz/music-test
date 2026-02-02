@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-const { getSettingValueRef } = useSettings()
+const settings = useSettings()
 
-const clickOutsideToDeselect = getSettingValueRef('general.click-outside-to-deselect')
+const clickOutsideToDeselect = settings.general.clickOutsideToDeselect
 </script>
 
 <template>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { getElementSettings } = useLayout()
-const elementSettings = getElementSettings('track-list')
+const elementSettings = getElementSettings('trackList')
 </script>
 
 <template>

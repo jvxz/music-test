@@ -1,18 +1,18 @@
 <script lang="ts" setup>
 import { confirm } from '@tauri-apps/plugin-dialog'
 
-const { getSettingValueRef, setSettingValue, setSettingValues, settings } = useSettings()
+const settings = useSettings()
 
-const presets = getSettingValueRef('appearance.presets')
+const presets = settings.appearance.presets
 
-const presetArray = computed(() => Array.from(Object.entries(presets.value)).map(([name, colors]) => ({
+const presetArray = computed(() => Array.from(Object.entries(presets)).map(([name, colors]) => ({
   colors,
   name,
 })))
 
 const selectedPreset = shallowRef<typeof presetArray.value[number] | null>(null)
 function handlePresetClick(preset: typeof presetArray.value[number]) {
-  setSettingValues(preset.colors as Record<SettingsEntryKey, SettingsEntryValue<SettingsEntryKey>>)
+  settings.appearance.token = preset.colors
   selectedPreset.value = preset
 }
 
@@ -35,12 +35,16 @@ async function handlePresetSave() {
   dialogOpen.value = false
 
   const theme = Object.fromEntries(
-    Object.entries(settings.value).filter(([key]) => key.startsWith('appearance.token.')),
+    Object.entries(settings).filter(([key]) => key.startsWith('appearance.token.')),
   ) as Record<SettingsEntryKey & `appearance.token.${string}`, string>
 
-  setSettingValue('appearance.presets', {
-    ...settings.value['appearance.presets'],
-    [presetName.value]: theme,
+  settings.$patch({
+    appearance: {
+      presets: {
+        ...settings.appearance.presets,
+        [presetName.value]: theme,
+      },
+    },
   })
   presetName.value = ''
 }
@@ -53,10 +57,10 @@ async function handlePresetDelete() {
   if (!confirmation)
     return
 
-  const presets = settings.value['appearance.presets']
+  const presets = settings.appearance.presets
   delete presets[selectedPreset.value.name]
 
-  setSettingValue('appearance.presets', presets)
+  settings.appearance.presets = presets
   selectedPreset.value = null
 }
 </script>

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 const { authStatus, completeAuth, removeAuth, startAuth, useLastFmProfile } = useLastFm()
 
-const { getSettingValueRef } = useSettings()
+const settings = useSettings()
 
-const doScrobbling = getSettingValueRef('last-fm.do-scrobbling')
-const doNowPlayingUpdates = getSettingValueRef('last-fm.do-now-playing-updates')
-const doOfflineScrobbling = getSettingValueRef('last-fm.do-offline-scrobbling')
+const doScrobbling = settings.lastFm.doScrobbling
+const doNowPlayingUpdates = settings.lastFm.doNowPlayingUpdates
+const doOfflineScrobbling = settings.lastFm.doOfflineScrobbling
 
 const token = shallowRef<string | null>(null)
 const isAuthDialogOpen = shallowRef(false)

@@ -16,16 +16,15 @@ const forwarded = useForwardPropsEmits(props, emits)
 
 const [DefinePanels, ReusePanels] = createReusableTemplate()
 
-const { getSettingValueRef } = useSettings()
-const allowResizing = getSettingValueRef('layout.allow-resizing')
+const settings = useSettings()
 </script>
 
 <template>
   <DefinePanels>
     <LayoutPanelPlayer v-if="element === 'player'" />
-    <LayoutPanelCoverArt v-if="element === 'cover-art'" />
-    <LayoutPanelMetadata v-if="element === 'metadata-view'" />
-    <LayoutPanelLibrary v-if="element === 'library-view'" />
+    <LayoutPanelCoverArt v-if="element === 'coverArt'" />
+    <LayoutPanelMetadata v-if="element === 'metadataView'" />
+    <LayoutPanelLibrary v-if="element === 'libraryView'" />
   </DefinePanels>
 
   <template v-if="asSplitterPanel">
@@ -37,7 +36,7 @@ const allowResizing = getSettingValueRef('layout.allow-resizing')
     </SplitterPanel>
     <SplitterResizeHandle
       v-if="withResizeHandle"
-      :disabled="!allowResizing"
+      :disabled="!settings.layout.allowResizing"
       class="bg-border data-[orientation=horizontal]:h-full data-[orientation=horizontal]:w-px data-[orientation=vertical]:h-px data-[orientation=vertical]:w-full"
     />
   </template>

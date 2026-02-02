@@ -3,10 +3,7 @@ import type { SystemFont } from 'tauri-plugin-system-fonts-api'
 import { useFilter } from 'reka-ui'
 import { getSystemFonts } from 'tauri-plugin-system-fonts-api'
 
-const { getSettingValueRef } = useSettings()
-const appearanceFont = getSettingValueRef('appearance.font.name')
-const appearanceFontWeight = getSettingValueRef('appearance.font.weight')
-const appearanceFontVariant = getSettingValueRef('appearance.font.variant')
+const settings = useSettings()
 
 const fontNameQuery = shallowRef('')
 const dropdownOpen = shallowRef(false)
@@ -23,7 +20,7 @@ const { contains } = useFilter({ sensitivity: 'base' })
 const filteredFonts = computed(() => fontsDeduped.value.filter(font => contains(font, fontNameQuery.value)))
 
 const currentFontData = computed(() => {
-  const font = fonts.value.find(font => font.name === appearanceFont.value)
+  const font = fonts.value.find(font => font.name === settings.appearance.font.name)
   if (!font)
     return null
 
@@ -46,7 +43,7 @@ const variants = useArrayUnique(() => !currentFontData.value ? [] : [...currentF
     <div class="flex items-center gap-2">
       <UComboboxRoot
         v-model:open="dropdownOpen"
-        v-model:model-value="appearanceFont"
+        v-model:model-value="settings.appearance.font.name"
         :disabled="!fonts.length"
         class="w-96"
       >
@@ -69,9 +66,9 @@ const variants = useArrayUnique(() => !currentFontData.value ? [] : [...currentF
           </UComboboxViewport>
         </UComboboxList>
       </UComboboxRoot>
-      <USelectRoot v-model:model-value="appearanceFontWeight">
+      <USelectRoot v-model:model-value="settings.appearance.font.weight">
         <USelectTrigger :disabled="!currentFontData" class="w-28">
-          {{ appearanceFontWeight }}
+          {{ settings.appearance.font.weight }}
         </USelectTrigger>
         <USelectContent v-if="currentFontData" class="min-w-0">
           <USelectItem
@@ -83,9 +80,9 @@ const variants = useArrayUnique(() => !currentFontData.value ? [] : [...currentF
           </USelectItem>
         </USelectContent>
       </USelectRoot>
-      <USelectRoot v-model:model-value="appearanceFontVariant">
+      <USelectRoot v-model:model-value="settings.appearance.font.variant">
         <USelectTrigger :disabled="!currentFontData" class="w-28">
-          {{ appearanceFontVariant }}
+          {{ settings.appearance.font.variant }}
         </USelectTrigger>
         <USelectContent v-if="currentFontData" class="min-w-0">
           <USelectItem

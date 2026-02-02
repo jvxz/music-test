@@ -11,7 +11,7 @@ const { getTrackList } = useTrackList()
 const { playbackStatus, playTrack } = usePlayback()
 const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
 const { checkIsSelected, clearSelectedTracks, editTrackSelection, selectedTrackData } = useTrackSelection()
-const { getSettingValue } = useSettings()
+const settings = useSettings()
 
 const { data: folderEntries, pending: isLoadingPlaylistData } = getTrackList(toRef(props))
 
@@ -132,16 +132,13 @@ function handleRightClick(entry: TrackListEntry) {
   }
 }
 
-const { getSettingValueRef } = useSettings()
-const rowStyle = computed(() => getSettingValueRef('layout.element.track-list').value.rowStyle)
-
 onKeyStrokeSafe('ctrl_a', () => selectedTrackData.value.entries = folderEntries.value)
 onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
 </script>
 
 <template>
   <div
-    :data-row-style="rowStyle"
+    :data-row-style="settings.layout.element.trackList.rowStyle"
     class="group flex h-full flex-1 cursor-default flex-col select-none"
   >
     <LayoutTrackListHeader
@@ -151,7 +148,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
       :is-loading="isLoadingPlaylistData"
     />
     <LayoutTrackListColumns v-bind="props" />
-    <OnClickOutside @trigger="getSettingValue('general.click-outside-to-deselect') ? clearSelectedTracks() : null">
+    <OnClickOutside @trigger="settings.general.clickOutsideToDeselect ? clearSelectedTracks() : null">
       <LayoutTrackListVirtualProvider
         v-if="shouldVirtualize || forceVirtualize"
         v-slot="{ containerProps, list, wrapperProps }"
