@@ -399,6 +399,7 @@ pub async fn run() {
       cover_protocol::handler(ctx, req, responder, cover_protocol::CoverMode::Thumbnail)
     })
     .plugin(tauri_plugin_vue::init())
+    .plugin(tauri_plugin_pinia::init())
     .plugin(tauri_plugin_system_fonts::init())
     .plugin(tauri_plugin_drag::init())
     .plugin(tauri_plugin_shell::init())

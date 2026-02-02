@@ -114,17 +114,18 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/icon',
     'dayjs-nuxt',
+    '@pinia/nuxt',
   ],
-
-  router: {
-    options: {
-      scrollBehaviorType: 'smooth',
-    },
-  },
 
   routeRules: {
     '/playground': {
       appLayout: false,
+    },
+  },
+
+  router: {
+    options: {
+      scrollBehaviorType: 'smooth',
     },
   },
 

@@ -1,11 +1,15 @@
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import { message } from '@tauri-apps/plugin-dialog'
+import { createPlugin } from '@tauri-store/pinia'
 
 export default defineNuxtPlugin({
   name: 'tauri',
   setup: async (app) => {
     const rpc = createTauRPCProxy()
+
+    const pinia = usePinia()
+    pinia.use(createPlugin())
 
     const tauriStore = await useTauriStoreLoad('prefs.json', {
       autoSave: true,
