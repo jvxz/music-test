@@ -13,6 +13,9 @@ const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
 const { checkIsSelected, clearSelectedTracks, editTrackSelection, selectedTrackData } = useTrackSelection()
 const settings = useSettings()
 
+const { getColumnFields } = useTrackListColumns()
+const columnFields = getColumnFields('objects')
+
 const { data: folderEntries, pending: isLoadingPlaylistData } = getTrackList(toRef(props))
 
 let allowRowDragStart = false
@@ -168,6 +171,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
                 v-for="entry in list"
                 :key="entry.data.path"
                 v-memo="[
+                  columnFields.map(field => field.key),
                   entry.data.path,
                   checkIsSelected(entry.data),
                   playbackStatus?.path === entry.data.path,
@@ -175,6 +179,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
                 ]"
                 draggable="true"
                 :entry="entry.data"
+                :columns="columnFields"
                 :is-selected="checkIsSelected(entry.data)"
                 :is-playing="playbackStatus?.path === entry.data.path"
                 :is-even="entry.index % 2 === 0"
@@ -204,6 +209,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
               v-for="(entry, index) in folderEntries"
               :key="entry.path"
               v-memo="[
+                columnFields.map(field => field.key),
                 entry.path,
                 checkIsSelected(entry),
                 playbackStatus?.path === entry.path,
@@ -211,6 +217,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
               ]"
               draggable="true"
               :entry="entry"
+              :columns="columnFields"
               :is-selected="checkIsSelected(entry)"
               :is-playing="playbackStatus?.path === entry.path"
               :is-even="index % 2 === 0"
