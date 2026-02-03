@@ -13,7 +13,7 @@ const rowStyle = settings.layout.element.trackList.rowStyle
       <UDropdownMenuRoot>
         <UDropdownMenuTrigger as-child>
           <UButton variant="soft" class="w-64 justify-between">
-            {{ sentenceCase(rowStyle) }}
+            {{ upperFirst(rowStyle) }}
             <Icon name="tabler:chevron-down" />
           </UButton>
         </UDropdownMenuTrigger>

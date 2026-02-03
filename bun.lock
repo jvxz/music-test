@@ -39,11 +39,11 @@
         "nuxt-icons": "4.0.0",
         "pinia": "^3.0.4",
         "reka-ui": "^2.7.0",
+        "scule": "^1.3.0",
         "tailwind-merge": "^3.4.0",
         "tailwindcss": "^4.1.18",
         "tauri-plugin-system-fonts-api": "^2.0.2",
         "taurpc": "^1.8.1",
-        "text-case": "^1.2.10",
         "tw-animate-css": "^1.4.0",
         "vite": "^7.3.1",
         "vue": "^3.5.27",
@@ -2193,49 +2193,7 @@
 
     "terser": ["terser@5.46.0", "", { "dependencies": { "@jridgewell/source-map": "^0.3.3", "acorn": "^8.15.0", "commander": "^2.20.0", "source-map-support": "~0.5.20" }, "bin": { "terser": "bin/terser" } }, "sha512-jTwoImyr/QbOWFFso3YoU3ik0jBBDJ6JTOQiy/J2YxVJdZCc+5u7skhNwiOR3FQIygFqVUPHl7qbbxtjW2K3Qg=="],
 
-    "text-camel-case": ["text-camel-case@1.2.10", "", { "dependencies": { "text-pascal-case": "1.2.10" } }, "sha512-KNrWeZzQT+gh73V1LnmgTkjK7V+tMRjLCc6VrGwkqbiRdnGVIWBUgIvVnvnaVCxIvZ/2Ke8DCmgPirlQcCqD3Q=="],
-
-    "text-capital-case": ["text-capital-case@1.2.10", "", { "dependencies": { "text-no-case": "1.2.10", "text-upper-case-first": "1.2.10" } }, "sha512-yvViUJKSSQcRO58je224bhPHg/Hij9MEY43zuKShtFzrPwW/fOAarUJ5UkTMSB81AOO1m8q+JiFdxMF4etKZbA=="],
-
-    "text-case": ["text-case@1.2.10", "", { "dependencies": { "text-camel-case": "1.2.10", "text-capital-case": "1.2.10", "text-constant-case": "1.2.10", "text-dot-case": "1.2.10", "text-header-case": "1.2.10", "text-is-lower-case": "1.2.10", "text-is-upper-case": "1.2.10", "text-kebab-case": "1.2.10", "text-lower-case": "1.2.10", "text-lower-case-first": "1.2.10", "text-no-case": "1.2.10", "text-param-case": "1.2.10", "text-pascal-case": "1.2.10", "text-path-case": "1.2.10", "text-sentence-case": "1.2.10", "text-snake-case": "1.2.10", "text-swap-case": "1.2.10", "text-title-case": "1.2.10", "text-upper-case": "1.2.10", "text-upper-case-first": "1.2.10" } }, "sha512-5bY3Ks/u7OJ5YO69iyXrG5Xf2wUZeyko7U78nPUnYoSeuNeAfA5uAix5hTspfkl6smm3yCBObrex+kFvzeIcJg=="],
-
-    "text-constant-case": ["text-constant-case@1.2.10", "", { "dependencies": { "text-no-case": "1.2.10", "text-upper-case": "1.2.10" } }, "sha512-/OfU798O2wrwKN9kQf71WhJeAlklGnbby0Tupp+Ez9NXymW+6oF9LWDRTkN+OreTmHucdvp4WQd6O5Rah5zj8A=="],
-
     "text-decoder": ["text-decoder@1.2.3", "", { "dependencies": { "b4a": "^1.6.4" } }, "sha512-3/o9z3X0X0fTupwsYvR03pJ/DjWuqqrfwBgTQzdWDiQSm9KitAyz/9WqsT2JQW7KV2m+bC2ol/zqpW37NHxLaA=="],
-
-    "text-dot-case": ["text-dot-case@1.2.10", "", { "dependencies": { "text-no-case": "1.2.10" } }, "sha512-vf4xguy5y6e39RlDZeWZFMDf2mNkR23VTSVb9e68dUSpfJscG9/1YWWpW3n8TinzQxBZlsn5sT5olL33MvvQXw=="],
-
-    "text-header-case": ["text-header-case@1.2.10", "", { "dependencies": { "text-capital-case": "1.2.10" } }, "sha512-sVb1NY9bwxtu+Z7CVyWbr+I0AkWtF0kEHL/Zz5V2u/WdkjK5tKBwl5nXf0NGy9da4ZUYTBb+TmQpOIqihzvFMQ=="],
-
-    "text-is-lower-case": ["text-is-lower-case@1.2.10", "", {}, "sha512-dMTeTgrdWWfYf3fKxvjMkDPuXWv96cWbd1Uym6Zjv9H855S1uHxjkFsGbTYJ2tEK0NvAylRySTQlI6axlcMc4w=="],
-
-    "text-is-upper-case": ["text-is-upper-case@1.2.10", "", {}, "sha512-PGD/cXoXECGAY1HVZxDdmpJUW2ZUAKQ6DTamDfCHC9fc/z4epOz0pB/ThBnjJA3fz+d2ApkMjAfZDjuZFcodzg=="],
-
-    "text-kebab-case": ["text-kebab-case@1.2.10", "", { "dependencies": { "text-no-case": "1.2.10" } }, "sha512-3XZJAApx5JQpUO7eXo7GQ2TyRcGw3OVbqxz6QJb2h+N8PbLLbz3zJVeXdGrhTkoUIbkSZ6PmHx6LRDaHXTdMcA=="],
-
-    "text-lower-case": ["text-lower-case@1.2.10", "", {}, "sha512-c9j5pIAN3ObAp1+4R7970e1bgtahTRF/5ZQdX2aJBuBngYTYZZIck0NwFXUKk5BnYpLGsre5KFHvpqvf4IYKgg=="],
-
-    "text-lower-case-first": ["text-lower-case-first@1.2.10", "", {}, "sha512-Oro84jZPDLD9alfdZWmtFHYTvCaaSz2o4thPtjMsK4GAkTyVg9juYXWj0y0YFyjLYGH69muWsBe4/MR5S7iolw=="],
-
-    "text-no-case": ["text-no-case@1.2.10", "", { "dependencies": { "text-lower-case": "1.2.10" } }, "sha512-4/m79pzQrywrwEG5lCULY1lQvFY+EKjhH9xSMT6caPK5plqzm9Y7rXyv+UXPd3s9qH6QODZnvsAYWW3M0JgxRA=="],
-
-    "text-param-case": ["text-param-case@1.2.10", "", { "dependencies": { "text-dot-case": "1.2.10" } }, "sha512-hkavcLsRRzZcGryPAshct1AwIOMj/FexYjMaLpGZCYYBn1lcZEeyMzJZPSckzkOYpq35LYSQr3xZto9XU5OAsw=="],
-
-    "text-pascal-case": ["text-pascal-case@1.2.10", "", { "dependencies": { "text-no-case": "1.2.10" } }, "sha512-/kynZD8vTYOmm/RECjIDaz3qYEUZc/N/bnC79XuAFxwXjdNVjj/jGovKJLRzqsYK/39N22XpGcVmGg7yIrbk6w=="],
-
-    "text-path-case": ["text-path-case@1.2.10", "", { "dependencies": { "text-dot-case": "1.2.10" } }, "sha512-vbKdRCaVEeOaW6sm24QP9NbH7TS9S4ZQ3u19H8eylDox7m2HtFwYIBjAPv+v3z4I/+VjrMy9LB54lNP1uEqRHw=="],
-
-    "text-sentence-case": ["text-sentence-case@1.2.10", "", { "dependencies": { "text-no-case": "1.2.10", "text-upper-case-first": "1.2.10" } }, "sha512-NO4MRlbfxFhl9QgQLuCL4xHmvE7PUWHVPWsZxQ5nzRtDjXOUllWvtsvl8CP5tBEvBmzg0kwfflxfhRtr5vBQGg=="],
-
-    "text-snake-case": ["text-snake-case@1.2.10", "", { "dependencies": { "text-dot-case": "1.2.10" } }, "sha512-6ttMZ+B9jkHKun908HYr4xSvEtlbfJJ4MvpQ06JEKRGhwjMI0x8t2Wywp+MEzN6142O6E/zKhra18KyBL6cvXA=="],
-
-    "text-swap-case": ["text-swap-case@1.2.10", "", {}, "sha512-vO3jwInIk0N77oEFakYZ2Hn/llTmRwf2c3RvkX/LfvmLWVp+3QcIc6bwUEtbqGQ5Xh2okjFhYrfkHZstVc3N4Q=="],
-
-    "text-title-case": ["text-title-case@1.2.10", "", { "dependencies": { "text-no-case": "1.2.10", "text-upper-case-first": "1.2.10" } }, "sha512-bqA+WWexUMWu9A3fdNar+3GXXW+c5xOvMyuK5hOx/w0AlqhyQptyCrMFjGB8Fd9dxbryBNmJ+5rWtC1OBDxlaA=="],
-
-    "text-upper-case": ["text-upper-case@1.2.10", "", {}, "sha512-L1AtZ8R+jtSMTq0Ffma9R4Rzbrc3iuYW89BmWFH41AwnDfRmEBlBOllm1ZivRLQ/6pEu2p+3XKBHx9fsMl2CWg=="],
-
-    "text-upper-case-first": ["text-upper-case-first@1.2.10", "", {}, "sha512-VXs7j7BbpKwvolDh5fwpYRmMrUHGkxbY8E90fhBzKUoKfadvWmPT/jFieoZ4UPLzr208pXvQEFbb2zO9Qzs9Fg=="],
 
     "tiny-invariant": ["tiny-invariant@1.3.3", "", {}, "sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg=="],
 

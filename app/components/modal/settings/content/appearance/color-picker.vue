@@ -7,7 +7,7 @@ const { settingKey } = defineProps<{
 
 const settings = useSettings()
 
-const label = computed(() => sentenceCase(settingKey.split('.').pop()!))
+const label = computed(() => upperFirst(settingKey.split('.').pop()!))
 
 const isColorValid = shallowRef(true)
 

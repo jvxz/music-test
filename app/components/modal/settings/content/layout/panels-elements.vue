@@ -58,7 +58,7 @@ function hasSettings(elementKey: LayoutElementKey) {
             :class="hasSettings(element) ? 'rounded-r-none' : ''"
           >
             <Icon name="tabler:grip-vertical" class="size-3.5!" />
-            <p>{{ sentenceCase(element) }}</p>
+            <p>{{ upperFirst(splitByCase(element).map(flatCase).join(' ')) }}</p>
           </UButton>
           <UButton
             v-if="hasSettings(element)"
