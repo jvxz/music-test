@@ -36,6 +36,7 @@ export default defineNuxtPlugin({
 
     return {
       provide: {
+        settings,
         tauri: {
           invoke,
           listen,
