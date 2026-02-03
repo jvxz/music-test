@@ -17,27 +17,9 @@ export function useLayout() {
     panel.elements = panel.elements.filter(k => k !== elementKey)
   }
 
-  function getPanelElements<T extends LayoutPanelKey>(panelKey: T) {
-    return settings.layout.panel[panelKey].elements
-  }
-
-  function getElementSettings<T extends LayoutElementKey>(elementKey: T) {
-    return settings.layout.element[elementKey]
-  }
-
-  function getPanelSize<T extends LayoutPanelKey>(panelKey: T) {
-    return settings.layout.panel[panelKey].size
-  }
-
-  const getAllPanelElements = () => settings.layout.element
-
-  function getPanelElementSizes<T extends LayoutPanelKey>(panelKey: T) {
-    return settings.layout.panel[panelKey].elementSizes
-  }
-
   const handlePanelSizeChange = useDebounceFn((panelKeyOrder: LayoutPanelKey[], sizes: number[]) => {
     for (const [index, panelKey] of panelKeyOrder.entries()) {
-      if (!getPanelElements(panelKey).length)
+      if (!settings.layout.panel[panelKey].elements.length)
         continue
 
       if (sizes[index] === undefined) {
@@ -55,7 +37,7 @@ export function useLayout() {
 
   function isElementAllowedInPanel(panelKey: LayoutPanelKey, elementKey: LayoutElementKey): boolean {
     const allowedElements = layoutPanels[panelKey].allowedElements as readonly LayoutElementKey[]
-    const existingElements = getPanelElements(panelKey)
+    const existingElements = settings.layout.panel[panelKey].elements
 
     return allowedElements.includes(elementKey) && !existingElements.includes(elementKey)
   }
@@ -64,11 +46,6 @@ export function useLayout() {
     addElementToPanel,
     elementDraggingData,
     elementSettingsToShow,
-    getAllPanelElements,
-    getElementSettings,
-    getPanelElements,
-    getPanelElementSizes,
-    getPanelSize,
     handlePanelElementsSizeChange,
     handlePanelSizeChange,
     isElementAllowedInPanel,
