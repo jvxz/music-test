@@ -5,7 +5,7 @@ const settings = useSettings()
 
 const presets = settings.appearance.presets
 
-const presetArray = computed(() => Array.from(Object.entries(presets)).map(([name, colors]) => ({
+const presetArray = computed(() => objectEntries(presets).map(([name, colors]) => ({
   colors,
   name,
 })))
@@ -15,8 +15,6 @@ function handlePresetClick(preset: typeof presetArray.value[number]) {
   settings.appearance.token = preset.colors
   selectedPreset.value = preset
 }
-
-// const alertDialogAction = shallowRef<'save-new' | 'rename' | null>(null)
 
 const dialogOpen = shallowRef(false)
 const presetName = shallowRef('')
@@ -34,9 +32,7 @@ async function handlePresetSave() {
 
   dialogOpen.value = false
 
-  const theme = Object.fromEntries(
-    Object.entries(settings).filter(([key]) => key.startsWith('appearance.token.')),
-  ) as Record<SettingsEntryKey & `appearance.token.${string}`, string>
+  const theme = settings.appearance.token
 
   settings.$patch({
     appearance: {
@@ -66,14 +62,14 @@ async function handlePresetDelete() {
 </script>
 
 <template>
-  <div class="flex w-full items-center gap-2">
+  <div class="flex w-sm items-center gap-2">
     <UDropdownMenuRoot>
       <UDropdownMenuTrigger as-child>
         <UButton variant="soft" class="w-full shrink justify-between">
           <span class="truncate">{{ selectedPreset?.name ?? 'Presets' }}</span> <Icon class="shrink-0" name="tabler:chevron-down" />
         </UButton>
       </UDropdownMenuTrigger>
-      <UDropdownMenuContent class="w-full">
+      <UDropdownMenuContent class="w-(--reka-dropdown-menu-trigger-width)">
         <UDropdownMenuGroup v-if="presetArray.length">
           <UDropdownMenuItem
             v-for="preset in presetArray"
@@ -84,9 +80,7 @@ async function handlePresetDelete() {
           </UDropdownMenuItem>
         </UDropdownMenuGroup>
         <UDropdownMenuGroup v-else>
-          <UDropdownMenuItem
-            disabled
-          >
+          <UDropdownMenuItem disabled>
             No presets found
           </UDropdownMenuItem>
         </UDropdownMenuGroup>
