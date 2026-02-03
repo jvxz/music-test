@@ -3,9 +3,9 @@ withDefaults(defineProps<{
   disabled?: boolean
   values: T[]
   label: string
-  sentenceCased?: boolean
+  upperFirstd?: boolean
 }>(), {
-  sentenceCased: true,
+  upperFirstd: true,
 })
 
 const modelValue = defineModel<T>()
@@ -25,7 +25,7 @@ const id = useId()
     <USelectRoot v-model:model-value="modelValue">
       <USelectTrigger>
         <USelectValue>
-          {{ $props.sentenceCased ? sentenceCase(modelValue) : modelValue }}
+          {{ $props.upperFirstd ? upperFirst(modelValue) : modelValue }}
         </USelectValue>
       </USelectTrigger>
       <USelectContent>
@@ -35,7 +35,7 @@ const id = useId()
           :value
         >
           <USelectItemText>
-            {{ $props.sentenceCased ? sentenceCase(value) : value }}
+            {{ $props.upperFirstd ? upperFirst(value) : value }}
           </USelectItemText>
         </USelectItem>
       </USelectContent>

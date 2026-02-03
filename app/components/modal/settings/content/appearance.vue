@@ -9,7 +9,7 @@ const themeTokens = ['background', 'border', 'foreground', 'primary', 'surface',
       <ModalSettingsContentAppearanceColorPicker
         v-for="token in themeTokens"
         :key="token"
-        :setting-key="`appearance.token.${token}`"
+        :setting-key="token"
       />
       <ModalSettingsContentAppearanceFont />
     </div>

@@ -2,22 +2,14 @@
 import { Colord } from 'colord'
 
 const { settingKey } = defineProps<{
-  settingKey: SettingsEntryKey & `appearance.token.${string}`
+  settingKey: keyof Settings['appearance']['token']
 }>()
 
-const { getSettingValueRef } = useSettings()
+const settings = useSettings()
 
-const label = computed(() => sentenceCase(settingKey.split('.').pop()!))
+const label = computed(() => upperFirst(settingKey.split('.').pop()!))
 
 const isColorValid = shallowRef(true)
-const color = getSettingValueRef(settingKey, {
-  onBeforeChange: (value) => {
-    const isValid = new Colord(value).isValid()
-
-    isColorValid.value = isValid
-    return isValid
-  },
-})
 
 const colorPicker = shallowRef<HTMLInputElement | null>(null)
 function handleColorPickerClick() {
@@ -25,6 +17,16 @@ function handleColorPickerClick() {
     return
   colorPicker.value?.click()
 }
+
+const localColor = refWithControl(settings.appearance.token[settingKey], {
+  onBeforeChange: (color) => {
+    const isValid = new Colord(color).isValid()
+    isColorValid.value = isValid
+
+    if (isValid)
+      settings.appearance.token[settingKey] = color
+  },
+})
 </script>
 
 <template>
@@ -36,19 +38,19 @@ function handleColorPickerClick() {
       <UButton
         class="aspect-square"
         :style="{
-          backgroundColor: color,
-          borderColor: new Colord(color).lighten(0.1).toHex(),
+          backgroundColor: settings.appearance.token[settingKey],
+          borderColor: new Colord(settings.appearance.token[settingKey]).lighten(0.1).toHex(),
         }"
         @click="handleColorPickerClick"
       />
       <input
         ref="colorPicker"
-        v-model="color"
+        v-model="localColor"
         type="color"
         class="invisible absolute inset-0 -left-2"
       />
       <UInput
-        v-model="color"
+        v-model="localColor"
         :class="{
           'border-danger': !isColorValid,
         }"

@@ -6,12 +6,13 @@ const { tab } = useSettingsModal()
 const components = Object.fromEntries(
   SETTINGS_MODAL_TABS.map(
     t => [t, defineAsyncComponent<VNode>(async () => {
+      const filename = kebabCase(t)
       try {
-        const component = await import(`~/components/modal/settings/content/${t}.vue`)
+        const component = await import(`~/components/modal/settings/content/${filename}.vue`)
         return component
       }
       catch {
-        return h('div', { innerHTML: `Please create ~/components/modal/settings/content/${t}.vue` })
+        return h('div', { innerHTML: `Please create ~/components/modal/settings/content/${filename}.vue` })
       }
     })],
   ),
@@ -32,7 +33,7 @@ const components = Object.fromEntries(
         as-child
       >
         <UButton variant="ghost" class="w-full justify-start data-[state=active]:ghost-button-active">
-          {{ tab === 'last-fm' ? 'Last.fm' : sentenceCase(tab) }}
+          {{ tab === 'lastFm' ? 'Last.fm' : upperFirst(tab) }}
         </UButton>
       </TabsTrigger>
     </TabsList>

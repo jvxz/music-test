@@ -74,18 +74,12 @@ export default defineNuxtConfig({
   imports: {
     dirs: ['types', 'constants/**'],
     presets: [
+      { package: 'scule' },
       {
         cache: true,
         from: 'vue-draggable-plus',
         imports: [
           'useDraggable',
-        ],
-      },
-      {
-        cache: true,
-        from: 'text-case',
-        imports: [
-          'sentenceCase',
         ],
       },
       {
@@ -114,6 +108,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/icon',
     'dayjs-nuxt',
+    '@pinia/nuxt',
   ],
 
   router: {

@@ -6697,6 +6697,7 @@ dependencies = [
  "tauri-plugin-notification",
  "tauri-plugin-opener",
  "tauri-plugin-os",
+ "tauri-plugin-pinia",
  "tauri-plugin-shell",
  "tauri-plugin-sql",
  "tauri-plugin-store",
@@ -7370,6 +7371,18 @@ dependencies = [
  "tauri",
  "tauri-plugin",
  "thiserror 2.0.17",
+]
+
+[[package]]
+name = "tauri-plugin-pinia"
+version = "4.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "07c76f51c6eb150047ae2fe3b4fcd8b0c9310807c8d59042eb5371b74163325a"
+dependencies = [
+ "serde",
+ "tauri",
+ "tauri-plugin",
+ "tauri-store",
 ]
 
 [[package]]

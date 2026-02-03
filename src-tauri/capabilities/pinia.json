@@ -1,10 +1,10 @@
 {
-  "identifier": "vue",
+  "identifier": "pinia",
   "windows": [
     "*"
   ],
   "permissions": [
-    "vue:default",
+    "pinia:default",
     "core:event:default"
   ]
 }

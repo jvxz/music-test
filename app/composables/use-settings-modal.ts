@@ -3,11 +3,11 @@ export const SETTINGS_MODAL_TABS = [
   'library',
   'layout',
   'appearance',
-  'last-fm',
+  'lastFm',
   'advanced',
 ] as const
 
-export function useSettingsModal() {
+export const useSettingsModal = createSharedComposable(() => {
   const open = useState('settings-modal-open', () => false)
   const tab = useState('settings-modal-tab', () => SETTINGS_MODAL_TABS[0])
 
@@ -22,4 +22,4 @@ export function useSettingsModal() {
     tab,
     toggleSettingsModal,
   }
-}
+})

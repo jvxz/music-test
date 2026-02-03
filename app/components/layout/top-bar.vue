@@ -1,16 +1,11 @@
-<script lang="ts" setup>
-const { getSettingValueRef } = useSettings()
-const panelElements = getSettingValueRef('layout.panel.top')
-</script>
-
 <template>
   <div class="h-fit border-b">
     <LayoutPanelSplitterGroup panel-key="top" direction="horizontal">
       <LayoutPanel
-        v-for="(element, idx) in panelElements"
+        v-for="(element, idx) in $settings.layout.panel.top.elements"
         :key="element"
         :element="element"
-        :with-resize-handle="idx !== panelElements.length - 1"
+        :with-resize-handle="idx !== $settings.layout.panel.top.elements.length - 1"
       />
     </LayoutPanelSplitterGroup>
   </div>

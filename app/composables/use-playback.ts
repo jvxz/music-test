@@ -79,6 +79,27 @@ export const usePlayback = createSharedComposable(() => {
     }
   })
 
+  const getTrackData = useThrottleFn(async (entry: TrackListEntry): Promise<TrackListEntry | null> => {
+    const res = await rpc.get_track_data(entry.path)
+    if (!res)
+      return null
+
+    return {
+      ...res,
+      ...entry,
+    }
+  }, 500)
+  // const getTrackData = useMemoize(async (entry: TrackListEntry): Promise<TrackListEntry | null> => {
+  //   const res = await rpc.get_track_data(entry.path)
+  //   if (!res)
+  //     return null
+
+  //   return {
+  //     ...res,
+  //     ...entry,
+  //   }
+  // })
+
   async function playPauseCurrentTrack(action?: 'Resume' | 'Pause') {
     // scrobble current track if not already scrobbled & applicable
     if (_currentTrack.value && _playbackStatus.value && canScrobble()) {
@@ -189,17 +210,6 @@ export const usePlayback = createSharedComposable(() => {
 
     if (_playbackStatus.value) {
       _playbackStatus.value.is_muted = !_playbackStatus.value.is_muted
-    }
-  }
-
-  async function getTrackData(entry: TrackListEntry): Promise<TrackListEntry | null> {
-    const res = await rpc.get_track_data(entry.path)
-    if (!res)
-      return null
-
-    return {
-      ...res,
-      ...entry,
     }
   }
 

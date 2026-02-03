@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-const { getSettingValueRef } = useSettings()
+const settings = useSettings()
 
-const rowStyle = getSettingValueRef('track-list.row-style')
+const rowStyle = settings.layout.element.trackList.rowStyle
 </script>
 
 <template>
@@ -13,7 +13,7 @@ const rowStyle = getSettingValueRef('track-list.row-style')
       <UDropdownMenuRoot>
         <UDropdownMenuTrigger as-child>
           <UButton variant="soft" class="w-64 justify-between">
-            {{ sentenceCase(rowStyle) }}
+            {{ upperFirst(rowStyle) }}
             <Icon name="tabler:chevron-down" />
           </UButton>
         </UDropdownMenuTrigger>

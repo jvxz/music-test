@@ -9,21 +9,21 @@ const offlineScrobbleCache = new LazyStore('lastfm-offline-scrobbles.json', {
 
 export function useLastFm() {
   const { rpc } = useTauri()
-  const { getSettingValue, setSettingValue } = useSettings()
   const { isOnline } = useNetwork()
+  const settings = useSettings()
 
   const { data: authStatus, execute: refreshAuthStatus, pending: authStatusPending } = useAsyncData('lastfm-auth', async () => {
     const status = await rpc.get_lastfm_auth_status()
 
     if (status) {
-      return getSettingValue('last-fm.username') ?? undefined
+      return settings.lastFm.username ?? undefined
     }
   })
 
   watch([isOnline, authStatus], async (isOnline) => {
     await until(authStatusPending).toBe(false)
 
-    const shouldProcessOfflineScrobbles = getSettingValue('last-fm.do-offline-scrobbling') && authStatus.value
+    const shouldProcessOfflineScrobbles = settings.lastFm.doScrobbling && authStatus.value
     if (!shouldProcessOfflineScrobbles)
       return
 
@@ -69,19 +69,19 @@ export function useLastFm() {
   const completeAuth = async (token: string) => {
     const username = await rpc.complete_lastfm_auth(token)
     if (username) {
-      setSettingValue('last-fm.username', username)
+      settings.lastFm.username = username
       await refreshAuthStatus()
       return username
     }
   }
   const removeAuth = async () => {
     await rpc.remove_lastfm_account()
-    setSettingValue('last-fm.username', null)
+    settings.lastFm.username = null
     await refreshAuthStatus()
   }
 
   const updateNowPlaying = useDebounceFn(async (track: TrackListEntry, duration: number) => {
-    if (!getSettingValue('last-fm.do-scrobbling') || !isOnline.value || !track.valid)
+    if (!settings.lastFm.doScrobbling || !isOnline.value || !track.valid)
       return
 
     const scrobble = getSerializedScrobble(track, duration)
@@ -91,7 +91,7 @@ export function useLastFm() {
   }, 2000)
 
   const scrobbleTrack = useDebounceFn(async (track: TrackListEntry, duration: number) => {
-    if (!getSettingValue('last-fm.do-scrobbling') || !track.valid)
+    if (!settings.lastFm.doScrobbling || !track.valid)
       return
 
     const scrobble = getSerializedScrobble(track, duration)
@@ -131,7 +131,7 @@ export function useLastFm() {
   }
 
   async function addOfflineScrobble(scrobble: SerializedOfflineScrobble) {
-    const shouldCacheOfflineScrobbles = getSettingValue('last-fm.do-offline-scrobbling') && authStatus.value
+    const shouldCacheOfflineScrobbles = settings.lastFm.doOfflineScrobbling && authStatus.value
     if (!shouldCacheOfflineScrobbles)
       return
 

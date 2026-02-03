@@ -1,22 +1,20 @@
 <script lang="ts" setup>
 import { confirm } from '@tauri-apps/plugin-dialog'
 
-const { getSettingValueRef, setSettingValue, setSettingValues, settings } = useSettings()
+const settings = useSettings()
 
-const presets = getSettingValueRef('appearance.presets')
+const presets = settings.appearance.presets
 
-const presetArray = computed(() => Array.from(Object.entries(presets.value)).map(([name, colors]) => ({
+const presetArray = computed(() => objectEntries(presets).map(([name, colors]) => ({
   colors,
   name,
 })))
 
 const selectedPreset = shallowRef<typeof presetArray.value[number] | null>(null)
 function handlePresetClick(preset: typeof presetArray.value[number]) {
-  setSettingValues(preset.colors as Record<SettingsEntryKey, SettingsEntryValue<SettingsEntryKey>>)
+  settings.appearance.token = preset.colors
   selectedPreset.value = preset
 }
-
-// const alertDialogAction = shallowRef<'save-new' | 'rename' | null>(null)
 
 const dialogOpen = shallowRef(false)
 const presetName = shallowRef('')
@@ -34,13 +32,15 @@ async function handlePresetSave() {
 
   dialogOpen.value = false
 
-  const theme = Object.fromEntries(
-    Object.entries(settings.value).filter(([key]) => key.startsWith('appearance.token.')),
-  ) as Record<SettingsEntryKey & `appearance.token.${string}`, string>
+  const theme = settings.appearance.token
 
-  setSettingValue('appearance.presets', {
-    ...settings.value['appearance.presets'],
-    [presetName.value]: theme,
+  settings.$patch({
+    appearance: {
+      presets: {
+        ...settings.appearance.presets,
+        [presetName.value]: theme,
+      },
+    },
   })
   presetName.value = ''
 }
@@ -53,23 +53,23 @@ async function handlePresetDelete() {
   if (!confirmation)
     return
 
-  const presets = settings.value['appearance.presets']
+  const presets = settings.appearance.presets
   delete presets[selectedPreset.value.name]
 
-  setSettingValue('appearance.presets', presets)
+  settings.appearance.presets = presets
   selectedPreset.value = null
 }
 </script>
 
 <template>
-  <div class="flex w-full items-center gap-2">
+  <div class="flex w-sm items-center gap-2">
     <UDropdownMenuRoot>
       <UDropdownMenuTrigger as-child>
         <UButton variant="soft" class="w-full shrink justify-between">
           <span class="truncate">{{ selectedPreset?.name ?? 'Presets' }}</span> <Icon class="shrink-0" name="tabler:chevron-down" />
         </UButton>
       </UDropdownMenuTrigger>
-      <UDropdownMenuContent class="w-full">
+      <UDropdownMenuContent class="w-(--reka-dropdown-menu-trigger-width)">
         <UDropdownMenuGroup v-if="presetArray.length">
           <UDropdownMenuItem
             v-for="preset in presetArray"
@@ -80,9 +80,7 @@ async function handlePresetDelete() {
           </UDropdownMenuItem>
         </UDropdownMenuGroup>
         <UDropdownMenuGroup v-else>
-          <UDropdownMenuItem
-            disabled
-          >
+          <UDropdownMenuItem disabled>
             No presets found
           </UDropdownMenuItem>
         </UDropdownMenuGroup>

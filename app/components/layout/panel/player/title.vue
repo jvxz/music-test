@@ -19,16 +19,13 @@ async function handleDragStart() {
   })
 }
 
-const { getElementSettings } = useLayout()
-const elementSettings = getElementSettings('player')
-
 const [DefineMarquee, ReuseMarquee] = createReusableTemplate()
 </script>
 
 <template>
   <DefineMarquee v-slot="{ $slots }">
     <UMarquee
-      v-if="elementSettings.marqueeText"
+      v-if="$settings.layout.element.player.marqueeText"
       :key="currentTrack?.tags.TIT2 ?? currentTrack?.name"
       :title="currentTrack?.tags.TIT2 ?? currentTrack?.name"
       :animate-on-overflow-only="true"
@@ -43,7 +40,7 @@ const [DefineMarquee, ReuseMarquee] = createReusableTemplate()
   </DefineMarquee>
 
   <div
-    :data-position="elementSettings.titlePosition"
+    :data-position="$settings.layout.element.player.titlePosition"
     class="group flex cursor-default flex-col data-[position=center]:h-9 data-[position=center]:items-center"
     draggable="true"
     @dragstart.prevent="handleDragStart"
@@ -53,7 +50,7 @@ const [DefineMarquee, ReuseMarquee] = createReusableTemplate()
         :title="currentTrack?.tags.TIT2 ?? currentTrack?.name"
         class="truncate font-medium group-data-[position=center]:text-sm"
         :class="{
-          'max-w-2xl': !elementSettings.marqueeText,
+          'max-w-2xl': !$settings.layout.element.player.marqueeText,
         }"
       >
         {{ currentTrack?.tags.TIT2 ?? currentTrack?.name }}
@@ -64,7 +61,7 @@ const [DefineMarquee, ReuseMarquee] = createReusableTemplate()
         :title="currentTrack?.tags.TPE1"
         class="truncate text-sm text-muted-foreground group-data-[position=center]:text-xs"
         :class="{
-          'max-w-2xl': !elementSettings.marqueeText,
+          'max-w-2xl': !$settings.layout.element.player.marqueeText,
         }"
       >
         {{ currentTrack?.tags.TPE1 }}

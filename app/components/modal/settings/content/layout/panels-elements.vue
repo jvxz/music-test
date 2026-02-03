@@ -5,8 +5,8 @@ const props = defineProps<{
   panelKey: LayoutPanelKey
 }>()
 
-const { elementDraggingData, elementSettingsToShow, getPanelElements, isElementAllowedInPanel, removeElementFromPanel } = useLayout()
-const panelElements = getPanelElements(props.panelKey)
+const settings = useSettings()
+const { elementDraggingData, elementSettingsToShow, isElementAllowedInPanel, removeElementFromPanel } = useLayout()
 
 function hasSettings(elementKey: LayoutElementKey) {
   const obj = defaultLayoutElementSettings[elementKey]
@@ -17,8 +17,8 @@ function hasSettings(elementKey: LayoutElementKey) {
 <template>
   <VueDraggable
     id="panel-elements"
-    :key="panelElements.join(',')"
-    v-model="panelElements"
+    :key="settings.layout.panel[panelKey].elements.join(',')"
+    v-model="settings.layout.panel[panelKey].elements"
     :animation="100"
     direction="vertical"
     fallback-class="opacity-25"
@@ -44,7 +44,7 @@ function hasSettings(elementKey: LayoutElementKey) {
     @start="evt => elementDraggingData = { element: evt.data, from: props.panelKey }"
   >
     <UContextMenu
-      v-for="element in panelElements"
+      v-for="element in settings.layout.panel[panelKey].elements"
       :key="element"
     >
       <UContextMenuTrigger as-child>
@@ -58,7 +58,7 @@ function hasSettings(elementKey: LayoutElementKey) {
             :class="hasSettings(element) ? 'rounded-r-none' : ''"
           >
             <Icon name="tabler:grip-vertical" class="size-3.5!" />
-            <p>{{ sentenceCase(element) }}</p>
+            <p>{{ upperFirst(splitByCase(element).map(flatCase).join(' ')) }}</p>
           </UButton>
           <UButton
             v-if="hasSettings(element)"
