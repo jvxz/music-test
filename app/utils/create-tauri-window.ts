@@ -7,12 +7,11 @@ type Options = Omit<WebviewOptions, 'x' | 'y' | 'width' | 'height'> & WindowOpti
 }
 
 export function createTauriWindow(label: WebviewLabel, options: Options) {
-  const { getSettingValue } = useSettings()
-  const backgroundColor = getSettingValue('appearance.token.background')
+  const settings = useSettings()
 
   const w = new WebviewWindow(label, {
     ...options,
-    backgroundColor,
+    backgroundColor: settings.appearance.token.background,
     center: true,
     decorations: true,
     titleBarStyle: 'overlay',
