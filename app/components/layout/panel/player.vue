@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 const { currentTrack } = usePlayback()
 
-const { getElementSettings } = useLayout()
-const elementSettings = getElementSettings('player')
-
 const { toggleSettingsModal } = useSettingsModal()
 </script>
 
@@ -12,23 +9,23 @@ const { toggleSettingsModal } = useSettingsModal()
     <div class="flex h-full flex-1 items-center">
       <div class="flex h-full items-start gap-4">
         <LayoutPanelCoverArt
-          v-if="elementSettings.showTrackCover"
-          :key="elementSettings.titlePosition"
+          v-if="$settings.layout.element.player.showTrackCover"
+          :key="$settings.layout.element.player.titlePosition"
           no-cover-text=""
           :classes="{
             noCoverText: 'border border-dashed border-primary',
-            img: elementSettings.roundTrackCover ? 'rounded' : '',
+            img: $settings.layout.element.player.roundTrackCover ? 'rounded' : '',
             root: 'aspect-square shrink-0 h-full flex',
           }"
         />
-        <LayoutPanelPlayerTitle v-if="elementSettings.titlePosition === 'left'" :current-track />
+        <LayoutPanelPlayerTitle v-if="$settings.layout.element.player.titlePosition === 'left'" :current-track />
       </div>
-      <LayoutPanelPlayerControls v-if="elementSettings.controlsPosition === 'left'" class="mx-auto" />
+      <LayoutPanelPlayerControls v-if="$settings.layout.element.player.controlsPosition === 'left'" class="mx-auto" />
     </div>
 
     <div class="flex w-[45%] shrink-0 flex-col items-center justify-center gap-4">
-      <LayoutPanelPlayerTitle v-if="elementSettings.titlePosition === 'center'" :current-track />
-      <LayoutPanelPlayerControls v-if="elementSettings.controlsPosition === 'center'" class="mx-auto" />
+      <LayoutPanelPlayerTitle v-if="$settings.layout.element.player.titlePosition === 'center'" :current-track />
+      <LayoutPanelPlayerControls v-if="$settings.layout.element.player.controlsPosition === 'center'" class="mx-auto" />
       <LayoutPanelPlayerSeekBar
         show-duration="both-sides"
         :show-title="false"

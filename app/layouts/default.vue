@@ -16,77 +16,66 @@ onBeforeMount(async () => {
   })
 })
 
-const { getPanelElements, getPanelSize, handlePanelSizeChange } = useLayout()
-
-const topPanelElements = getPanelElements('top')
-const leftPanelElements = getPanelElements('left')
-const mainPanelElements = getPanelElements('main')
-const rightPanelElements = getPanelElements('right')
-const bottomPanelElements = getPanelElements('bottom')
-
-const leftPanelSize = getPanelSize('left')
-const mainPanelSize = getPanelSize('main')
-const rightPanelSize = getPanelSize('right')
+const settings = useSettings()
+const { handlePanelSizeChange } = useLayout()
 
 const visiblePanels = computed(() => {
   const panels: LayoutPanelKey[] = []
-  if (leftPanelElements.length)
+  if (settings.layout.panel.left.elements.length)
     panels.push('left')
-  if (mainPanelElements.length)
+  if (settings.layout.panel.main.elements.length)
     panels.push('main')
-  if (rightPanelElements.length)
+  if (settings.layout.panel.right.elements.length)
     panels.push('right')
   return panels
 })
-
-const settings = useSettings()
 </script>
 
 <template>
   <div class="flex h-screen flex-col">
     <div class="h-[28px] w-full border-b bg-background" />
-    <LayoutTopBar v-if="topPanelElements.length" />
+    <LayoutTopBar v-if="settings.layout.panel.top.elements.length" />
     <SplitterGroup
       :key="visiblePanels.join('-')"
       direction="horizontal"
       class="flex size-full flex-1"
       @layout="sizes => handlePanelSizeChange(['left', 'main', 'right'], sizes)"
     >
-      <template v-if="leftPanelElements.length">
+      <template v-if="settings.layout.panel.left.elements.length">
         <SplitterPanel
-          v-if="leftPanelElements.length"
+          v-if="settings.layout.panel.left.elements.length"
           key="left"
           :max-size="35"
           :min-size="12.5"
           class="flex shrink-0 flex-col border-r"
-          :default-size="leftPanelSize"
+          :default-size="settings.layout.panel.left.size"
         >
           <LayoutSidebarLeft />
         </SplitterPanel>
         <SplitterResizeHandle :disabled="!settings.layout.allowResizing" />
       </template>
       <SplitterPanel
-        v-if="mainPanelElements.length"
+        v-if="settings.layout.panel.main.elements.length"
         key="main"
         class="flex h-full flex-1 flex-col"
-        :default-size="mainPanelSize"
+        :default-size="settings.layout.panel.main.size"
       >
         <slot />
       </SplitterPanel>
-      <template v-if="rightPanelElements.length">
+      <template v-if="settings.layout.panel.right.elements.length">
         <SplitterResizeHandle :disabled="!settings.layout.allowResizing" />
         <SplitterPanel
           key="right"
           :max-size="35"
           :min-size="12.5"
-          :default-size="rightPanelSize"
+          :default-size="settings.layout.panel.right.size"
           class="shrink-0 border-l"
         >
           <LayoutSidebarRight />
         </SplitterPanel>
       </template>
     </SplitterGroup>
-    <LayoutBottomBar v-if="bottomPanelElements.length" />
+    <LayoutBottomBar v-if="settings.layout.panel.bottom.elements.length" />
     <!-- <LayoutStatusBar /> -->
   </div>
 </template>

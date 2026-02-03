@@ -1,12 +1,6 @@
 <script lang="ts" setup>
 const { authStatus, completeAuth, removeAuth, startAuth, useLastFmProfile } = useLastFm()
 
-const settings = useSettings()
-
-const doScrobbling = settings.lastFm.doScrobbling
-const doNowPlayingUpdates = settings.lastFm.doNowPlayingUpdates
-const doOfflineScrobbling = settings.lastFm.doOfflineScrobbling
-
 const token = shallowRef<string | null>(null)
 const isAuthDialogOpen = shallowRef(false)
 const isCompletingAuth = shallowRef(false)
@@ -60,7 +54,7 @@ const { isOnline } = useNetwork()
         </ULabel>
         <USwitch
           id="doScrobbling"
-          v-model="doScrobbling"
+          v-model="$settings.lastFm.doScrobbling"
           :disabled="!authStatus"
         />
       </div>
@@ -70,7 +64,7 @@ const { isOnline } = useNetwork()
         </ULabel>
         <USwitch
           id="doNowPlayingUpdates"
-          v-model="doNowPlayingUpdates"
+          v-model="$settings.lastFm.doNowPlayingUpdates"
           :disabled="!authStatus"
         />
       </div>
@@ -80,7 +74,7 @@ const { isOnline } = useNetwork()
         </ULabel>
         <USwitch
           id="doOfflineScrobbling"
-          v-model="doOfflineScrobbling"
+          v-model="$settings.lastFm.doOfflineScrobbling"
           :disabled="!authStatus"
         />
       </div>
