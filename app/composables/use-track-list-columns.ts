@@ -95,6 +95,38 @@ export const useTrackListColumns = createSharedComposable(() => {
         })
   }
 
+  watch(() => settings.layout.element.trackList.columnFields, (newColumns, oldColumns) => {
+    const newColSizeRate = 0.8
+
+    if (newColumns.length > oldColumns.length) {
+      // processing add
+      const newColumn = newColumns.filter(c => !oldColumns.includes(c))[0]
+      if (!newColumn) {
+        return emitError({
+          data: 'Could not get new column when attempting to render new track list columns',
+          type: 'Other',
+        })
+      }
+
+      const totalPercentOfOldCols = layoutPanels.value.reduce((prev, curr) => curr + prev, 0)
+      const newColSize = (totalPercentOfOldCols / newColumns.length) / newColSizeRate
+      const remainder = Math.abs(totalPercentOfOldCols - 100) / oldColumns.length
+
+      const newColIdx = newColumns.indexOf(newColumn)
+      if (newColIdx < 0) {
+        return emitError({
+          data: `New column index was less than 0 (was -1)`,
+          type: 'Other',
+        })
+      }
+
+      const toSubtract = newColSize / oldColumns.length - remainder
+      const newLayoutPanelSizes = layoutPanels.value.map((p, i) => i === newColIdx ? newColSize : p - toSubtract)
+
+      layoutPanels.set(newLayoutPanelSizes)
+    }
+  })
+
   function getColumnFromKey(key: TrackListColumn['key']): TrackListColumn {
     const col = ALL_TRACK_LIST_COLUMNS[key]
 
