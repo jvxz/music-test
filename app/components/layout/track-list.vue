@@ -171,7 +171,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
                 v-for="entry in list"
                 :key="entry.data.path"
                 v-memo="[
-                  columnFields.map(field => field.key),
+                  columnFields.map(field => field.key).join(),
                   entry.data.path,
                   checkIsSelected(entry.data),
                   playbackStatus?.path === entry.data.path,
@@ -209,7 +209,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
               v-for="(entry, index) in folderEntries"
               :key="entry.path"
               v-memo="[
-                columnFields.map(field => field.key),
+                columnFields.map(field => field.key).join(),
                 entry.path,
                 checkIsSelected(entry),
                 playbackStatus?.path === entry.path,

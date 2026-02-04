@@ -9,6 +9,7 @@ export const ALL_TRACK_LIST_COLUMNS: Record<Id3FrameId | string & {}, TrackListC
         id3: key,
         key,
         label: ID3_MAP[key],
+        minSize: 3,
       },
     ]),
   ),
@@ -98,8 +99,8 @@ export const useTrackListColumns = createSharedComposable(() => {
   watch(() => settings.layout.element.trackList.columnFields, (newColumns, oldColumns) => {
     const newColSizeRate = 0.8
 
+    // process add
     if (newColumns.length > oldColumns.length) {
-      // processing add
       const newColumn = newColumns.filter(c => !oldColumns.includes(c))[0]
       if (!newColumn) {
         return emitError({

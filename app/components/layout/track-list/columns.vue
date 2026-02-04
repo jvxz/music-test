@@ -23,6 +23,7 @@ function handleColumnLeftClick(col: typeof TRACK_LIST_COLUMNS[number]) {
   <UContextMenu>
     <UContextMenuTrigger as-child>
       <SplitterGroup
+        :key="columnFields.map(field => field.key).join()"
         direction="horizontal"
         class="group z-20 h-8! shrink-0 bg-background"
         @layout="playlistColumnPercents = $event"
