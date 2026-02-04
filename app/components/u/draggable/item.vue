@@ -17,7 +17,7 @@ defineProps<{
     :id="item.key"
     variant="ghost"
     draggable="true"
-    class="justify-start gap-2 rounded-t-none rounded-b-none transition-none duration-0 first:rounded-t last:rounded-b active:text-foreground"
+    class="justify-start gap-2 rounded-none transition-none duration-0 active:text-foreground"
   >
     <Icon name="tabler:grip-vertical" class="size-3.5!" />
     <slot />
