@@ -27,3 +27,15 @@ export type ObjectEntries<O extends Record<string, any>> = Exclude<
   { [Key in keyof O]: [Key, O[Key]] }[keyof O],
   undefined
 >[]
+
+type ArrayOwnKeys<Type extends readonly unknown[]> = Exclude<keyof Type, keyof unknown[]>
+type ArrayOwnStringKeys<Type extends readonly unknown[]> = Extract<ArrayOwnKeys<Type>, string | number>
+type ArrayEntryValue<Type extends readonly unknown[]> = number extends Type['length']
+  ? Type[number] | Type[ArrayOwnStringKeys<Type>]
+  : Type[ArrayOwnStringKeys<Type>]
+
+/** https://github.com/sindresorhus/ts-extras/blob/main/source/object-values.ts */
+export const objectValues = Object.values as {
+  <Type extends readonly unknown[]>(value: Type): Array<ArrayEntryValue<Type>>
+  <Type extends object>(value: Type): Array<Required<Type>[Extract<keyof Type, string | number>]>
+}
