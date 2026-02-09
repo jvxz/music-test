@@ -5,7 +5,7 @@ defineProps<{
 </script>
 
 <template>
-  <ULabel :class="cn('font-medium ps-1', $props.class)">
+  <ULabel :class="cn('font-medium ps-1 shrink-0', $props.class)">
     <slot />
   </ULabel>
 </template>
