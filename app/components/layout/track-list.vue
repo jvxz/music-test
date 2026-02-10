@@ -135,6 +135,8 @@ function handleRightClick(entry: TrackListEntry) {
   }
 }
 
+const columnFieldsKey = computed(() => columnFields.value.map(field => field.key).join())
+
 onKeyStrokeSafe('ctrl_a', () => selectedTrackData.value.entries = folderEntries.value)
 onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
 </script>
@@ -171,7 +173,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
                 v-for="entry in list"
                 :key="entry.data.path"
                 v-memo="[
-                  columnFields.map(field => field.key).join(),
+                  columnFieldsKey,
                   entry.data.path,
                   checkIsSelected(entry.data),
                   playbackStatus?.path === entry.data.path,
@@ -209,7 +211,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
               v-for="(entry, index) in folderEntries"
               :key="entry.path"
               v-memo="[
-                columnFields.map(field => field.key).join(),
+                columnFieldsKey,
                 entry.path,
                 checkIsSelected(entry),
                 playbackStatus?.path === entry.path,

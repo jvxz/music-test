@@ -121,14 +121,11 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
   let dragUpdateCount = 0
   let potentialDraggingItem: DragItem<T> | null = null
   const { pause: pausePointerWatch, resume: resumePointerWatch } = watch([pointer.x, pointer.y], () => {
-    if (isDragging.value) {
+    if (isDragging.value)
       return pausePointerWatch()
-    }
 
-    if (!potentialDraggingItem) {
-      console.error('paused because no potential dragging item in variable')
+    if (!potentialDraggingItem)
       return pausePointerWatch()
-    }
 
     dragUpdateCount++
 
@@ -459,6 +456,13 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
       ? Math.max(0, Math.min(window.innerWidth - el.offsetWidth, pointer.x.value))
       : Math.max(0, Math.min(window.innerHeight - el.offsetHeight, pointer.y.value))
   }
+
+  onUnmounted(() => {
+    if (dragGhostElement.value) {
+      dragGhostElement.value.remove()
+      dragGhostElement.value = null
+    }
+  })
 
   const localDraggingItem = computed(() => draggingItem.value?._listId === listId ? draggingItem.value as DragItem<T> : null)
 

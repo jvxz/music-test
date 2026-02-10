@@ -79,7 +79,7 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
       </template>
       <!-- playing column -->
       <div
-        v-else-if="col.key === 'playing'"
+        v-else-if="col.key === 'CURRENTLY_PLAYING'"
         :class="classes"
         class="justify-center"
         @dragstart="emits('textDragStart', $event)"
