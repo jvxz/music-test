@@ -16,6 +16,7 @@ use tauri::{
 use tauri_plugin_sql::{Migration, MigrationKind};
 use tauri_plugin_store::StoreExt;
 use tauri_plugin_stronghold::stronghold::Stronghold;
+use tauri_plugin_window_state::StateFlags;
 use tokio::sync::{mpsc, oneshot};
 use uuid::Uuid;
 
@@ -288,11 +289,17 @@ pub async fn run() {
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_dialog::init())
     .plugin(
+      tauri_plugin_window_state::Builder::default()
+        // don't save visible state, messes up manual visible states
+        .with_state_flags(StateFlags::all() & !StateFlags::VISIBLE)
+        .with_filter(|label| label.contains("main"))
+        .build(),
+    )
+    .plugin(
       tauri_plugin_sql::Builder::default()
         .add_migrations("sqlite:swim.db", migrations)
         .build(),
-    )
-    .plugin(tauri_plugin_window_state::Builder::new().build());
+    );
 
   #[cfg(debug_assertions)]
   {

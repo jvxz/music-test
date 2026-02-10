@@ -196,9 +196,8 @@ export const useSettings = defineStore('settings', () => reactive(DEFAULT_SETTIN
     saveOnChange: true,
     saveOnExit: true,
     saveStrategy: 'debounce',
-    sync: false,
+    sync: true,
     syncInterval: 100,
     syncStrategy: 'debounce',
   },
-
 })

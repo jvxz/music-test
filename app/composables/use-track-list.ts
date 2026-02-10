@@ -8,13 +8,8 @@ const defaultData: TrackListInput = {
 }
 
 export const TRACK_LIST_VIRTUALIZATION_THRESHOLD = 400
-export const TRACK_LIST_COLUMNS: {
-  id3?: Id3FrameId
-  key: string
-  label: string
-  default?: keyof TrackListEntry
-  canSort: boolean
-}[] = [
+
+export const TRACK_LIST_COLUMNS: TrackListColumn[] = [
   {
     canSort: false,
     id3: 'APIC',

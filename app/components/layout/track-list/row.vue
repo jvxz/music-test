@@ -4,6 +4,7 @@ defineProps<{
   isSelected: boolean
   isPlaying: boolean
   isEven: boolean
+  columns: TrackListColumn[]
 }>()
 
 const emits = defineEmits<{
@@ -44,11 +45,11 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
     @dragstart="emits('rowDragStart', $event)"
   >
     <template
-      v-for="col in TRACK_LIST_COLUMNS"
+      v-for="col in columns"
       :key="col.key"
     >
       <!-- cover column -->
-      <template v-if="col.key === 'cover'">
+      <template v-if="col.key === 'APIC'">
         <div
           v-if="!entry.valid"
           class="mx-auto justify-center"
@@ -78,7 +79,7 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
       </template>
       <!-- playing column -->
       <div
-        v-else-if="col.key === 'playing'"
+        v-else-if="col.key === 'CURRENTLY_PLAYING'"
         :class="classes"
         class="justify-center"
         @dragstart="emits('textDragStart', $event)"

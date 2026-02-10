@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+definePageMeta({ layout: 'main' })
+
 const trackListInput = useTrackListInput()
 
 onMounted(() => {

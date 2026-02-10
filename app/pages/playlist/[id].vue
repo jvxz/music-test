@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 definePageMeta({
+  layout: 'main',
   middleware: async (to) => {
     const id = 'id' in to.params ? Number(to.params.id) : 0
     const playlistExists = await $db().selectFrom('playlists').where('id', '=', id).selectAll().executeTakeFirst()

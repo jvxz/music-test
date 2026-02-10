@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+definePageMeta({ layout: 'main' })
+
 const route = useRoute()
 const path: string = 'path' in route.params ? decodeURIComponent(route.params.path) : ''
 

@@ -40,6 +40,7 @@ export interface LayoutElementSettings extends Record<LayoutElementKey, unknown>
   }
   trackList: {
     rowStyle: 'bordered' | 'alternating' | 'none'
+    columnFields: TrackListColumn['key'][]
   }
   coverArt: unknown
 }
@@ -62,6 +63,7 @@ export const defaultLayoutElementSettings = {
     titlePosition: 'left',
   },
   trackList: {
+    columnFields: ['APIC', 'CURRENTLY_PLAYING', 'TIT2', 'TPE1', 'TALB', 'TYER', 'TCON', 'TRCK'],
     rowStyle: 'bordered',
   },
 } satisfies LayoutElementSettings

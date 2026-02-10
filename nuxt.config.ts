@@ -79,7 +79,7 @@ export default defineNuxtConfig({
         cache: true,
         from: 'vue-draggable-plus',
         imports: [
-          'useDraggable',
+          'useDraggablePlus',
         ],
       },
       {
