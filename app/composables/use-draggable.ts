@@ -20,6 +20,10 @@ export type DraggableOptions<T = unknown> = Partial<{
   onDragStart: (draggingItem: DragItem<T>) => void
   onDragEnd: (params: HookParams<T>) => void
   onDragOver: (params: HookParams<T>) => void
+  doDragGhost: boolean
+  class: Partial<{
+    dragging: string
+  }>
   direction: 'vertical' | 'horizontal'
   group: string
   mode: 'container' | 'item'
@@ -31,6 +35,7 @@ export const useDraggableData = createGlobalState(() => {
   const validElements = new WeakMap<RendererNode, DragItem<unknown>>()
   const draggingItem = shallowRef<DragItem<unknown> | null>(null)
   const isDragging = shallowRef(false)
+  const dragGhostElement = shallowRef<HTMLElement | null>(null)
 
   const pointer = useGlobalPointer()
   const { element: hoveredElement, pause: pauseElementByPointWatch, resume: resumeElementByPointWatch } = useElementByPoint({
@@ -39,18 +44,23 @@ export const useDraggableData = createGlobalState(() => {
     y: pointer.y,
   })
 
-  const { on: onMouseRelease, trigger } = createEventHook()
+  const { on: onMouseRelease, trigger } = createEventHook<boolean>()
   const { pressed: isMouseDown } = useMousePressed({
     onReleased: () => {
       document.body.style.cursor = 'default'
 
-      trigger()
-      draggingItem.value = null
-      isDragging.value = false
+      const wasDragging = isDragging.value
+      trigger(wasDragging)
+
+      nextTick(() => {
+        draggingItem.value = null
+        isDragging.value = false
+      })
     },
   })
 
   return {
+    dragGhostElement,
     /**
      * the item that is being dragged
      */
@@ -70,6 +80,7 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
   mode: 'item',
 }) {
   const {
+    dragGhostElement,
     draggingItem,
     hoveredElement,
     isDragging,
@@ -83,13 +94,13 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
 
   let barGap: string | null = null
 
-  const isOverContainer = computed(() => document.elementsFromPoint(pointer.x.value, pointer.y.value).includes(unrefElement(toValue(container))!))
+  const isOverContainer = shallowRef(false)
 
   /**
    * the item that is being hovered
    */
-  const dropTargetItem = computed<DragItem<T> | null>((prev) => {
-    if (!isOverContainer.value)
+  const dropTargetItem = computed<DragItem<T> | null>((_prev) => {
+    if (!isDragging.value || !isOverContainer.value)
       return null
 
     let el = unrefElement(hoveredElement)
@@ -98,13 +109,11 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
     }
 
     if (!el)
-      return prev ?? null
-    if (!el)
       return null
 
     const item = lookupElement(el)
     if (!item || item.group !== toValue(options).group)
-      return prev ?? null
+      return null
 
     return item
   })
@@ -130,6 +139,13 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
       isDragging.value = true
 
       draggingItem.value = potentialDraggingItem
+      handleDragGhost('add')
+
+      const classValue = toValue(options).class?.dragging
+      if (draggingItem.value && classValue) {
+        draggingItem.value.element.classList.add(classValue)
+      }
+
       toValue(options).onDragStart?.(potentialDraggingItem)
 
       document.body.style.cursor = 'move'
@@ -140,16 +156,19 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
     immediate: false,
   })
 
-  onMouseRelease(() => {
-    const wasDragging = isDragging.value
-    isDragging.value = false
-
+  onMouseRelease((wasDragging) => {
     pausePointerWatch()
     pauseHoverWatch()
 
     barGap = null
     potentialDraggingItem = null
     dragUpdateCount = 0
+    handleDragGhost('remove')
+
+    const classValue = toValue(options).class?.dragging
+    if (draggingItem.value && classValue) {
+      draggingItem.value.element.classList.remove(classValue)
+    }
 
     const draggedFromList = draggingItem.value?._listId === listId
     const draggedToList = dropTargetItem.value?._listId === listId
@@ -158,6 +177,7 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
     if (
       wasDragging
       && draggingItem.value
+      && isOverContainer.value
       && dropTargetItem.value
       && isFromSameGroup
       && (draggedFromList || draggedToList)
@@ -194,6 +214,8 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
   const { pause: pauseRafFn, resume: resumeRafFn } = useRafFn(() => {
     handleElementHalf()
     handleBar()
+    handleDragGhostPosition()
+    handleOverContainer()
 
     function handleElementHalf() {
       const hoveredElement = dropTargetItem.value?.element
@@ -292,6 +314,23 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
         left,
       }
     }
+
+    function handleDragGhostPosition() {
+      if (!dragGhostElement.value)
+        return
+
+      const el = dragGhostElement.value
+
+      const topValue = getViewportBoundPosition('y', el)
+      const leftValue = getViewportBoundPosition('x', el)
+
+      el.style.top = `${topValue}px`
+      el.style.left = `${leftValue}px`
+    }
+
+    function handleOverContainer() {
+      isOverContainer.value = document.elementsFromPoint(pointer.x.value, pointer.y.value).includes(unrefElement(toValue(container))!)
+    }
   }, {
     immediate: false,
   })
@@ -384,6 +423,41 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
       return null
 
     return data as DragItem<T>
+  }
+
+  function handleDragGhost(action: 'add' | 'remove') {
+    if (!toValue(options).doDragGhost)
+      return
+
+    if (!draggingItem.value?.element)
+      return
+
+    if (action === 'add') {
+      if (dragGhostElement.value)
+        return
+
+      const el = document.body.appendChild(draggingItem.value.element.cloneNode(true) as HTMLElement)
+
+      el.style.position = 'absolute'
+      el.style.opacity = '0.5'
+      el.style.pointerEvents = 'none'
+      el.style.width = 'fit-content'
+
+      dragGhostElement.value = el
+    }
+    else {
+      if (!dragGhostElement.value)
+        return
+
+      dragGhostElement.value.remove()
+      dragGhostElement.value = null
+    }
+  }
+
+  function getViewportBoundPosition(axis: 'x' | 'y', el: HTMLElement) {
+    return axis === 'x'
+      ? Math.max(0, Math.min(window.innerWidth - el.offsetWidth, pointer.x.value))
+      : Math.max(0, Math.min(window.innerHeight - el.offsetHeight, pointer.y.value))
   }
 
   const localDraggingItem = computed(() => draggingItem.value?._listId === listId ? draggingItem.value as DragItem<T> : null)
