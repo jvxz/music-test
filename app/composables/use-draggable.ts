@@ -249,12 +249,14 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
 
       const parentElement = hoveredElement.parentElement
       if (parentElement && !barGap) {
-        barGap = getComputedStyle(parentElement).gap
+        const gap = getComputedStyle(parentElement).gap
+        if (gap === 'normal')
+          barGap = `${0}px`
+        else
+          barGap = gap
       }
 
-      const siblingElement = half === 'bottom/right'
-        ? hoveredElement.nextElementSibling
-        : hoveredElement.previousElementSibling
+      const siblingElement = getValidSibling(hoveredElement, half === 'bottom/right' ? 'next' : 'prev')
 
       const hoveredElementRect = hoveredElement.getBoundingClientRect()
 
@@ -309,6 +311,14 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
       return barStyles.value = {
         height: `${hoveredElementRect.height}px`,
         left,
+      }
+
+      function getValidSibling(el: Element, direction: 'next' | 'prev') {
+        let sibling = direction === 'next' ? el.nextElementSibling : el.previousElementSibling
+        while (sibling && !lookupElement(sibling)) {
+          sibling = direction === 'next' ? sibling.nextElementSibling : sibling.previousElementSibling
+        }
+        return sibling
       }
     }
 
