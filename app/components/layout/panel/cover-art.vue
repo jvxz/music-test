@@ -22,7 +22,7 @@ const { currentTrack } = usePlayback()
     />
     <div
       v-else
-      :class="cn('grid aspect-square size-full place-items-center font-mono text-sm text-muted-foreground', props.classes?.noCoverText)"
+      :class="cn('grid aspect-square size-full place-items-center text-sm text-muted-foreground', props.classes?.noCoverText)"
     >
       {{ noCoverText ?? 'no cover' }}
     </div>
