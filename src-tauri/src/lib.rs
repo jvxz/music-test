@@ -216,8 +216,7 @@ pub async fn run() {
             added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             position INTEGER NOT NULL,
             FOREIGN KEY (track_id) REFERENCES library_tracks(id) ON DELETE CASCADE,
-            FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE,
-            UNIQUE (position)
+            FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE
           );
         ",
       version: 4,
