@@ -77,6 +77,14 @@ export default defineNuxtConfig({
       { package: 'scule' },
       {
         cache: true,
+        from: 'defu',
+        imports: [{
+          as: '$defu',
+          name: 'defu',
+        }],
+      },
+      {
+        cache: true,
         from: 'vue-draggable-plus',
         imports: [
           'useDraggablePlus',

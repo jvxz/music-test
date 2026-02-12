@@ -1,5 +1,4 @@
 import type { Options as DraggableOptions } from 'vue-draggable-plus'
-import defu from 'defu'
 
 interface Opts {
   sourceOnly: boolean
@@ -7,7 +6,7 @@ interface Opts {
 }
 
 export function defineDraggableOptions(name: string, opts: Opts): DraggableOptions {
-  return defu(
+  return $defu(
     opts.sourceOnly
       ? {
           ...opts,

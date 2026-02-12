@@ -1,13 +1,14 @@
 export default defineNuxtPlugin({
+  dependsOn: ['tauri'],
   parallel: true,
   setup: () => {
     const activeElement = useActiveElement()
-    const { open: settingsModalOpen } = useSettingsModal()
+    const { createSettingsWindow } = useSettingsWindow()
 
     // play/pause
-    onKeyStrokeSafe('space', () => !settingsModalOpen.value && usePlayback().playPauseCurrentTrack(), { activeElement })
+    onKeyStrokeSafe('space', () => usePlayback().playPauseCurrentTrack(), { activeElement })
 
-    onKeyStrokeSafe('meta_comma', () => useSettingsModal().toggleSettingsModal(), { activeElement })
+    onKeyStrokeSafe('meta_comma', () => createSettingsWindow(), { activeElement })
 
     if (import.meta.dev) {
       onKeyStrokeSafe('meta_r', () => {
