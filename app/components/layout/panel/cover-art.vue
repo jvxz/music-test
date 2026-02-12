@@ -13,7 +13,7 @@ const { currentTrack } = usePlayback()
 </script>
 
 <template>
-  <div :class="cn('flex items-center justify-center', props.classes?.root)">
+  <div :class="cn('flex size-full items-center justify-center', props.classes?.root)">
     <img
       v-if="currentTrack && currentTrack.tags.APIC"
       v-bind="img"
