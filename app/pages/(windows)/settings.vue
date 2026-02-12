@@ -41,7 +41,7 @@ const components = Object.fromEntries(
       v-for="tab in SETTINGS_WINDOW_TABS"
       :key="tab"
       :value="tab"
-      class="overflow-y-auto w-full"
+      class="w-full overflow-y-auto"
     >
       <component :is="components[tab]" />
     </TabsContent>

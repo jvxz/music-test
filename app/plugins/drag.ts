@@ -1,6 +1,6 @@
 export default defineNuxtPlugin({
   dependsOn: ['tauri'],
-  setup: () => {
+  setup: setupNuxtTauriPlugin(['main', 'settings'], () => {
     const { listen } = useTauri()
     const { dragMeta } = useDrag()
 
@@ -44,5 +44,5 @@ export default defineNuxtPlugin({
         },
       },
     }
-  },
+  }),
 })

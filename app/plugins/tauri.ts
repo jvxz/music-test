@@ -9,17 +9,19 @@ export default defineNuxtPlugin({
   setup: async ({ $pinia, hook }) => {
     ($pinia as Pinia).use(createPlugin())
     const settings = useSettings()
-    await settings.$tauri.start()
+
+    const [, store] = await Promise.all([
+      settings.$tauri.start(),
+      useTauriStoreLoad('prefs.json', {
+        autoSave: true,
+        defaults: {},
+      }),
+    ])
+
+    const entries = await store.entries()
+    const prefs = new Map<string, unknown>(entries)
 
     const rpc = createTauRPCProxy()
-
-    const tauriStore = await useTauriStoreLoad('prefs.json', {
-      autoSave: true,
-      defaults: {},
-    })
-
-    const entries = await tauriStore.entries()
-    const prefs = new Map<string, unknown>(entries)
 
     errorHook.on((error) => {
       message(error.data, { kind: 'error', title: ERROR_TITLE_MAP[error.type] })
@@ -42,7 +44,7 @@ export default defineNuxtPlugin({
           listen,
           prefs,
           rpc,
-          store: tauriStore,
+          store,
         },
       },
     }

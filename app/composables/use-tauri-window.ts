@@ -1,9 +1,10 @@
 import type { WebviewOptions } from '@tauri-apps/api/webview'
 import type { WindowOptions } from '@tauri-apps/api/window'
-import { getAllWebviewWindows, WebviewWindow } from '@tauri-apps/api/webviewWindow'
+import { getAllWebviewWindows, getCurrentWebviewWindow, WebviewWindow } from '@tauri-apps/api/webviewWindow'
 
 export function useTauriWindow(label: string, options?: Omit<WebviewOptions, 'x' | 'y' | 'width' | 'height'> & WindowOptions) {
   const settings = useSettings()
+  const isHotLoaded = getCurrentWebviewWindow().label === 'main' ? HOT_LOADED_WINDOWS.includes(label) : false
 
   const { execute: _createWindow, state: window, ...rest } = useAsyncState(async () => new WebviewWindow(label, $defu(
     options,
@@ -13,15 +14,18 @@ export function useTauriWindow(label: string, options?: Omit<WebviewOptions, 'x'
       decorations: true,
       titleBarStyle: 'overlay' as const,
       visible: false,
-    },
-  )), null, { immediate: false })
+    } satisfies Omit<WebviewOptions, 'x' | 'y' | 'width' | 'height'> & WindowOptions,
+  )), null, { immediate: isHotLoaded })
 
   async function createWindow() {
     const webviews = await getAllWebviewWindows()
     const targetWebview = webviews.find(w => w.label === label)
 
     if (targetWebview) {
-      targetWebview.setFocus()
+      if (isHotLoaded)
+        targetWebview.show()
+
+      await targetWebview.setFocus()
       return
     }
 

@@ -5,7 +5,7 @@ const trackListInput = useTrackListInput()
 const { getColumnFields } = useTrackListColumns()
 const columnFields = getColumnFields('objects')
 
-function handleColumnLeftClick(col: typeof TRACK_LIST_COLUMNS[number]) {
+function handleColumnLeftClick(col: TrackListColumn) {
   if (!col.canSort || !col.id3)
     return
 
@@ -32,9 +32,9 @@ const { barStyles, getDragElementProps } = useDraggable(columnFields, container,
     <UContextMenuTrigger as-child>
       <SplitterGroup
         :key="columnFields.map(field => field.key).join()"
+        ref="container"
         direction="horizontal"
         as-child
-        ref="container" 
         @layout="playlistColumnPercents = $event"
       >
         <div class="group/row z-20 h-8! shrink-0 bg-background">
@@ -51,7 +51,7 @@ const { barStyles, getDragElementProps } = useDraggable(columnFields, container,
               as-child
             >
               <div
-                class="flex h-8 flex-1  items-center "
+                class="flex h-8 flex-1 items-center"
                 v-bind="getDragElementProps(col)"
                 @click="handleColumnLeftClick(col)"
               >

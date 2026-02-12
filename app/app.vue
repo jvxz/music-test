@@ -1,10 +1,22 @@
 <script lang="ts" setup>
+import type { UnlistenFn } from '@tauri-apps/api/event'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 
+let unlisten: UnlistenFn | undefined
 onMounted(async () => {
   const window = getCurrentWebviewWindow()
-  await window.show()
+  if (HOT_LOADED_WINDOWS.includes(window.label)) {
+    unlisten = await window.onCloseRequested((e) => {
+      e.preventDefault()
+      window.hide()
+    })
+  }
+  else {
+    window.show()
+  }
 })
+
+onUnmounted(() => unlisten?.())
 </script>
 
 <template>

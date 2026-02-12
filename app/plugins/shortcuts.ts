@@ -1,14 +1,21 @@
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
+
 export default defineNuxtPlugin({
   dependsOn: ['tauri'],
   parallel: true,
   setup: () => {
     const activeElement = useActiveElement()
+    const w = getCurrentWebviewWindow()
     const { createSettingsWindow } = useSettingsWindow()
 
     // play/pause
     onKeyStrokeSafe('space', () => usePlayback().playPauseCurrentTrack(), { activeElement })
 
     onKeyStrokeSafe('meta_comma', () => createSettingsWindow(), { activeElement })
+
+    if (w.label !== 'main') {
+      onKeyStrokeSafe('escape', () => HOT_LOADED_WINDOWS.includes(w.label) ? w.hide() : w.close(), { activeElement })
+    }
 
     if (import.meta.dev) {
       onKeyStrokeSafe('meta_r', () => {
