@@ -2,6 +2,21 @@
 const { currentTrack } = usePlayback()
 
 const { createSettingsWindow } = useSettingsWindow()
+const { startDrag } = useDrag()
+
+async function handleDragStart() {
+  if (!currentTrack.value)
+    return
+
+  await startDrag({
+    data: {
+      entries: [currentTrack.value],
+    },
+    key: 'track-list-entry',
+  }, {
+    item: [currentTrack.value.path],
+  })
+}
 </script>
 
 <template>
@@ -15,8 +30,9 @@ const { createSettingsWindow } = useSettingsWindow()
           :classes="{
             noCoverText: 'border border-dashed border-primary',
             img: $settings.layout.element.player.roundTrackCover ? 'rounded' : '',
-            root: 'aspect-square shrink-0 h-full flex',
+            root: 'aspect-square shrink-0 h-full flex w-fit',
           }"
+          @dragstart="handleDragStart"
         />
         <LayoutPanelPlayerTitle v-if="$settings.layout.element.player.titlePosition === 'left'" :current-track />
       </div>
