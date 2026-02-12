@@ -1,18 +1,18 @@
 <script lang="ts" setup>
 import type { VNode } from 'vue'
 
-const { tab } = useSettingsModal()
+const { tab } = useSettingsWindow()
 
 const components = Object.fromEntries(
-  SETTINGS_MODAL_TABS.map(
+  SETTINGS_WINDOW_TABS.map(
     t => [t, defineAsyncComponent<VNode>(async () => {
       const filename = kebabCase(t)
       try {
-        const component = await import(`~/components/modal/settings/content/${filename}.vue`)
+        const component = await import(`~/components/window/settings/content/${filename}.vue`)
         return component
       }
       catch {
-        return h('div', { innerHTML: `Please create ~/components/modal/settings/content/${filename}.vue` })
+        return h('div', { innerHTML: `Please create ~/components/window/settings/content/${filename}.vue` })
       }
     })],
   ),
@@ -27,7 +27,7 @@ const components = Object.fromEntries(
   >
     <TabsList class="flex w-[225px] shrink-0 flex-col gap-0.5 border-r *:justify-start">
       <TabsTrigger
-        v-for="tab in SETTINGS_MODAL_TABS"
+        v-for="tab in SETTINGS_WINDOW_TABS"
         :key="tab"
         :value="tab"
         as-child
@@ -38,22 +38,20 @@ const components = Object.fromEntries(
       </TabsTrigger>
     </TabsList>
     <TabsContent
-      v-for="tab in SETTINGS_MODAL_TABS"
+      v-for="tab in SETTINGS_WINDOW_TABS"
       :key="tab"
       :value="tab"
-      class="h-[55vh] w-full"
+      class="overflow-y-auto w-full"
     >
       <component :is="components[tab]" />
     </TabsContent>
   </TabsRoot>
-  <UDialogFooter class="border-t p-4">
+  <div class="border-t p-4">
     <UButton disabled variant="soft">
       Apply
     </UButton>
-    <UDialogClose as-child>
-      <UButton variant="soft">
-        Close
-      </UButton>
-    </UDialogClose>
-  </UDialogFooter>
+    <UButton variant="soft">
+      Close
+    </UButton>
+  </div>
 </template>

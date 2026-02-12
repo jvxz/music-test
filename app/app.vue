@@ -13,7 +13,6 @@ onMounted(async () => {
     <NuxtPage />
   </NuxtLayout>
   <ModalItemSearch />
-  <ModalSettings />
   <DevOnly>
     <DebugDetails />
   </DevOnly>

@@ -5,7 +5,7 @@ const rowStyle = settings.layout.element.trackList.rowStyle
 </script>
 
 <template>
-  <ModalSettingsContentLayout title="Track list">
+  <WindowSettingsContentLayout title="Track list">
     <div class="flex flex-col gap-2">
       <ULabel>
         Row style
@@ -32,5 +32,5 @@ const rowStyle = settings.layout.element.trackList.rowStyle
         </UDropdownMenuContent>
       </UDropdownMenuRoot>
     </div>
-  </ModalSettingsContentLayout>
+  </WindowSettingsContentLayout>
 </template>

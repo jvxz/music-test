@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const { currentTrack } = usePlayback()
 
-const { toggleSettingsModal } = useSettingsModal()
+const { createSettingsWindow } = useSettingsWindow()
 </script>
 
 <template>
@@ -44,7 +44,7 @@ const { toggleSettingsModal } = useSettingsModal()
         <UButton
           variant="ghost"
           size="icon"
-          @click="toggleSettingsModal()"
+          @click="createSettingsWindow()"
         >
           <Icon name="tabler:settings" class="size-4!" />
         </UButton>

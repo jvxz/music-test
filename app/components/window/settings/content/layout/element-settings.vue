@@ -8,11 +8,11 @@ const ElementSettings = computedWithControl(element, () => defineAsyncComponent<
   const filename = kebabCase(element.value)
 
   try {
-    const component = await import(`~/components/modal/settings/content/layout/element-settings/${filename}.vue`)
+    const component = await import(`~/components/window/settings/content/layout/element-settings/${filename}.vue`)
     return component
   }
   catch {
-    return h('div', { innerHTML: `Please create ~/components/modal/settings/content/layout/element-settings/${filename}.vue` })
+    return h('div', { innerHTML: `Please create ~/components/window/settings/content/layout/element-settings/${filename}.vue` })
   }
 }))
 </script>

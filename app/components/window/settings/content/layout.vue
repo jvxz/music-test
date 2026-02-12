@@ -3,18 +3,18 @@ const settings = useSettings()
 </script>
 
 <template>
-  <ModalSettingsContentTabLayout title="Layout" class="flex h-full flex-col gap-4">
+  <WindowSettingsContentTabLayout title="Layout" class="flex h-full flex-col gap-4">
     <div class="relative flex justify-between gap-4">
       <div class="flex w-1/2 flex-col gap-6">
-        <ModalSettingsContentLayoutPanels
+        <WindowSettingsContentLayoutPanels
           v-for="panel in layoutPanels"
           :key="panel.label"
           :panel
         />
       </div>
 
-      <ModalSettingsContentLayoutElements />
-      <ModalSettingsContentLayoutElementSettings />
+      <WindowSettingsContentLayoutElements />
+      <WindowSettingsContentLayoutElementSettings />
     </div>
     <USeparator />
     <div class="shrink-0">
@@ -25,5 +25,5 @@ const settings = useSettings()
         </ULabel>
       </div>
     </div>
-  </ModalSettingsContentTabLayout>
+  </WindowSettingsContentTabLayout>
 </template>

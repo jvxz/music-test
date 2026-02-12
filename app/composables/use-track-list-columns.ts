@@ -1,9 +1,8 @@
 import { getAllWebviewWindows } from '@tauri-apps/api/webviewWindow'
-import defu from 'defu'
 
 type CustomColumnKey = 'CURRENTLY_PLAYING'
 
-export const ALL_TRACK_LIST_COLUMNS: Record<Id3FrameId | CustomColumnKey, TrackListColumn> = defu(
+export const ALL_TRACK_LIST_COLUMNS: Record<Id3FrameId | CustomColumnKey, TrackListColumn> = $defu(
   {
     APIC: {
       canSort: false,

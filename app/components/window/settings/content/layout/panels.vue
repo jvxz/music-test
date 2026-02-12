@@ -40,7 +40,7 @@ const containerHoverClass = computed(() => {
         </ULabel>
       </div>
       <div class="flex flex-col gap-1">
-        <ModalSettingsContentLayoutPanelsElements :panel-key="panel.key" />
+        <WindowSettingsContentLayoutPanelsElements :panel-key="panel.key" />
       </div>
     </div>
   </div>

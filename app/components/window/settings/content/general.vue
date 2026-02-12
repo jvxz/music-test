@@ -1,5 +1,5 @@
 <template>
-  <ModalSettingsContentTabLayout title="General">
+  <WindowSettingsContentTabLayout title="General">
     <div class="flex gap-2">
       <USwitch
         id="clickOutsideToDeselect"
@@ -9,5 +9,5 @@
         Click outside of track list to deselect
       </ULabel>
     </div>
-  </ModalSettingsContentTabLayout>
+  </WindowSettingsContentTabLayout>
 </template>

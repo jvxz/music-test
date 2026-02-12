@@ -31,7 +31,7 @@ async function handleDrop(folderPaths: string[]) {
 </script>
 
 <template>
-  <ModalSettingsContentTabLayout>
+  <WindowSettingsContentTabLayout>
     <h2 class="shrink-0 text-lg font-medium">
       Monitored folders
     </h2>
@@ -85,5 +85,5 @@ async function handleDrop(folderPaths: string[]) {
         </UButton>
       </div>
     </div>
-  </ModalSettingsContentTabLayout>
+  </WindowSettingsContentTabLayout>
 </template>

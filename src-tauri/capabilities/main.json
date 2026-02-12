@@ -4,6 +4,7 @@
   "description": "Capabilities for the app window",
   "windows": [
     "main",
+    "settings",
     "track-list-columns"
   ],
   "permissions": [
