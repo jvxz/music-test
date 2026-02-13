@@ -36,6 +36,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
       v-no-autocorrect
       data-slot="combobox-input"
       :class="cn(
+        'flex-1',
         props.class,
       )"
       v-bind="{ ...$attrs, ...forwarded }"
