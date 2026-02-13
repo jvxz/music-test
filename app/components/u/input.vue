@@ -27,10 +27,10 @@ const modelValue = useVModel(props, 'modelValue', emits, {
       v-model="modelValue"
       data-1p-ignore
       :class="cn(
+        'flex w-full min-w-0 cursor-text truncate py-1 font-sans selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:text-foreground placeholder:text-muted-foreground focus-visible:ring-0 md:text-sm',
         staticStyles.base,
         interactiveStyles.size.default,
         staticStyles.variant.default,
-        'flex w-full min-w-0 cursor-text truncate py-1 font-sans selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:text-foreground placeholder:text-muted-foreground focus-visible:ring-0 md:text-sm',
         'ps-6',
         props.class,
       )"
