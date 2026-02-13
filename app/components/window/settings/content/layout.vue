@@ -14,7 +14,6 @@ const settings = useSettings()
       </div>
 
       <WindowSettingsContentLayoutElements />
-      <WindowSettingsContentLayoutElementSettings />
     </div>
     <USeparator />
     <div class="shrink-0">
