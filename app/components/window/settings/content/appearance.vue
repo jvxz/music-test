@@ -5,6 +5,9 @@ const themeTokens = ['background', 'border', 'foreground', 'primary', 'surface',
 <template>
   <WindowSettingsContentTabLayout title="Appearance">
     <div class="flex w-full max-w-2/3 flex-col gap-4">
+      <FormSubtitle>
+        Theme
+      </FormSubtitle>
       <WindowSettingsContentAppearancePresets />
       <WindowSettingsContentAppearanceColorPicker
         v-for="token in themeTokens"

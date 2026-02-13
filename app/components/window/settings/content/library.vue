@@ -31,10 +31,10 @@ async function handleDrop(folderPaths: string[]) {
 </script>
 
 <template>
-  <WindowSettingsContentTabLayout>
-    <h2 class="shrink-0 text-lg font-medium">
+  <WindowSettingsContentTabLayout title="Library">
+    <FormSubtitle>
       Monitored folders
-    </h2>
+    </FormSubtitle>
     <div class="flex flex-col gap-1">
       <TauriDragoverProvider v-slot="{ isOver }" @drop="handleDrop">
         <UCard class="relative gap-0 bg-background p-1 px-2 font-mono text-sm">
