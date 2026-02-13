@@ -1,11 +1,4 @@
 <script lang="ts" setup>
-const frames: Id3FrameId[] = [
-  'TIT2',
-  'TPE1',
-  'TALB',
-  'TPE2',
-]
-
 const { currentTrack } = usePlayback()
 </script>
 
@@ -13,7 +6,7 @@ const { currentTrack } = usePlayback()
   <div class="flex flex-col *:p-4">
     <div class="flex flex-col gap-2">
       <LayoutPanelMetadataField
-        v-for="frame in frames"
+        v-for="frame in $settings.layout.element.metadataView.frames"
         :key="frame"
         :id3-frame="frame"
         :track="currentTrack"
