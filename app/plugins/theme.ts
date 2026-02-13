@@ -14,5 +14,11 @@ export default defineNuxtPlugin({
         --muted: ${settings.appearance.token.muted};
       }
     `))
+
+    useStyleTag(computed(() => `
+      * {
+        text-transform: ${settings.appearance.font.casing};
+      }
+    `))
   },
 })
