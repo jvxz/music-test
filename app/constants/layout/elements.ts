@@ -27,7 +27,7 @@ export interface LayoutElementSettings extends Record<LayoutElementKey, unknown>
     showFolders: boolean
   }
   metadataView: {
-    frames: string[]
+    frames: Id3FrameId[]
   }
   player: {
     seekBarThickness: number
