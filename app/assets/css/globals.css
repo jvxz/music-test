@@ -5,12 +5,12 @@
 
 @theme inline {
   --duration: 0.1s;
-  --text-multiplier: 1;
+  --text-multiplier: 1.4;
   --text-xl: calc(var(--text-lg) * var(--text-multiplier));
   --text-lg: calc(var(--text-base) * var(--text-multiplier));
   --text-base: 13px;
-  --text-sm: calc(var(--text-base) / var(--text-multiplier));
-  --text-xs: calc(var(--text-sm) / var(--text-multiplier));
+  --text-sm: calc(var(--text-base) / calc(var(--text-multiplier) * 0.68));
+  /* --text-xs: calc(var(--text-sm) / var(--text-multiplier)); */
   --spacing: calc(var(--text-base) / 3.5);
   /* --text-sm: clamp(0.81rem, 0.03vi + 0.81rem, 0.83rem);
   --text-base: clamp(0.81rem, 0.34vi + 0.73rem, 1rem);
@@ -21,9 +21,6 @@
   --text-xxxl: clamp(0.81rem, 3.24vi + 0rem, 2.59rem);
   --spacing: calc(var(--text-base) / 4.275); */
 
-  /* --font-sans: system-ui, -apple-system, sans-serif; */
-  --font-mono: 'Paper Mono', monospace;
-  --font-display: 'Funnel Display', monospace;
   --animate-accordion-down: accordion-down 0.15s;
   --animate-accordion-up: accordion-up 0.15s;
   --animate-caret-blink: caret-blink 1s ease-out infinite;
