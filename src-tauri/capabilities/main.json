@@ -5,6 +5,11 @@
   "windows": [
     "main",
     "settings",
+    "cover-art-settings",
+    "library-view-settings",
+    "metadata-view-settings",
+    "player-settings",
+    "track-list-settings",
     "track-list-columns"
   ],
   "permissions": [
