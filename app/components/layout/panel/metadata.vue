@@ -3,12 +3,12 @@ const { currentTrack } = usePlayback()
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
+  <LayoutPanelLayout>
     <LayoutPanelMetadataField
       v-for="frame in $settings.layout.element.metadataView.frames"
       :key="frame"
       :id3-frame="frame"
       :track="currentTrack"
     />
-  </div>
+  </LayoutPanelLayout>
 </template>

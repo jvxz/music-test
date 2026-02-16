@@ -21,17 +21,10 @@ const settings = useSettings()
 
 <template>
   <DefinePanels>
-    <div
-      class="overflow-y-auto"
-      :class="{
-        'p-4': !['coverArt'].includes(element),
-      }"
-    >
-      <LayoutPanelPlayer v-if="element === 'player'" />
-      <LayoutPanelCoverArt v-if="element === 'coverArt'" />
-      <LayoutPanelMetadata v-if="element === 'metadataView'" />
-      <LayoutPanelLibrary v-if="element === 'libraryView'" />
-    </div>
+    <LayoutPanelPlayer v-if="element === 'player'" />
+    <LayoutPanelCoverArt v-if="element === 'coverArt'" />
+    <LayoutPanelMetadata v-if="element === 'metadataView'" />
+    <LayoutPanelLibrary v-if="element === 'libraryView'" />
   </DefinePanels>
 
   <template v-if="asSplitterPanel">

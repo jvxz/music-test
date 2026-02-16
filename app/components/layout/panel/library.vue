@@ -3,7 +3,7 @@ const { createPlaylist } = useUserPlaylists()
 </script>
 
 <template>
-  <div class="flex h-full flex-col gap-2">
+  <LayoutPanelLayout>
     <LayoutPanelLibraryActions />
     <UContextMenu>
       <UContextMenuTrigger as-child>
@@ -24,5 +24,5 @@ const { createPlaylist } = useUserPlaylists()
         </UContextMenuItem>
       </UContextMenuContent>
     </UContextMenu>
-  </div>
+  </LayoutPanelLayout>
 </template>
