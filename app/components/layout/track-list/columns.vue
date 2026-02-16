@@ -21,6 +21,7 @@ function handleColumnLeftClick(col: TrackListColumn) {
 const container = useTemplateRef<HTMLElement>('container')
 const { barStyles, getDragElementProps } = useDraggable(columnFields, container, {
   direction: 'horizontal',
+  doDragGhost: true,
   onDragEnd: (params) => {
     columnFields.value = handleListRearrange(columnFields, params)
   },
