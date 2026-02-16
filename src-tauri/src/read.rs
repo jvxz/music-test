@@ -18,6 +18,7 @@ pub type SerializableTagMap = HashMap<String, String>;
 pub struct FileEntry {
   pub path: String,
   pub name: String,
+  pub filename: String,
   pub tags: SerializableTagMap,
   pub thumbnail_uri: String,
   pub full_uri: String,
@@ -100,6 +101,10 @@ fn _get_track_data(path_string: impl AsRef<str>) -> Result<FileEntry> {
 fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
   if !path.is_file() {
     return Ok(FileEntry {
+      filename: path
+        .file_name()
+        .map(|n| n.to_string_lossy().to_string())
+        .unwrap_or("Unknown filename".to_string()),
       tags: SerializableTagMap::new(),
       full_uri: String::new(),
       thumbnail_uri: String::new(),
@@ -120,8 +125,13 @@ fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
     .file_name()
     .map(|n| n.to_string_lossy().to_string())
     .unwrap_or("Unknown title".to_string());
+  let filename = path
+    .file_name()
+    .map(|n| n.to_string_lossy().to_string())
+    .unwrap_or("Unknown filename".to_string());
 
   return Ok(FileEntry {
+    filename,
     tags: tag_map,
     full_uri,
     thumbnail_uri,
