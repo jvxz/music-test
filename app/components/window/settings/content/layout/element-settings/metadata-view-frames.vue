@@ -16,7 +16,6 @@ const { barStyles: activeListBarStyles, draggingItem: draggingActiveItem, getDra
   fields,
   activeListEl,
   {
-    _name: 'active',
     class: {
       dragging: 'opacity-50',
     },
@@ -33,7 +32,6 @@ const { barStyles: activeListBarStyles, draggingItem: draggingActiveItem, getDra
 
 const availableListEl = useTemplateRef<HTMLDivElement>('availableListEl')
 const { getDragElementProps: availableDragElementProps } = useDraggable(toRef(objectKeys(ID3_MAP)), availableListEl, {
-  _name: 'available',
   direction: 'vertical',
   doDragGhost: true,
   group: 'metadata-view-frames',
