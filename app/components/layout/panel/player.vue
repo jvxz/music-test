@@ -20,7 +20,7 @@ async function handleDragStart() {
 </script>
 
 <template>
-  <div class="flex items-center justify-between gap-4 p-4">
+  <div class="flex items-center justify-between gap-4">
     <div class="flex h-full flex-1 items-center">
       <div class="flex h-full items-start gap-4">
         <LayoutPanelCoverArt
