@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { HTMLAttributes } from 'vue'
 import { Slot } from 'reka-ui'
 
 interface ButtonProps {
@@ -6,8 +7,8 @@ interface ButtonProps {
   disabled?: MaybeRefOrGetter<boolean>
   size?: 'default' | 'icon' | 'lg' | 'sm'
   variant?: 'default' | 'danger' | 'ghost' | 'link' | 'outline' | 'soft'
-  class?: string
   isLoading?: MaybeRefOrGetter<boolean>
+  class?: HTMLAttributes['class']
 }
 
 const props = withDefaults(
