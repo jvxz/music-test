@@ -33,7 +33,7 @@ tauri-plugin-pinia = "4.1.0"
 tokio = "1.48.0"
 taurpc = "0.5.2"
 specta = { version = "=2.0.0-rc.22", features = [ "derive" ] }
-id3 = "1.16.3"
+id3 = "1.16.4"
 log = "0.4.29"
 dashmap = { version = "6.0.0", features = [ "serde" ] }
 tauri-plugin-devtools = "2.0.0"
