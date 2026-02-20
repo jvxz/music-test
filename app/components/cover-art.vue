@@ -10,7 +10,8 @@ const props = defineProps<{
   track?: TrackListEntry | null
 }>()
 
-const track = computed(() => props.track ?? usePlayback().currentTrack.value)
+const { currentTrack } = usePlayback()
+const track = computed(() => props.track ?? currentTrack.value)
 </script>
 
 <template>
