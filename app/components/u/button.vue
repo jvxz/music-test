@@ -1,6 +1,17 @@
-<script lang="ts" setup>
+<script lang="ts">
 import type { HTMLAttributes } from 'vue'
 import { Slot } from 'reka-ui'
+</script>
+
+<script lang="ts" setup>
+export interface ButtonProps {
+  asChild?: boolean
+  disabled?: MaybeRefOrGetter<boolean>
+  size?: 'default' | 'icon' | 'lg' | 'sm'
+  variant?: 'default' | 'danger' | 'ghost' | 'link' | 'outline' | 'soft'
+  isLoading?: MaybeRefOrGetter<boolean>
+  class?: HTMLAttributes['class']
+}
 
 interface ButtonProps {
   asChild?: boolean
