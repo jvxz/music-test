@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-defineProps<{
+const { track } = defineProps<{
   track: TrackListEntry | null
 }>()
 const settings = useSettings()
@@ -10,15 +10,15 @@ const textarea = useTemplateRef<HTMLTextAreaElement>('textarea')
 const { height: elHeight } = useElementSize(textarea)
 watchDebounced(elHeight, height => settings.layout.element.metadataView.frameCommHeight = height, { debounce: 200 })
 
-const { proposedChanges } = useMetadata()
+const { proposedChanges } = useMetadata(() => track, 'panel')
 </script>
 
 <template>
   <UTextarea
     v-if="track && track.valid"
     ref="textarea"
-    v-no-autocorrect
     v-model:model-value="proposedChanges.COMM"
+    v-no-autocorrect
     style="text-transform: none"
     :style="{ height: `${height}px` }"
     class="max-h-96 min-h-16 resize-y"
