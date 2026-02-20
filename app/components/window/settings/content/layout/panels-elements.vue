@@ -6,7 +6,7 @@ const props = defineProps<{
 }>()
 
 const settings = useSettings()
-const { elementDraggingData, elementSettingsToShow, isElementAllowedInPanel, removeElementFromPanel } = useLayout()
+const { elementDraggingData, isElementAllowedInPanel, openElementWindow, removeElementFromPanel } = useLayout()
 
 function hasSettings(elementKey: LayoutElementKey) {
   const obj = defaultLayoutElementSettings[elementKey]
@@ -65,7 +65,7 @@ function hasSettings(elementKey: LayoutElementKey) {
             variant="ghost"
             size="icon"
             class="rounded-l-none transition-none duration-0"
-            @click="elementSettingsToShow = element"
+            @click="openElementWindow(element)"
           >
             <Icon name="tabler:pencil" class="size-3.5!" />
           </UButton>
@@ -75,7 +75,7 @@ function hasSettings(elementKey: LayoutElementKey) {
         <UContextMenuItem @click="removeElementFromPanel(props.panelKey, element)">
           Remove
         </UContextMenuItem>
-        <UContextMenuItem @click="elementSettingsToShow = element">
+        <UContextMenuItem @click="openElementWindow(element)">
           Edit
         </UContextMenuItem>
       </UContextMenuContent>

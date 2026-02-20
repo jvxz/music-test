@@ -27,7 +27,8 @@ export interface LayoutElementSettings extends Record<LayoutElementKey, unknown>
     showFolders: boolean
   }
   metadataView: {
-    frames: string[]
+    frames: Id3FrameId[]
+    frameCommHeight: number
   }
   player: {
     seekBarThickness: number
@@ -51,6 +52,7 @@ export const defaultLayoutElementSettings = {
     showFolders: true,
   },
   metadataView: {
+    frameCommHeight: 16,
     frames: ['TIT2', 'TPE1', 'TALB', 'TPE2'],
   },
   player: {

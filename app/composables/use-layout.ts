@@ -6,7 +6,19 @@ export function useLayout() {
     element: LayoutElementKey
   } | null>('layout-element-dragging-data', () => null)
 
-  const elementSettingsToShow = useState<LayoutElementKey | undefined>('layout-element-settings-to-show', () => undefined)
+  const openElementWindow = async (element: LayoutElementKey) => {
+    const { createWindow: createElementWindow, window: elementWindow } = useTauriWindow(`${kebabCase(element)}-settings`, {
+      center: true,
+      height: 850,
+      title: `${upperFirst(splitByCase(element).map(flatCase).join(' '))} settings`,
+      url: `/element-settings/${element}`,
+      width: 800,
+    })
+
+    await createElementWindow()
+
+    return elementWindow
+  }
 
   function addElementToPanel(panelKey: LayoutPanelKey, elementKey: LayoutElementKey) {
     settings.layout.panel[panelKey].elements.push(elementKey)
@@ -45,10 +57,10 @@ export function useLayout() {
   return {
     addElementToPanel,
     elementDraggingData,
-    elementSettingsToShow,
     handlePanelElementsSizeChange,
     handlePanelSizeChange,
     isElementAllowedInPanel,
+    openElementWindow,
     removeElementFromPanel,
   }
 }

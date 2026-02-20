@@ -3,7 +3,7 @@ const { createPlaylist } = useUserPlaylists()
 </script>
 
 <template>
-  <div class="flex h-full flex-col gap-2 *:px-4 *:first:pt-4 *:last:pb-4">
+  <LayoutPanelLayout>
     <LayoutPanelLibraryActions />
     <UContextMenu>
       <UContextMenuTrigger as-child>
@@ -11,11 +11,9 @@ const { createPlaylist } = useUserPlaylists()
       </UContextMenuTrigger>
       <UContextMenuContent>
         <UContextMenuItem
-          @click="
-            createPlaylist({
-              name: 'New playlist',
-            })
-          "
+          @click="createPlaylist({
+            name: 'New playlist',
+          })"
         >
           <Icon name="tabler:playlist-add" class="size-4" />
           New playlist
@@ -26,5 +24,5 @@ const { createPlaylist } = useUserPlaylists()
         </UContextMenuItem>
       </UContextMenuContent>
     </UContextMenu>
-  </div>
+  </LayoutPanelLayout>
 </template>
