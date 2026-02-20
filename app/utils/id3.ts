@@ -80,4 +80,7 @@ export const ID3_MAP = {
   TMCL: 'Musician credits list',
 } as const
 
+export const ID3_TAG_TYPES: TagTypeArg[] = ['id3v2.2', 'id3v2.3', 'id3v2.4']
+export const ID3_DEFAULT_TAG: TagTypeArg = 'id3v2.4'
+
 export type Id3FrameId = keyof typeof ID3_MAP
