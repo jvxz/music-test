@@ -1,11 +1,12 @@
 import { confirm } from '@tauri-apps/plugin-dialog'
 import isObjEqual from 'fast-deep-equal'
+import { LRUCache } from 'lru-cache'
 
 export type TagMap = Partial<Record<Id3FrameId, string>>
 
 type Group = 'panel'
 
-const instances = new Map<string, Ref<TagMap>>()
+const instances = new LRUCache<string, Ref<TagMap>>({ max: 8 })
 
 export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null | undefined>, group?: Group | string & {}) {
   const { rpc } = useTauri()

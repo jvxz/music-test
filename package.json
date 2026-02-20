@@ -57,6 +57,7 @@
     "fuse.js": "^7.1.0",
     "kysely": "^0.28.11",
     "kysely-dialect-tauri": "^1.2.1",
+    "lru-cache": "^11.2.6",
     "nuxt": "^4.3.1",
     "nuxt-icons": "4.0.0",
     "pinia": "^3.0.4",
