@@ -83,7 +83,6 @@ export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null
     }
 
     const frames = objectEntries(proposedChanges.value)
-      .filter(([_, value]) => value !== '')
       .filter(([frame, value]) => originalTags[frame] !== value)
       .map(([frame, value]) => ({
         frame,

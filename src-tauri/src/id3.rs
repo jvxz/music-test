@@ -54,6 +54,11 @@ pub async fn write_id3_frames<'a>(
   let mut tag = get_tag(Cow::Borrowed(&file_path), target_tag)?;
 
   for arg in args {
+    if arg.value.is_empty() {
+      tag.remove(&arg.frame);
+      continue;
+    }
+
     tag.set_text(&arg.frame, &arg.value);
   }
 
