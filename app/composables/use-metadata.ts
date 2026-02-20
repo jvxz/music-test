@@ -68,7 +68,7 @@ export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null
     if (!file || !originalTags)
       return
 
-    if (!exists(file.path)) {
+    if (!(await exists(file.path))) {
       return emitError({
         data: `Unable to write metadata to file ${file.path} - file does not exist`,
         type: 'FileSystem',
