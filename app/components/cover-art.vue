@@ -7,17 +7,18 @@ const props = defineProps<{
   noCoverText?: string
   classes?: Partial<Record<ClassAttributeNames, string | string[]>>
   img?: ImgHTMLAttributes
+  track?: TrackListEntry | null
 }>()
 
-const { currentTrack } = usePlayback()
+const track = computed(() => props.track ?? usePlayback().currentTrack.value)
 </script>
 
 <template>
   <div :class="cn('flex size-full items-center justify-center overflow-hidden', props.classes?.root)">
     <img
-      v-if="currentTrack && currentTrack.tags.APIC"
+      v-if="track && track.tags.APIC"
       v-bind="img"
-      :src="currentTrack?.full_uri"
+      :src="track?.full_uri"
       :class="cn('h-full object-contain', props.classes?.img)"
     />
     <div
