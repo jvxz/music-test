@@ -1,8 +1,10 @@
 use crate::error::Error;
 use crate::error::Result;
+use crate::id3::TagTypeArg;
 use dashmap::DashMap;
 use id3::v1v2::read_from_path;
 use id3::ErrorKind;
+use id3::Tag;
 use serde::Deserialize;
 use serde::Serialize;
 use specta::Type;
@@ -24,6 +26,7 @@ pub struct FileEntry {
   pub full_uri: String,
   pub is_playlist_track: bool,
   pub valid: bool,
+  pub primary_tag: Option<TagTypeArg>,
 }
 
 pub static FOLDER_CACHE: LazyLock<DashMap<String, Arc<Vec<FileEntry>>>> =
@@ -115,10 +118,12 @@ fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
         .unwrap_or("Unknown title".to_string()),
       is_playlist_track: false,
       valid: false,
+      primary_tag: None,
     });
   }
 
-  let tag_map = get_tag_map(&path)?;
+  let primary_tag = get_primary_tag(&path)?;
+  let tag_map = get_tag_map(primary_tag.clone())?;
   let full_uri = build_cover_uri(path.to_string_lossy().as_ref(), "full");
   let thumbnail_uri = build_cover_uri(path.to_string_lossy().as_ref(), "thumbnail");
   let name = path
@@ -139,29 +144,50 @@ fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
     name,
     is_playlist_track: false,
     valid: true,
+    primary_tag: get_primary_tag_version(primary_tag),
   });
 }
 
-fn get_tag_map(path: impl AsRef<Path>) -> Result<SerializableTagMap> {
+fn get_tag_map(tag: Option<Tag>) -> Result<SerializableTagMap> {
+  return match tag {
+    Some(tag) => {
+      let tag_map: SerializableTagMap = HashMap::from_iter(
+        tag
+          .frames()
+          .map(|f| (f.id().to_string(), f.content().to_string())),
+      );
+
+      return Ok(tag_map);
+    }
+    None => Ok(SerializableTagMap::new()),
+  };
+}
+
+fn get_primary_tag(path: impl AsRef<Path>) -> Result<Option<Tag>> {
   let path = path.as_ref();
-  let tag_from_valid_track = match read_from_path(path) {
-    Ok(tag) => tag,
+  return Ok(match read_from_path(path) {
+    Ok(tag) => Some(tag),
     Err(err) => {
       if matches!(err.kind, ErrorKind::NoTag) {
-        return Ok(SerializableTagMap::new());
+        return Ok(None);
       }
 
       return Err(Error::Id3(err.to_string()));
     }
+  });
+}
+
+fn get_primary_tag_version(tag: Option<Tag>) -> Option<TagTypeArg> {
+  return match tag {
+    Some(tag) => {
+      return match tag.version() {
+        id3::Version::Id3v22 => Some(TagTypeArg::Id3v22),
+        id3::Version::Id3v23 => Some(TagTypeArg::Id3v23),
+        id3::Version::Id3v24 => Some(TagTypeArg::Id3v24),
+      };
+    }
+    None => None,
   };
-
-  let tag_map: SerializableTagMap = HashMap::from_iter(
-    tag_from_valid_track
-      .frames()
-      .map(|f| (f.id().to_string(), f.content().to_string())),
-  );
-
-  return Ok(tag_map);
 }
 
 fn is_supported(path: impl AsRef<Path>) -> bool {

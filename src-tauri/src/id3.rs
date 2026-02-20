@@ -2,6 +2,8 @@ use crate::error::{Error, Result};
 use id3::{Tag, TagLike};
 use serde::{Deserialize, Serialize};
 use specta::Type;
+use std::borrow::Cow;
+use std::convert::Into;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -43,27 +45,36 @@ pub struct FrameArgs {
 }
 
 #[tauri::command]
-pub async fn write_id3_frame(
-  file_path: String,
-  target_tag: TagTypeArg,
-  args: FrameArgs,
+pub async fn write_id3_frames<'a>(
+  file_path: Cow<'a, str>,
+  target_tag: Cow<'a, TagTypeArg>,
+  args: Vec<FrameArgs>,
 ) -> Result<()> {
-  let FrameArgs { frame, value } = args;
+  let version = id3::Version::from(*target_tag);
+  let mut tag = get_tag(Cow::Borrowed(&file_path), target_tag)?;
 
-  let mut tag = match Tag::read_from_path(&file_path) {
+  for arg in args {
+    tag.set_text(&arg.frame, &arg.value);
+  }
+
+  tag
+    .write_to_path(file_path.as_ref(), version)
+    .map_err(|e| Error::Id3(format!("Failed to write ID3 tag: {}", e)))?;
+
+  return Ok(());
+}
+
+fn get_tag<'a>(file_path: Cow<'a, str>, target_tag: Cow<'a, TagTypeArg>) -> Result<Tag> {
+  let version = id3::Version::from(*target_tag);
+
+  let tag = match Tag::read_from_path(file_path.as_ref()) {
     Ok(tag) => tag,
     Err(id3::Error {
       kind: id3::ErrorKind::NoTag,
       ..
-    }) => Tag::with_version(target_tag.into()),
+    }) => Tag::with_version(version),
     Err(err) => return Err(Error::Id3(err.to_string())),
   };
 
-  tag.set_text(&frame, &value);
-
-  tag
-    .write_to_path(&file_path, target_tag.into())
-    .map_err(|e| Error::Id3(format!("Failed to write ID3 tag: {}", e)))?;
-
-  return Ok(());
+  return Ok(tag);
 }

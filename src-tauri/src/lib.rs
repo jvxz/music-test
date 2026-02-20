@@ -7,6 +7,7 @@ use crate::playback::{AudioHandle, StreamAction, StreamStatus};
 use crate::read::FileEntry;
 use rand::TryRngCore;
 use serde::Serialize;
+use std::borrow::Cow;
 use std::io::Write;
 use std::sync::Arc;
 use tauri::{
@@ -70,10 +71,10 @@ trait Api {
   async fn get_lastfm_auth_status<R: Runtime>(app_handle: AppHandle<R>) -> Result<bool>;
 
   // id3
-  async fn write_id3_frame(
+  async fn write_id3_frames(
     file_path: String,
     target_tag: TagTypeArg,
-    args: FrameArgs,
+    args: Vec<FrameArgs>,
   ) -> Result<()>;
 }
 
@@ -162,13 +163,14 @@ impl Api for ApiImpl {
   }
 
   // id3
-  async fn write_id3_frame(
+  async fn write_id3_frames(
     self,
     file_path: String,
     target_tag: TagTypeArg,
-    args: FrameArgs,
+    args: Vec<FrameArgs>,
   ) -> Result<()> {
-    return id3::write_id3_frame(file_path, target_tag, args).await;
+    return id3::write_id3_frames(Cow::Borrowed(&file_path), Cow::Borrowed(&target_tag), args)
+      .await;
   }
 }
 
