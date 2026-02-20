@@ -86,15 +86,13 @@ onKeyStrokeSafe('meta_r', () => {
       </UContextMenuContent>
     </UContextMenu>
 
-    <div class="flex flex-col gap-2 p-4">
-      <form ref="form">
-        <LayoutPanelMetadataField
-          v-for="frame in $settings.layout.element.metadataView.frames"
-          :key="frame"
-          :id3-frame="frame"
-          :track="currentTrack"
-        />
-      </form>
-    </div>
+    <form class="flex flex-col gap-2 p-4">
+      <LayoutPanelMetadataField
+        v-for="frame in $settings.layout.element.metadataView.frames"
+        :key="frame"
+        :id3-frame="frame"
+        :track="currentTrack"
+      />
+    </form>
   </LayoutPanelLayout>
 </template>
