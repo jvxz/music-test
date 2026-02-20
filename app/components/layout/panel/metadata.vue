@@ -4,6 +4,7 @@ const { currentTrack } = usePlayback()
 const { commitChanges, isDirty, revertAllChanges } = useMetadata(currentTrack, 'panel')
 
 const id3Tag = computed(() => currentTrack.value?.primary_tag ?? ID3_DEFAULT_TAG)
+const { openElementWindow } = useLayout()
 
 const form = useTemplateRef<HTMLFormElement>('form')
 const { focused: isFormFocused } = useFocusWithin(form)
@@ -80,7 +81,7 @@ onKeyStrokeSafe('meta_r', () => {
         </div>
       </UContextMenuTrigger>
       <UContextMenuContent>
-        <UContextMenuItem>
+        <UContextMenuItem @click="openElementWindow('metadataView')">
           Set displayed frames...
         </UContextMenuItem>
       </UContextMenuContent>
