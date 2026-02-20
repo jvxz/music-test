@@ -13,15 +13,6 @@ export interface ButtonProps {
   class?: HTMLAttributes['class']
 }
 
-interface ButtonProps {
-  asChild?: boolean
-  disabled?: MaybeRefOrGetter<boolean>
-  size?: 'default' | 'icon' | 'lg' | 'sm'
-  variant?: 'default' | 'danger' | 'ghost' | 'link' | 'outline' | 'soft'
-  isLoading?: MaybeRefOrGetter<boolean>
-  class?: HTMLAttributes['class']
-}
-
 const props = withDefaults(
   defineProps<ButtonProps>(),
   {
