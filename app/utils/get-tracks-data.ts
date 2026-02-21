@@ -3,7 +3,7 @@ import { extname } from '@tauri-apps/api/path'
 const SUPPORTED_EXTENSIONS = ['mp3', 'mp2', 'mp1', 'flac', 'wav', 'ogg', 'oga', 'm4a', 'aac']
 
 export async function getTracksData(paths: string[]): Promise<FileEntry[]> {
-  const tracks = await useTauri().rpc.get_tracks_data(paths)
+  const tracks = await $invoke(commands.getTracksData, paths)
 
   const unsupportedExtensions: string[] = []
 

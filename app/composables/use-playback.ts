@@ -1,5 +1,5 @@
 export const usePlayback = createSharedComposable(() => {
-  const { prefs, rpc, store } = useTauri()
+  const { prefs, store } = useTauri()
   const { scrobbleTrack, updateNowPlaying } = useLastFm()
 
   // internal
@@ -80,7 +80,7 @@ export const usePlayback = createSharedComposable(() => {
   })
 
   const getTrackData = useThrottleFn(async (entry: TrackListEntry): Promise<TrackListEntry | null> => {
-    const res = await rpc.get_track_data(entry.path)
+    const res = await $invoke(commands.getTrackData, entry.path)
     if (!res)
       return null
 
@@ -89,16 +89,6 @@ export const usePlayback = createSharedComposable(() => {
       ...entry,
     }
   }, 500)
-  // const getTrackData = useMemoize(async (entry: TrackListEntry): Promise<TrackListEntry | null> => {
-  //   const res = await rpc.get_track_data(entry.path)
-  //   if (!res)
-  //     return null
-
-  //   return {
-  //     ...res,
-  //     ...entry,
-  //   }
-  // })
 
   async function playPauseCurrentTrack(action?: 'Resume' | 'Pause') {
     // scrobble current track if not already scrobbled & applicable
@@ -112,7 +102,7 @@ export const usePlayback = createSharedComposable(() => {
       action = _playbackStatus.value?.is_playing ? 'Pause' : 'Resume'
     }
 
-    _playbackStatus.value = await rpc.control_playback(action)
+    _playbackStatus.value = await $invoke(commands.controlPlayback, action)
   }
 
   async function playTrack(entry: TrackListEntry) {
@@ -159,7 +149,7 @@ export const usePlayback = createSharedComposable(() => {
       playback_source_id: entry.path,
     }
 
-    const status = await rpc.control_playback({
+    const status = await $invoke(commands.controlPlayback, {
       Play: entry.path,
     })
     _playbackStatus.value = status
@@ -172,7 +162,7 @@ export const usePlayback = createSharedComposable(() => {
   }
 
   async function setLoop(loop: boolean) {
-    await rpc.control_playback({
+    await $invoke(commands.controlPlayback, {
       SetLoop: loop,
     })
 
@@ -185,7 +175,7 @@ export const usePlayback = createSharedComposable(() => {
     if (!_playbackStatus.value)
       return
 
-    const _status = await rpc.control_playback({
+    const _status = await $invoke(commands.controlPlayback, {
       Seek: to,
     })
     _playbackStatus.value = _status
@@ -196,7 +186,7 @@ export const usePlayback = createSharedComposable(() => {
       toggleMute()
     }
 
-    await rpc.control_playback({
+    await $invoke(commands.controlPlayback, {
       SetVolume: volume,
     })
 
@@ -206,7 +196,7 @@ export const usePlayback = createSharedComposable(() => {
   }
 
   async function toggleMute() {
-    await rpc.control_playback('ToggleMute')
+    await $invoke(commands.controlPlayback, 'ToggleMute')
 
     if (_playbackStatus.value) {
       _playbackStatus.value.is_muted = !_playbackStatus.value.is_muted

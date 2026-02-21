@@ -1,8 +1,6 @@
 const LIBRARY_FOLDERS_KEY = 'library-folders'
 
 export function useLibrary() {
-  const { rpc } = useTauri()
-
   async function getLibraryTracks() {
     const tracks = await $db().selectFrom('library_tracks').selectAll().execute()
 
@@ -26,7 +24,7 @@ export function useLibrary() {
       path: folderPath,
     }).execute()
 
-    const folderTracks = await rpc.read_folder(folderPath)
+    const folderTracks = await $invoke(commands.readFolder, folderPath)
 
     await addTracksToLibrary(folderTracks, {
       id: folderPath,

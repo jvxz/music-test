@@ -8,12 +8,11 @@ const offlineScrobbleCache = new LazyStore('lastfm-offline-scrobbles.json', {
 })
 
 export function useLastFm() {
-  const { rpc } = useTauri()
   const { isOnline } = useNetwork()
   const settings = useSettings()
 
   const { data: authStatus, execute: refreshAuthStatus, pending: authStatusPending } = useAsyncData('lastfm-auth', async () => {
-    const status = await rpc.get_lastfm_auth_status()
+    const status = await $invoke(commands.getLastfmAuthStatus)
 
     if (status) {
       return settings.lastFm.username ?? undefined
@@ -31,7 +30,7 @@ export function useLastFm() {
       const scrobbles = await offlineScrobbleCache.get('scrobbles') as SerializedOfflineScrobble[] | undefined
       if (scrobbles && scrobbles.length > 0) {
         try {
-          await rpc.process_offline_scrobbles(scrobbles)
+          await $invoke(commands.processOfflineScrobbles, scrobbles)
         }
         catch {
           emitError({ data: `Failed to process offline scrobbles. Your ${scrobbles.length} ${checkPlural(scrobbles.length, 'cached scrobbles')} can be manually processed in settings`, type: 'LastFm' })
@@ -65,9 +64,9 @@ export function useLastFm() {
     },
   )
 
-  const startAuth = () => rpc.open_lastfm_auth()
+  const startAuth = () => $invoke(commands.openLastfmAuth)
   const completeAuth = async (token: string) => {
-    const username = await rpc.complete_lastfm_auth(token)
+    const username = await $invoke(commands.completeLastfmAuth, token)
     if (username) {
       settings.lastFm.username = username
       await refreshAuthStatus()
@@ -75,7 +74,7 @@ export function useLastFm() {
     }
   }
   const removeAuth = async () => {
-    await rpc.remove_lastfm_account()
+    await $invoke(commands.removeLastfmAccount)
     settings.lastFm.username = null
     await refreshAuthStatus()
   }
@@ -86,7 +85,7 @@ export function useLastFm() {
 
     const scrobble = getSerializedScrobble(track, duration)
     if (scrobble) {
-      await rpc.set_now_playing(scrobble)
+      await $invoke(commands.setNowPlaying, scrobble)
     }
   }, 2000)
 
@@ -104,7 +103,7 @@ export function useLastFm() {
       }
 
       try {
-        await rpc.scrobble_track(scrobble)
+        await $invoke(commands.scrobbleTrack, scrobble)
       }
       catch {
         return await addOfflineScrobble({

@@ -34,7 +34,7 @@ watch(input, () => input.value && inputType.value !== 'query' && checkPathExists
 
 async function handleEnter(manualInput?: string) {
   const rawInput = manualInput ?? input.value
-  const inputToUse = await useTauri().rpc.get_canonical_path(rawInput)
+  const inputToUse = await $invoke(commands.getCanonicalPath, rawInput)
 
   if (inputToUse) {
     open.value = false

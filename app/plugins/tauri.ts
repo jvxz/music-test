@@ -21,8 +21,6 @@ export default defineNuxtPlugin({
     const entries = await store.entries()
     const prefs = new Map<string, unknown>(entries)
 
-    const rpc = createTauRPCProxy()
-
     errorHook.on((error) => {
       message(error.data, { kind: 'error', title: ERROR_TITLE_MAP[error.type] })
     })
@@ -43,7 +41,6 @@ export default defineNuxtPlugin({
           invoke,
           listen,
           prefs,
-          rpc,
           store,
         },
       },
