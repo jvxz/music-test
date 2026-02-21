@@ -9,11 +9,12 @@ use symphonia::core::{
   meta::MetadataOptions,
   probe::Hint,
 };
-use tauri::{AppHandle, Manager, Runtime};
+use tauri::{AppHandle, Manager};
 
 #[tauri::command]
-pub async fn get_waveform<R: Runtime>(
-  app_handle: AppHandle<R>,
+#[specta::specta]
+pub async fn get_waveform(
+  app_handle: AppHandle<tauri::Wry>,
   path: String,
   bin_size: f32,
 ) -> Result<Vec<f32>> {

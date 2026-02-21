@@ -2,7 +2,7 @@
 use crate::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use specta::Type;
-use tauri::{AppHandle, Manager, Runtime};
+use tauri::{AppHandle, Manager};
 use tokio::sync::{mpsc, oneshot};
 
 pub struct AudioHandle {
@@ -32,15 +32,20 @@ pub struct StreamStatus {
 }
 
 #[tauri::command]
-pub async fn control_playback<R: Runtime>(
-  app_handle: AppHandle<R>,
+#[specta::specta]
+pub async fn control_playback(
+  app_handle: AppHandle<tauri::Wry>,
   action: StreamAction,
 ) -> Result<StreamStatus> {
   let audio_handle = app_handle.state::<AudioHandle>();
 
   let (response_tx, response_rx) = oneshot::channel::<StreamStatus>();
 
-  audio_handle.tx.send((action, response_tx)).await;
+  audio_handle
+    .tx
+    .send((action, response_tx))
+    .await
+    .map_err(|_| Error::Other("audio thread disconnected".to_string()))?;
 
   let response = response_rx
     .await

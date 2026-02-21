@@ -11,6 +11,7 @@ pub enum Error {
   LastFm(String),
   #[error("Waveform error: `{0}`")]
   Waveform(String),
+  #[allow(dead_code)]
   #[error("SQL error: `{0}`")]
   Sql(String),
   #[error("Store error: `{0}`")]

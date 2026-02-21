@@ -1,15 +1,9 @@
 // #![deny(clippy::unwrap_used, clippy::expect_used)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use crate::error::{Error, Result};
-use crate::id3::{FrameArgs, TagTypeArg};
-use crate::lastfm::{SerializedOfflineScrobble, SerializedScrobble, SerializedScrobbleResponse};
 use crate::playback::{AudioHandle, StreamAction, StreamStatus};
-use crate::read::FileEntry;
 use rand::TryRngCore;
-use serde::Serialize;
-use std::borrow::Cow;
 use std::io::Write;
-use std::sync::Arc;
 use tauri::{
   menu::{Menu, MenuItem},
   tray::TrayIconBuilder,
@@ -19,6 +13,7 @@ use tauri_plugin_sql::{Migration, MigrationKind};
 use tauri_plugin_store::StoreExt;
 use tauri_plugin_stronghold::stronghold::Stronghold;
 use tauri_plugin_window_state::StateFlags;
+use tauri_specta::collect_commands;
 use tokio::sync::{mpsc, oneshot};
 use uuid::Uuid;
 
@@ -31,151 +26,6 @@ mod lastfm;
 mod playback;
 mod read;
 mod waveform;
-
-#[taurpc::procedures(export_to = "../app/utils/tauri-bindings.ts")]
-trait Api {
-  async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>>;
-  async fn get_canonical_path(path: String) -> Result<String>;
-  async fn get_track_data(path: String) -> Result<FileEntry>;
-  async fn get_tracks_data(paths: Vec<String>) -> Vec<FileEntry>;
-  async fn control_playback<R: Runtime>(
-    app_handle: AppHandle<R>,
-    action: StreamAction,
-  ) -> Result<StreamStatus>;
-
-  async fn get_waveform<R: Runtime>(
-    app_handle: AppHandle<R>,
-    path: String,
-    bin_size: f32,
-  ) -> Result<Vec<f32>>;
-
-  // lastfm
-  async fn open_lastfm_auth<R: Runtime>(app_handle: AppHandle<R>) -> Result<String>;
-  async fn complete_lastfm_auth<R: Runtime>(
-    app_handle: AppHandle<R>,
-    token: String,
-  ) -> Result<String>;
-  async fn remove_lastfm_account<R: Runtime>(app_handle: AppHandle<R>) -> Result<()>;
-  async fn scrobble_track<R: Runtime>(
-    app_handle: AppHandle<R>,
-    scrobble: SerializedScrobble,
-  ) -> Result<SerializedScrobbleResponse>;
-  async fn process_offline_scrobbles<R: Runtime>(
-    app_handle: AppHandle<R>,
-    scrobbles: Vec<SerializedOfflineScrobble>,
-  ) -> Result<SerializedScrobbleResponse>;
-  async fn set_now_playing<R: Runtime>(
-    app_handle: AppHandle<R>,
-    scrobble: SerializedScrobble,
-  ) -> Result<()>;
-  async fn get_lastfm_auth_status<R: Runtime>(app_handle: AppHandle<R>) -> Result<bool>;
-
-  // id3
-  async fn write_id3_frames(
-    file_path: String,
-    target_tag: TagTypeArg,
-    args: Vec<FrameArgs>,
-  ) -> Result<()>;
-}
-
-#[taurpc::resolvers]
-impl Api for ApiImpl {
-  async fn read_folder(self, path: String) -> Result<Arc<Vec<FileEntry>>> {
-    return read::read_folder(path).await;
-  }
-
-  async fn get_canonical_path(self, path: String) -> Result<String> {
-    let canonical_path = std::fs::canonicalize(path)
-      .map(|p| p.to_string_lossy().to_string())
-      .map_err(|e| Error::Other(e.to_string()))?;
-
-    return Ok(canonical_path);
-  }
-
-  async fn get_track_data(self, path: String) -> Result<FileEntry> {
-    return read::get_track_data(path).await;
-  }
-
-  async fn get_tracks_data(self, paths: Vec<String>) -> Vec<FileEntry> {
-    return read::get_tracks_data(paths).await;
-  }
-
-  async fn get_waveform<R: Runtime>(
-    self,
-    app_handle: AppHandle<R>,
-    path: String,
-    bin_size: f32,
-  ) -> Result<Vec<f32>> {
-    return waveform::get_waveform(app_handle, path, bin_size).await;
-  }
-
-  async fn control_playback<R: Runtime>(
-    self,
-    app_handle: AppHandle<R>,
-    action: StreamAction,
-  ) -> Result<StreamStatus> {
-    return playback::control_playback(app_handle, action).await;
-  }
-
-  // lastfm
-  async fn open_lastfm_auth<R: Runtime>(self, app_handle: AppHandle<R>) -> Result<String> {
-    return lastfm::open_lastfm_auth(app_handle).await;
-  }
-
-  async fn complete_lastfm_auth<R: Runtime>(
-    self,
-    app_handle: AppHandle<R>,
-    token: String,
-  ) -> Result<String> {
-    return lastfm::complete_lastfm_auth(app_handle, token).await;
-  }
-
-  async fn remove_lastfm_account<R: Runtime>(self, app_handle: AppHandle<R>) -> Result<()> {
-    return lastfm::remove_lastfm_account(app_handle).await;
-  }
-
-  async fn scrobble_track<R: Runtime>(
-    self,
-    app_handle: AppHandle<R>,
-    scrobble: SerializedScrobble,
-  ) -> Result<SerializedScrobbleResponse> {
-    return lastfm::scrobble_track(app_handle, scrobble).await;
-  }
-
-  async fn process_offline_scrobbles<R: Runtime>(
-    self,
-    app_handle: AppHandle<R>,
-    scrobbles: Vec<SerializedOfflineScrobble>,
-  ) -> Result<SerializedScrobbleResponse> {
-    return lastfm::process_offline_scrobbles(app_handle, scrobbles).await;
-  }
-
-  async fn set_now_playing<R: Runtime>(
-    self,
-    app_handle: AppHandle<R>,
-    scrobble: SerializedScrobble,
-  ) -> Result<()> {
-    return lastfm::set_now_playing(app_handle, scrobble).await;
-  }
-
-  async fn get_lastfm_auth_status<R: Runtime>(self, app_handle: AppHandle<R>) -> Result<bool> {
-    return lastfm::get_lastfm_auth_status(app_handle).await;
-  }
-
-  // id3
-  async fn write_id3_frames(
-    self,
-    file_path: String,
-    target_tag: TagTypeArg,
-    args: Vec<FrameArgs>,
-  ) -> Result<()> {
-    return id3::write_id3_frames(Cow::Borrowed(&file_path), Cow::Borrowed(&target_tag), args)
-      .await;
-  }
-}
-
-#[derive(Clone, Serialize)]
-pub struct ApiImpl;
 
 #[tokio::main]
 #[allow(clippy::expect_used, clippy::unwrap_used)]
@@ -304,7 +154,35 @@ pub async fn run() {
     },
   ];
 
+  let rpc_builder = tauri_specta::Builder::<tauri::Wry>::new().commands(collect_commands![
+    read::read_folder,
+    read::get_canonical_path,
+    read::get_track_data,
+    read::get_tracks_data,
+    playback::control_playback,
+    waveform::get_waveform,
+    lastfm::open_lastfm_auth,
+    lastfm::complete_lastfm_auth,
+    lastfm::remove_lastfm_account,
+    lastfm::scrobble_track,
+    lastfm::process_offline_scrobbles,
+    lastfm::set_now_playing,
+    lastfm::get_lastfm_auth_status,
+    id3::write_id3_frames,
+  ]);
+
+  #[cfg(debug_assertions)]
+  {
+    rpc_builder
+      .export(
+        specta_typescript::Typescript::default(),
+        "app/types/tauri-bindings.ts",
+      )
+      .expect("Failed to export typescript bindings");
+  }
+
   let mut builder = tauri::Builder::default()
+    .invoke_handler(rpc_builder.invoke_handler())
     .plugin(tauri_plugin_http::init())
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_dialog::init())
@@ -433,7 +311,7 @@ pub async fn run() {
     .plugin(tauri_plugin_os::init())
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_store::Builder::new().build())
-    .invoke_handler(taurpc::create_ipc_handler(ApiImpl.into_handler()))
+    .invoke_handler(rpc_builder.invoke_handler())
     .on_window_event(hooks::window_event::handle_window_event)
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
