@@ -176,7 +176,7 @@ pub async fn run() {
     rpc_builder
       .export(
         specta_typescript::Typescript::default(),
-        "app/types/tauri-bindings.ts",
+        "../app/types/tauri-bindings.ts",
       )
       .expect("Failed to export typescript bindings");
   }
