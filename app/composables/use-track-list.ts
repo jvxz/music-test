@@ -26,7 +26,6 @@ const useTrackListCache = () => useState<Map<string, TrackListEntry[]>>('track-l
 export const useTrackListRefresh = createEventHook()
 
 export function useTrackList() {
-  const { rpc } = useTauri()
   const trackListInput = useTrackListInput()
   const trackListCache = useTrackListCache()
   const { getPlaylistTracks } = useUserPlaylists()
@@ -43,7 +42,7 @@ export function useTrackList() {
 
       switch (input.value.type) {
         case 'folder': {
-          tracks = (await rpc.read_folder(input.value.path)).map(entry => ({
+          tracks = (await $invoke(commands.readFolder, input.value.path)).map(entry => ({
             ...entry,
             is_playlist_track: false as const,
           }))

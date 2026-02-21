@@ -8,7 +8,7 @@ use std::{
   sync::Mutex,
   time::{SystemTime, UNIX_EPOCH},
 };
-use tauri::{AppHandle, Manager, Runtime};
+use tauri::{AppHandle, Manager};
 use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_stronghold::stronghold::Stronghold;
 
@@ -37,8 +37,9 @@ pub struct SerializedScrobbleResponse {
 }
 
 #[tauri::command]
-pub async fn scrobble_track<R: Runtime>(
-  app_handle: AppHandle<R>,
+#[specta::specta]
+pub async fn scrobble_track(
+  app_handle: AppHandle<tauri::Wry>,
   scrobble: SerializedScrobble,
 ) -> Result<SerializedScrobbleResponse> {
   let client = get_lastfm_client(app_handle)?;
@@ -62,8 +63,9 @@ pub async fn scrobble_track<R: Runtime>(
 }
 
 #[tauri::command]
-pub async fn process_offline_scrobbles<R: Runtime>(
-  app_handle: AppHandle<R>,
+#[specta::specta]
+pub async fn process_offline_scrobbles(
+  app_handle: AppHandle<tauri::Wry>,
   scrobbles: Vec<SerializedOfflineScrobble>,
 ) -> Result<SerializedScrobbleResponse> {
   let client = get_lastfm_client(app_handle)?;
@@ -85,8 +87,9 @@ pub async fn process_offline_scrobbles<R: Runtime>(
 }
 
 #[tauri::command]
-pub async fn set_now_playing<R: Runtime>(
-  app_handle: AppHandle<R>,
+#[specta::specta]
+pub async fn set_now_playing(
+  app_handle: AppHandle<tauri::Wry>,
   scrobble: SerializedScrobble,
 ) -> Result<()> {
   let client = get_lastfm_client(app_handle)?;
@@ -120,7 +123,8 @@ pub async fn set_now_playing<R: Runtime>(
 }
 
 #[tauri::command]
-pub async fn open_lastfm_auth<R: Runtime>(app_handle: AppHandle<R>) -> Result<String> {
+#[specta::specta]
+pub async fn open_lastfm_auth(app_handle: AppHandle<tauri::Wry>) -> Result<String> {
   let (api_key, api_secret) = get_lastfm_secrets().map_err(|_| {
     Error::LastFm("failed to get last.fm credentials when opening auth".to_string())
   })?;
@@ -144,8 +148,9 @@ pub async fn open_lastfm_auth<R: Runtime>(app_handle: AppHandle<R>) -> Result<St
 }
 
 #[tauri::command]
-pub async fn complete_lastfm_auth<R: Runtime>(
-  app_handle: AppHandle<R>,
+#[specta::specta]
+pub async fn complete_lastfm_auth(
+  app_handle: AppHandle<tauri::Wry>,
   token: String,
 ) -> Result<String> {
   let (api_key, api_secret) = get_lastfm_secrets().map_err(|e| {
@@ -186,7 +191,8 @@ pub async fn complete_lastfm_auth<R: Runtime>(
 }
 
 #[tauri::command]
-pub async fn remove_lastfm_account<R: Runtime>(app_handle: AppHandle<R>) -> Result<()> {
+#[specta::specta]
+pub async fn remove_lastfm_account(app_handle: AppHandle<tauri::Wry>) -> Result<()> {
   let sh = load_stronghold_client(app_handle)?;
 
   sh.store().clear().map_err(|_| {
@@ -196,7 +202,7 @@ pub async fn remove_lastfm_account<R: Runtime>(app_handle: AppHandle<R>) -> Resu
   return Ok(());
 }
 
-fn get_lastfm_client<R: Runtime>(app_handle: AppHandle<R>) -> Result<Client> {
+fn get_lastfm_client(app_handle: AppHandle<tauri::Wry>) -> Result<Client> {
   let session_key = get_session_key(app_handle)?;
   let (api_key, api_secret) = get_lastfm_secrets().map_err(|_| {
     Error::LastFm("failed to get last.fm credentials when getting lastfm client".to_string())
@@ -204,7 +210,7 @@ fn get_lastfm_client<R: Runtime>(app_handle: AppHandle<R>) -> Result<Client> {
   return Ok(Client::new(api_key, api_secret).with_session_key(session_key));
 }
 
-fn get_session_key<R: Runtime>(app_handle: AppHandle<R>) -> Result<String> {
+fn get_session_key(app_handle: AppHandle<tauri::Wry>) -> Result<String> {
   let sh = load_stronghold_client(app_handle)?;
 
   let sk = sh
@@ -221,7 +227,7 @@ fn get_session_key<R: Runtime>(app_handle: AppHandle<R>) -> Result<String> {
   return Ok(sk.to_string());
 }
 
-fn load_stronghold_client<R: Runtime>(app_handle: AppHandle<R>) -> Result<iota_stronghold::Client> {
+fn load_stronghold_client(app_handle: AppHandle<tauri::Wry>) -> Result<iota_stronghold::Client> {
   {
     let guard = STRONGHOLD_CLIENT.lock().map_err(|_| {
       Error::Stronghold("failed to lock stronghold client when loading".to_string())
@@ -256,7 +262,8 @@ fn load_stronghold_client<R: Runtime>(app_handle: AppHandle<R>) -> Result<iota_s
 }
 
 #[tauri::command]
-pub async fn get_lastfm_auth_status<R: Runtime>(app_handle: AppHandle<R>) -> Result<bool> {
+#[specta::specta]
+pub async fn get_lastfm_auth_status(app_handle: AppHandle<tauri::Wry>) -> Result<bool> {
   let client = get_lastfm_client(app_handle);
   return Ok(client.is_ok());
 }

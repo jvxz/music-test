@@ -48,7 +48,7 @@ export function useUserPlaylists() {
       .execute()
 
     const fileEntries: PlaylistEntry[] = await Promise.all(playlistTracks.map(async (track) => {
-      const trackData = await useTauri().rpc.get_track_data(track.path)
+      const trackData = await $invoke(commands.getTrackData, track.path)
       return {
         ...trackData,
         ...track,

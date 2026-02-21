@@ -9,8 +9,6 @@ type Group = 'panel'
 const instances = new LRUCache<string, Ref<TagMap>>({ max: 8 })
 
 export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null | undefined>, group?: Group | string & {}) {
-  const { rpc } = useTauri()
-
   const getOriginalTags = () => toValue(originalFile)?.tags
   const getKey = () => toValue(originalFile) ? `${toValue(originalFile)!.path}${group ? `-${group}` : ''}` : null
   const getInstance = () => {
@@ -91,7 +89,7 @@ export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null
       }))
 
     // todo: make version selectable
-    await rpc.write_id3_frames(file.path, file.primary_tag ?? 'id3v2.4', frames)
+    await $invoke(commands.writeId3Frames, file.path, file.primary_tag ?? 'id3v2.4', frames)
   }
 
   const isValueDirty = createUnrefFn((frame: Id3FrameId) => {

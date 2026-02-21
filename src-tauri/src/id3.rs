@@ -45,13 +45,14 @@ pub struct FrameArgs {
 }
 
 #[tauri::command]
-pub async fn write_id3_frames<'a>(
-  file_path: Cow<'a, str>,
-  target_tag: Cow<'a, TagTypeArg>,
+#[specta::specta]
+pub async fn write_id3_frames(
+  file_path: String,
+  target_tag: TagTypeArg,
   args: Vec<FrameArgs>,
 ) -> Result<()> {
-  let version = id3::Version::from(*target_tag);
-  let mut tag = get_tag(Cow::Borrowed(&file_path), target_tag)?;
+  let version = id3::Version::from(target_tag);
+  let mut tag = get_tag(Cow::Borrowed(file_path.as_str()), Cow::Borrowed(&target_tag))?;
 
   for arg in args {
     if arg.value.is_empty() {
@@ -63,7 +64,7 @@ pub async fn write_id3_frames<'a>(
   }
 
   tag
-    .write_to_path(file_path.as_ref(), version)
+    .write_to_path(&file_path, version)
     .map_err(|e| Error::Id3(format!("Failed to write ID3 tag: {}", e)))?;
 
   return Ok(());

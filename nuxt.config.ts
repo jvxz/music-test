@@ -72,7 +72,7 @@ export default defineNuxtConfig({
   ],
 
   imports: {
-    dirs: ['types', 'constants/**', 'utils/**'],
+    dirs: ['types/**', 'constants/**', 'utils/**'],
     presets: [
       { package: 'scule' },
       {

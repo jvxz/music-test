@@ -1,4 +1,4 @@
-import type { Error } from '~/utils/tauri-bindings'
+import type { Error } from '~/types/tauri-bindings'
 
 export const ERROR_TITLE_MAP: Record<Error['type'], string> = {
   Audio: 'Audio error',
