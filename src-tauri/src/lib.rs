@@ -311,7 +311,6 @@ pub async fn run() {
     .plugin(tauri_plugin_os::init())
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_store::Builder::new().build())
-    .invoke_handler(rpc_builder.invoke_handler())
     .on_window_event(hooks::window_event::handle_window_event)
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
