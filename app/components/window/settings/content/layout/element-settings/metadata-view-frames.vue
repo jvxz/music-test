@@ -58,7 +58,7 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
 
 <template>
   <div class="flex gap-2 overflow-hidden">
-    <UDraggableShell class="h-full w-full flex-1 p-0">
+    <UDraggableShell class="size-full flex-1 p-0">
       <UInput
         v-model="availableListQuery"
         v-no-autocorrect
@@ -66,7 +66,7 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
         placeholder="Search available frames..."
         class="shrink-0"
       />
-      <UDraggableList ref="availableListEl" class="relative flex h-full w-full flex-col gap-1 overflow-y-auto rounded">
+      <UDraggableList ref="availableListEl" class="relative flex size-full flex-col gap-1 overflow-y-auto rounded">
         <div
           v-for="frame in objectKeys(ID3_MAP)"
           v-show="contains(`${frame} ${ID3_MAP[frame]}`, availableListQuery)"
@@ -101,7 +101,7 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
     <UContextMenu>
       <UContextMenuTrigger as-child>
         <UDraggableShell class="w-full flex-1 p-0">
-          <div ref="activeListEl" class="flex h-full w-full flex-col gap-1 overflow-y-auto rounded">
+          <div ref="activeListEl" class="flex size-full flex-col gap-1 overflow-y-auto rounded">
             <div :style="activeListBarStyles" class="absolute z-120 h-px bg-muted-foreground" />
             <div
               v-for="item in fields"

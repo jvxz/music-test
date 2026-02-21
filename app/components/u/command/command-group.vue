@@ -33,7 +33,7 @@ onUnmounted(() => {
     v-bind="delegatedProps"
     :id="id"
     :class="cn(
-      'overflow-hidden p-1 text-foreground not-last:mb-1 first:border-t [&_[cmdk-group-heading]]:px-0 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-items]]:space-y-1',
+      'overflow-hidden p-1 text-foreground not-last:mb-1 first:border-t **:[[cmdk-group-heading]]:px-0 **:[[cmdk-group-heading]]:py-2 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:text-muted-foreground **:[[cmdk-group-items]]:space-y-1',
       props.class,
     )"
     :hidden="isRender ? undefined : true"

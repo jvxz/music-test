@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { ComboboxSeparatorProps } from "reka-ui"
-import type { HTMLAttributes } from "vue"
-import { ComboboxSeparator } from "reka-ui"
+import type { ComboboxSeparatorProps } from 'reka-ui'
+import type { HTMLAttributes } from 'vue'
+import { ComboboxSeparator } from 'reka-ui'
 
-const props = defineProps<ComboboxSeparatorProps & { class?: HTMLAttributes["class"] }>()
+const props = defineProps<ComboboxSeparatorProps & { class?: HTMLAttributes['class'] }>()
 
-const delegatedProps = reactiveOmit(props, "class")
+const delegatedProps = reactiveOmit(props, 'class')
 </script>
 
 <template>

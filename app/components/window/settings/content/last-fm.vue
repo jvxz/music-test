@@ -167,7 +167,7 @@ const { isOnline } = useNetwork()
             </UAlertDialogContent>
           </UAlertDialogRoot>
         </div>
-        <div class="size-[72px] rounded border border-dashed border-muted"></div>
+        <div class="size-[72px] rounded border border-dashed border-muted"/>
       </template>
     </div>
   </WindowSettingsContentTabLayout>

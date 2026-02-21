@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { ComboboxItemEmits, ComboboxItemProps } from "reka-ui"
-import type { HTMLAttributes } from "vue"
-import { ComboboxItem, useForwardPropsEmits } from "reka-ui"
+import type { ComboboxItemEmits, ComboboxItemProps } from 'reka-ui'
+import type { HTMLAttributes } from 'vue'
+import { ComboboxItem, useForwardPropsEmits } from 'reka-ui'
 
-const props = defineProps<ComboboxItemProps & { class?: HTMLAttributes["class"] }>()
+const props = defineProps<ComboboxItemProps & { class?: HTMLAttributes['class'] }>()
 const emits = defineEmits<ComboboxItemEmits>()
 
-const delegatedProps = reactiveOmit(props, "class")
+const delegatedProps = reactiveOmit(props, 'class')
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits)
 </script>

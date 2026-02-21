@@ -14,7 +14,7 @@ const open = shallowRef(false)
           <CollapsibleTrigger as-child>
             <UButton
               variant="ghost"
-              class="group w-full justify-start text-foreground mb-px"
+              class="group mb-px w-full justify-start text-foreground"
             >
               <Icon name="tabler:chevron-right" class="size-4 group-data-[state=open]:rotate-90" />
               Folders

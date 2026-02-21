@@ -63,7 +63,7 @@ onUnmounted(() => {
     v-bind="forwarded"
     :id="id"
     ref="itemRef"
-    :class="cn('relative flex h-7 cursor-default items-center gap-2 rounded px-2 text-sm outline-hidden select-none peer-[*]:hidden data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[highlighted]:bg-muted-foreground/15 data-[highlighted]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4 [&_svg:not([class*=text-])]:text-muted-foreground', props.class)"
+    :class="cn('relative flex h-7 cursor-default items-center gap-2 rounded px-2 text-sm outline-hidden select-none peer-[*]:hidden data-highlighted:bg-muted-foreground/15 data-highlighted:text-accent-foreground data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4 [&_svg:not([class*=text-])]:text-muted-foreground', props.class)"
     @select="() => {
       filterState.search = ''
     }"

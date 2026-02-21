@@ -14,7 +14,6 @@ export default withNuxt(antfu({
     'node/prefer-global/process': 'off',
     'perfectionist/sort-objects': 'warn',
     'vue/html-self-closing': 'off',
-    'vue/no-multiple-template-root': 'off',
     'vue/max-attributes-per-line': ['warn', {
       multiline: {
         max: 1,
@@ -23,6 +22,7 @@ export default withNuxt(antfu({
         max: 2,
       },
     }],
+    'vue/no-multiple-template-root': 'off',
     'vue/sort-keys': 'warn',
   },
   settings: {

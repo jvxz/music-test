@@ -3,7 +3,7 @@ const { currentTrack } = usePlayback()
 </script>
 
 <template>
-  <div class="h-36 w-full border-t shrink-0">
+  <div class="h-36 w-full shrink-0 border-t">
     <Waveform
       :path="currentTrack?.path"
       class="size-full"

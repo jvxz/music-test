@@ -10,7 +10,7 @@ const props = defineProps<{
   <div
     :class="
       cn(
-        'flex gap-2 flex-row justify-end',
+        'flex flex-row justify-end gap-2',
         props.class,
       )
     "

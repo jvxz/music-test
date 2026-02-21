@@ -16,7 +16,7 @@ const forwarded = useForwardProps(delegatedProps)
     v-bind="forwarded"
     :class="cn(
       staticStyles.base, interactiveStyles.size.default, staticStyles.variant.default,
-      'flex items-center justify-between data-placeholder:text-muted-foreground pr-0',
+      'flex items-center justify-between pr-0 data-placeholder:text-muted-foreground',
       props.class,
     )"
   >

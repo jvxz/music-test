@@ -42,7 +42,7 @@ const props = withDefaults(
     <USpinner
       v-if="toValue(props.isLoading)"
       :invert="true"
-      class="absolute inset-0 top-1/2 left-1/2 !size-4 -translate-x-1/2 -translate-y-1/2"
+      class="absolute inset-0 top-1/2 left-1/2 size-4! -translate-1/2"
     />
     <slot />
   </button>

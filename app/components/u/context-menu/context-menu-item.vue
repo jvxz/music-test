@@ -17,7 +17,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
     v-bind="forwarded"
     :class="cn(
       popoverStyles.item,
-      'has-[svg]:px-1.5 [&_.iconify]:!size-4 [&_svg]:!text-foreground',
+      'has-[svg]:px-1.5 [&_.iconify]:size-4! [&_svg]:text-foreground!',
       props.class,
     )"
   >

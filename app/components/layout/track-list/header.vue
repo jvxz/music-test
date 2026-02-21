@@ -43,7 +43,7 @@ const title = computed(() => {
   <div class="flex h-16 shrink-0 items-center justify-between border-b bg-background px-4">
     <div class="flex flex-col justify-center">
       <div class="flex items-center gap-2">
-        <p :title class="w-md truncate text-md font-medium">
+        <p :title class="text-md w-md truncate font-medium">
           {{ title }}
         </p>
         <Icon
