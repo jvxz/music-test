@@ -3,64 +3,64 @@
  * Please do not edit it manually.
  */
 
-import type { ColumnType } from 'kysely'
+import type { ColumnType } from "kysely";
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
-  : ColumnType<T, T | undefined, T>
+  : ColumnType<T, T | undefined, T>;
 
 export interface _SqlxMigrations {
-  checksum: Buffer
-  description: string
-  execution_time: string
-  installed_on: Generated<string>
-  success: number
-  version: string | null
+  checksum: Buffer;
+  description: string;
+  execution_time: string;
+  installed_on: Generated<string>;
+  success: number;
+  version: string | null;
 }
 
 export interface LibraryFolders {
-  last_scanned: Generated<string | null>
-  path: string
-  recursive: Generated<number>
+  last_scanned: Generated<string | null>;
+  path: string;
+  recursive: Generated<number>;
 }
 
 export interface LibraryTracks {
-  album: string | null
-  artist: string | null
-  filename: string
-  id: Generated<number>
-  path: string
-  title: string | null
+  album: string | null;
+  artist: string | null;
+  filename: string;
+  id: Generated<number>;
+  path: string;
+  title: string | null;
 }
 
 export interface LibraryTracksSource {
-  id: Generated<number>
-  source_id: string
-  source_type: 'folder' | 'playlist'
-  track_id: number
+  id: Generated<number>;
+  source_id: string;
+  source_type: "folder" | "playlist";
+  track_id: number;
 }
 
 export interface Playlists {
-  created_at: Generated<string>
-  id: Generated<number>
-  name: string
+  created_at: Generated<string>;
+  id: Generated<number>;
+  name: string;
 }
 
 export interface PlaylistTracks {
-  added_at: Generated<string>
-  id: Generated<number>
-  name: string
-  path: string
-  playlist_id: number
-  position: number
-  track_id: number
+  added_at: Generated<string>;
+  id: Generated<number>;
+  name: string;
+  path: string;
+  playlist_id: number;
+  position: number;
+  track_id: number;
 }
 
 export interface DB {
-  _sqlx_migrations: _SqlxMigrations
-  library_folders: LibraryFolders
-  library_tracks: LibraryTracks
-  library_tracks_source: LibraryTracksSource
-  playlist_tracks: PlaylistTracks
-  playlists: Playlists
+  _sqlx_migrations: _SqlxMigrations;
+  library_folders: LibraryFolders;
+  library_tracks: LibraryTracks;
+  library_tracks_source: LibraryTracksSource;
+  playlist_tracks: PlaylistTracks;
+  playlists: Playlists;
 }

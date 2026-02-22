@@ -27,6 +27,7 @@ pub struct FileEntry {
   pub is_playlist_track: bool,
   pub valid: bool,
   pub primary_tag: Option<TagTypeArg>,
+  pub extension: String,
 }
 
 pub static FOLDER_CACHE: LazyLock<DashMap<String, Arc<Vec<FileEntry>>>> =
@@ -110,6 +111,7 @@ fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
       is_playlist_track: false,
       valid: false,
       primary_tag: None,
+      extension: String::new(),
     });
   }
 
@@ -125,6 +127,10 @@ fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
     .file_name()
     .map(|n| n.to_string_lossy().to_string())
     .unwrap_or("Unknown filename".to_string());
+  let extension = path
+    .extension()
+    .map(|n| n.to_string_lossy().to_string())
+    .unwrap_or("Unknown extension".to_string());
 
   return Ok(FileEntry {
     filename,
@@ -136,6 +142,7 @@ fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
     is_playlist_track: false,
     valid: true,
     primary_tag: get_primary_tag_version(primary_tag),
+    extension,
   });
 }
 
