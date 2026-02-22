@@ -17,6 +17,9 @@ export function useLastFm() {
     if (status) {
       return settings.lastFm.username ?? undefined
     }
+  }, {
+    lazy: true,
+    immediate: false,
   })
 
   watch([isOnline, authStatus], async (isOnline) => {
@@ -146,6 +149,7 @@ export function useLastFm() {
     removeAuth,
     scrobbleTrack,
     startAuth,
+    refreshAuthStatus,
     updateNowPlaying,
     useLastFmProfile,
   }

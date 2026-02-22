@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { authStatus, completeAuth, removeAuth, startAuth, useLastFmProfile } = useLastFm()
+const { authStatus, completeAuth, removeAuth, refreshAuthStatus, startAuth, useLastFmProfile } = useLastFm()
 
 const token = shallowRef<string | null>(null)
 const isAuthDialogOpen = shallowRef(false)
@@ -43,6 +43,8 @@ async function handleCompleteAuth() {
 const { data: profile, pending: profilePending } = useLastFmProfile(authStatus)
 
 const { isOnline } = useNetwork()
+
+onMounted(() => refreshAuthStatus())
 </script>
 
 <template>

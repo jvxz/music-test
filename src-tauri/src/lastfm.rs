@@ -1,18 +1,13 @@
 #![deny(clippy::unwrap_used, clippy::expect_used)]
 use crate::error::{Error, Result};
-use iota_stronghold::ClientError;
+use crate::stronghold::load_stronghold_client;
 use last_fm_rs::{AuthToken, Client, NowPlaying, Scrobble};
 use serde::{Deserialize, Serialize};
 use specta::Type;
-use std::{
-  sync::Mutex,
-  time::{SystemTime, UNIX_EPOCH},
-};
+use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_stronghold::stronghold::Stronghold;
-
-static STRONGHOLD_CLIENT: Mutex<Option<iota_stronghold::Client>> = Mutex::new(None);
 
 #[derive(Serialize, Clone, Deserialize, Type, Debug)]
 pub struct SerializedScrobble {
@@ -167,7 +162,7 @@ pub async fn complete_lastfm_auth(
     .map_err(|e| Error::LastFm(format!("failed to get session when completing auth: {}", e)))?;
 
   let stronghold = app_handle.state::<Stronghold>();
-  let client = load_stronghold_client(app_handle.clone())?;
+  let client = load_stronghold_client(app_handle.clone(), "lastfm")?;
 
   client
     .store()
@@ -193,7 +188,7 @@ pub async fn complete_lastfm_auth(
 #[tauri::command]
 #[specta::specta]
 pub async fn remove_lastfm_account(app_handle: AppHandle<tauri::Wry>) -> Result<()> {
-  let sh = load_stronghold_client(app_handle)?;
+  let sh = load_stronghold_client(app_handle, "lastfm")?;
 
   sh.store().clear().map_err(|_| {
     Error::LastFm("failed to clear stronghold when removing last.fm account".to_string())
@@ -211,7 +206,7 @@ fn get_lastfm_client(app_handle: AppHandle<tauri::Wry>) -> Result<Client> {
 }
 
 fn get_session_key(app_handle: AppHandle<tauri::Wry>) -> Result<String> {
-  let sh = load_stronghold_client(app_handle)?;
+  let sh = load_stronghold_client(app_handle, "lastfm")?;
 
   let sk = sh
     .store()
@@ -225,40 +220,6 @@ fn get_session_key(app_handle: AppHandle<tauri::Wry>) -> Result<String> {
   let sk = std::str::from_utf8(&sk)
     .map_err(|_| Error::LastFm("invalid format of session key for last.fm client".to_string()))?;
   return Ok(sk.to_string());
-}
-
-fn load_stronghold_client(app_handle: AppHandle<tauri::Wry>) -> Result<iota_stronghold::Client> {
-  {
-    let guard = STRONGHOLD_CLIENT.lock().map_err(|_| {
-      Error::Stronghold("failed to lock stronghold client when loading".to_string())
-    })?;
-
-    if let Some(client) = &*guard {
-      return Ok(client.clone());
-    }
-  }
-
-  let stronghold = app_handle.state::<Stronghold>();
-  let mut client = stronghold.load_client("lastfm");
-
-  if let Err(ClientError::ClientDataNotPresent) = client {
-    client = Ok(
-      stronghold
-        .create_client("lastfm")
-        .map_err(|_| Error::Stronghold("failed to create client".to_string()))?,
-    );
-  }
-
-  let client = client.map_err(|_| Error::Stronghold("failed to load client".to_string()))?;
-
-  {
-    let mut guard = STRONGHOLD_CLIENT.lock().map_err(|_| {
-      Error::Stronghold("failed to lock stronghold client when loading".to_string())
-    })?;
-    guard.replace(client.clone());
-  }
-
-  return Ok(client);
 }
 
 #[tauri::command]

@@ -11,11 +11,9 @@ use tauri::{
 };
 use tauri_plugin_sql::{Migration, MigrationKind};
 use tauri_plugin_store::StoreExt;
-use tauri_plugin_stronghold::stronghold::Stronghold;
 use tauri_plugin_window_state::StateFlags;
 use tauri_specta::collect_commands;
 use tokio::sync::{mpsc, oneshot};
-use uuid::Uuid;
 
 mod audio;
 mod cover_protocol;
@@ -25,6 +23,7 @@ mod id3;
 mod lastfm;
 mod playback;
 mod read;
+mod stronghold;
 mod waveform;
 
 #[tokio::main]
@@ -258,28 +257,6 @@ pub async fn run() {
       app
         .handle()
         .plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())?;
-
-      let vault_entry = keyring::Entry::new("swim", "master-key").unwrap();
-
-      let vault_pw = match vault_entry.get_password() {
-        Ok(pw) => pw,
-        Err(_) => {
-          let new_pw = Uuid::new_v4().simple().to_string();
-          vault_entry
-            .set_password(new_pw.as_str())
-            .map_err(|e| Error::Stronghold(e.to_string()))?;
-          new_pw
-        }
-      };
-
-      let stronghold_path = app
-        .path()
-        .app_local_data_dir()
-        .expect("failed to get app local data dir")
-        .join("swim.hold");
-      let stronghold = Stronghold::new(stronghold_path, vault_pw.as_bytes().to_vec())
-        .expect("failed to create stronghold");
-      app.manage(stronghold);
 
       let _tray = TrayIconBuilder::new()
         .menu(&menu)
