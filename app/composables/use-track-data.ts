@@ -32,7 +32,7 @@ export const useTrackData = defineStore('track-data', () => {
   }
 
   async function refreshTrackData(path: string) {
-    const track = await $invoke(commands.getTrackData, path, false)
+    const track = await $invoke(commands.getTrackData, path, true)
     trackCache.set(path, track)
 
     return track
