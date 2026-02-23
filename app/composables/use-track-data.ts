@@ -51,7 +51,12 @@ export const useTrackData = defineStore('track-data', () => {
 export function refreshTrackListForType(type: TrackListInput['type'], path?: string) {
   const { trackListCache } = useTrackData()
   const keys = Array.from(trackListCache.keys())
-    .filter(k => k.startsWith(`${type}-${path}-`))
+    .filter((k) => {
+      if (type === 'library') {
+        return k.startsWith('library-')
+      }
+      return path ? k.startsWith(`${type}-${path}-`) : k.startsWith(`${type}-`)
+    })
 
   useTrackListRefresh.trigger({ keys })
 }
