@@ -28,7 +28,7 @@ tauri-plugin-notification = "2.3.3"
 tauri-plugin-os = "2.3.2"
 tauri-plugin-fs = "2.4.5"
 tauri-plugin-store = "2.4.2"
-tauri-plugin-pinia = "4.1.1"
+tauri-plugin-pinia = "4.2.0"
 tokio = "1.49.0"
 specta = { version = "=2.0.0-rc.22", features = [ "derive" ] }
 id3 = "1.16.4"
