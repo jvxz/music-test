@@ -16,7 +16,7 @@ const settings = useSettings()
 const { getColumnFields } = useTrackListColumns()
 const columnFields = getColumnFields('objects')
 
-const { data: folderEntries, pending: isLoadingPlaylistData } = getTrackList(toRef(props))
+const { data: folderEntries, isLoading: isLoadingPlaylistData } = getTrackList(toRef(props))
 
 let allowRowDragStart = false
 let isDraggingEntries = false
