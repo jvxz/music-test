@@ -40,6 +40,7 @@ export function useTrackList() {
 
       else keys.forEach(k => trackData.trackListCache.delete(k))
     })
+
     watch(key, () => asyncState.execute(0, true))
 
     const data = computed<TrackListEntry[]>((prev) => {
@@ -57,8 +58,10 @@ export function useTrackList() {
       return fullTracks
     })
 
+    const { results: searchResults } = useTrackListSearch(data, input)
+
     return {
-      data,
+      data: searchResults,
       ...asyncState,
     }
   }

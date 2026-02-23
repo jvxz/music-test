@@ -9,8 +9,9 @@ export const useTrackListSearchQuery = createGlobalState(() => {
   return query
 })
 
-export function useTrackListSearch(entries: Ref<TrackListEntry[]>) {
+export function useTrackListSearch(entries: Ref<TrackListEntry[]>, input: MaybeRefOrGetter<TrackListInput>) {
   const query = useTrackListSearchQuery()
+
   const { fuse, results: fuseResults } = useFuse(query, entries, {
     fuseOptions: {
       keys: ['tags.TIT2', 'tags.TPE1', 'tags.TALB', 'tags.TYER', 'tags.TCON', 'tags.TRCK', 'name'],
@@ -18,19 +19,12 @@ export function useTrackListSearch(entries: Ref<TrackListEntry[]>) {
     },
   })
 
-  const results = computed(() => resultsToEntries(fuseResults.value))
+  const results = computed(() => query.value ? resultsToEntries(fuseResults.value) : entries.value)
 
   function resultsToEntries(results: FuseResult<TrackListEntry>[]): TrackListEntry[] {
-    const mappedEntries = results.map((result) => {
-      const entry = entries.value.find(entry => entry.path === result.item.path)
-      if (!entry) {
-        return null
-      }
+    const mappedEntries = results.map(result => result.item)
 
-      return entry
-    })
-
-    return mappedEntries.filter(entry => entry !== null)
+    return sortTrackList(mappedEntries, toValue(input).sortBy, toValue(input).sortOrder)
   }
 
   return {
