@@ -21,9 +21,9 @@ async getCanonicalPath(path: string) : Promise<Result<string, Error>> {
     else return { status: "error", error: e  as any };
 }
 },
-async getTrackData(pathString: string) : Promise<Result<FileEntry, Error>> {
+async getTrackData(pathString: string, refresh: boolean | null) : Promise<Result<FileEntry, Error>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("get_track_data", { pathString }) };
+    return { status: "ok", data: await TAURI_INVOKE("get_track_data", { pathString, refresh }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -31,6 +31,14 @@ async getTrackData(pathString: string) : Promise<Result<FileEntry, Error>> {
 },
 async getTracksData(paths: string[]) : Promise<FileEntry[]> {
     return await TAURI_INVOKE("get_tracks_data", { paths });
+},
+async getFolderTrackPaths(path: string, deep: boolean | null) : Promise<Result<string[], Error>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_folder_track_paths", { path, deep }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 },
 async controlPlayback(action: StreamAction) : Promise<Result<StreamStatus, Error>> {
     try {
