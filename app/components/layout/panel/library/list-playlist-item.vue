@@ -10,6 +10,7 @@ const emits = defineEmits<{
 }>()
 
 const { addToPlaylist } = useUserPlaylists()
+const { getTracksData } = useTrackData()
 
 async function handleDrop(itemPaths: string[]) {
   const tracks = await getTracksData(itemPaths)

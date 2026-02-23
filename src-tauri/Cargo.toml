@@ -73,6 +73,7 @@ tauri-specta = { version = "=2.0.0-rc.21", features = [
   "typescript"
 ] }
 specta-typescript = "0.0.9"
+jwalk = "0.8.1"
 
 [dependencies.tauri]
 version = "2.10.2"

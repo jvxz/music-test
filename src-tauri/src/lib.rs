@@ -158,6 +158,7 @@ pub async fn run() {
     read::get_canonical_path,
     read::get_track_data,
     read::get_tracks_data,
+    read::get_folder_track_paths,
     playback::control_playback,
     waveform::get_waveform,
     lastfm::open_lastfm_auth,

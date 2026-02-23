@@ -4,6 +4,7 @@ export function useUserPlaylists() {
   const router = useRouter()
   const route = useRoute()
   const { addTracksToLibrary } = useLibrary()
+  const { getTrackData } = useTrackData()
 
   const { data: playlists, refresh: refreshPlaylistList } = useAsyncData<Selectable<DB['playlists']>[]>('playlists', () => $db().selectFrom('playlists').selectAll().execute(), {
     default: () => [],
@@ -16,7 +17,6 @@ export function useUserPlaylists() {
     }).returningAll().executeTakeFirstOrThrow()
 
     refreshPlaylistList()
-    refreshTrackListForType('playlist')
   }
 
   async function renamePlaylist(playlistId: number, name: string) {
@@ -25,7 +25,7 @@ export function useUserPlaylists() {
     }).where('id', '=', playlistId).execute()
 
     refreshPlaylistList()
-    refreshTrackListForType('playlist')
+    refreshTrackListForType('playlist', String(playlistId))
   }
 
   async function deletePlaylist(playlistId: number) {
@@ -35,7 +35,6 @@ export function useUserPlaylists() {
       router.back()
     }
 
-    refreshTrackListForType('playlist')
     refreshPlaylistList()
   }
 
@@ -48,7 +47,7 @@ export function useUserPlaylists() {
       .execute()
 
     const fileEntries: PlaylistEntry[] = await Promise.all(playlistTracks.map(async (track) => {
-      const trackData = await $invoke(commands.getTrackData, track.path)
+      const trackData = await getTrackData(track.path)
       return {
         ...trackData,
         ...track,

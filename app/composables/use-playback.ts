@@ -1,6 +1,7 @@
 export const usePlayback = createSharedComposable(() => {
   const { prefs, store } = useTauri()
   const { scrobbleTrack, updateNowPlaying } = useLastFm()
+  const { getTrackData, refreshTrackData } = useTrackData()
 
   // internal
   const _playbackStatus = ref<StreamStatus | null>(prefs.get('playback-status') as StreamStatus | null)
@@ -79,8 +80,8 @@ export const usePlayback = createSharedComposable(() => {
     }
   })
 
-  const getTrackData = useThrottleFn(async (entry: TrackListEntry): Promise<TrackListEntry | null> => {
-    const res = await $invoke(commands.getTrackData, entry.path)
+  const getTrackDataEntry = useThrottleFn(async (entry: TrackListEntry): Promise<TrackListEntry | null> => {
+    const res = await getTrackData(entry.path)
     if (!res)
       return null
 
@@ -88,7 +89,7 @@ export const usePlayback = createSharedComposable(() => {
       ...res,
       ...entry,
     }
-  }, 500)
+  }, 200)
 
   async function playPauseCurrentTrack(action?: 'Resume' | 'Pause') {
     // scrobble current track if not already scrobbled & applicable
@@ -115,7 +116,7 @@ export const usePlayback = createSharedComposable(() => {
     try {
       const exists = await useTauriFsExists(entry.path)
       if (!exists) {
-        markTrackAsInvalid(entry.path)
+        refreshTrackData(entry.path)
         return emitError({
           data: `${entry.name} does not exist`,
           type: 'FileSystem',
@@ -123,20 +124,20 @@ export const usePlayback = createSharedComposable(() => {
       }
 
       if (!entry.valid) {
-        markTrackAsValid(entry)
+        refreshTrackData(entry.path)
       }
     }
     catch {
-      markTrackAsInvalid(entry.path)
+      refreshTrackData(entry.path)
       return emitError({
         data: `${entry.name} is inaccessible (may have been moved, deleted, or permission denied)`,
         type: 'FileSystem',
       })
     }
 
-    const data = await getTrackData(entry)
+    const data = await getTrackDataEntry(entry)
     if (!data) {
-      markTrackAsInvalid(entry.path)
+      refreshTrackData(entry.path)
       return emitError({
         data: `${entry.name} is inaccessible (may have been moved, deleted, or permission denied)`,
         type: 'FileSystem',
