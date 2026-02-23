@@ -12,12 +12,11 @@ export function useUserPlaylists() {
   })
 
   async function createPlaylist(opts: { name: string }) {
-    const { id } = await $db().insertInto('playlists').values({
+    await $db().insertInto('playlists').values({
       name: opts.name,
     }).returningAll().executeTakeFirstOrThrow()
 
     refreshPlaylistList()
-    refreshTrackListForType('playlist', String(id))
   }
 
   async function renamePlaylist(playlistId: number, name: string) {
@@ -37,7 +36,6 @@ export function useUserPlaylists() {
     }
 
     refreshPlaylistList()
-    refreshTrackListForType('playlist', String(playlistId))
   }
 
   async function getPlaylistTracks(playlistId: number): Promise<PlaylistEntry[]> {
