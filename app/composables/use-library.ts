@@ -1,6 +1,8 @@
 const LIBRARY_FOLDERS_KEY = 'library-folders'
 
 export function useLibrary() {
+  const { getFolderTracks, getTracksData } = useTrackData()
+
   async function getLibraryTracks() {
     const tracks = await $db().selectFrom('library_tracks').selectAll().execute()
 
@@ -24,7 +26,7 @@ export function useLibrary() {
       path: folderPath,
     }).execute()
 
-    const folderTracks = await $invoke(commands.readFolder, folderPath)
+    const folderTracks = await getFolderTracks(folderPath)
 
     await addTracksToLibrary(folderTracks, {
       id: folderPath,
@@ -74,7 +76,11 @@ export function useLibrary() {
     refreshTrackListForType('library')
   }, void 0, { immediate: false })
 
-  const useFolderInLibrary = (folderPath: string) => useAsyncData(computed(() => buildFolderInLibraryKey(folderPath)), () => $db().selectFrom('library_folders').where('path', '=', folderPath).selectAll().executeTakeFirst(), { immediate: false })
+  const useFolderInLibrary = (folderPath: string) => useAsyncData(
+    computed(() => buildFolderInLibraryKey(folderPath)),
+    () => $db().selectFrom('library_folders').where('path', '=', folderPath).selectAll().executeTakeFirst(),
+    { immediate: false },
+  )
 
   async function addTracksToLibrary(tracks: FileEntry[], source: {
     type: 'folder' | 'playlist'

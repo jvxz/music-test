@@ -21,144 +21,110 @@ export function useTrackListInput() {
   return state
 }
 
-const useTrackListCache = () => useState<Map<string, TrackListEntry[]>>('track-list-cache', () => new Map())
-
-export const useTrackListRefresh = createEventHook()
-
 export function useTrackList() {
   const trackListInput = useTrackListInput()
-  const trackListCache = useTrackListCache()
-  const { getPlaylistTracks } = useUserPlaylists()
-  const { getLibraryTracks } = useLibrary()
+  const trackData = useTrackData()
 
   function getTrackList(input: Ref<TrackListInput>) {
-    const asyncData = useAsyncData<TrackListEntry[]>(computed(() => createTrackListInputKey(input.value)), async () => {
-      const cachedData = trackListCache.value.get(createTrackListInputKey(input.value))
-      if (cachedData) {
-        return cachedData
+    const key = computed(() => createTrackListInputKey(input.value))
+
+    const asyncState = useAsyncState(async (fresh?: boolean) => {
+      if (!trackData.trackListCache.has(key.value) || fresh) {
+        await getTrackListEntries(input.value, fresh)
       }
+    }, null)
 
-      let tracks: TrackListEntry[] = []
+    useTrackListRefresh.on(({ keys }) => {
+      if (keys.includes(key.value))
+        asyncState.execute(0, true)
 
-      switch (input.value.type) {
-        case 'folder': {
-          tracks = (await $invoke(commands.readFolder, input.value.path)).map(entry => ({
-            ...entry,
-            is_playlist_track: false as const,
-          }))
-          break
-        }
-
-        case 'playlist': {
-          tracks = await getPlaylistTracks(Number(input.value.path))
-          break
-        }
-
-        case 'library': {
-          tracks = (await getLibraryTracks()).map(entry => ({
-            ...entry,
-            is_playlist_track: false as const,
-          }))
-          break
-        }
-      }
-
-      const sortedData = sortTrackList(tracks, input.value.sortBy, input.value.sortOrder)
-      trackListCache.value.set(createTrackListInputKey(input.value), sortedData)
-      return sortedData
-    }, {
-      default: () => [],
-      immediate: true,
-      watch: [input],
+      else keys.forEach(k => trackData.trackListCache.delete(k))
     })
+    watch(key, () => asyncState.execute(0, true))
 
-    useTrackListRefresh.on(() => asyncData.refresh())
+    const data = computed<TrackListEntry[]>((prev) => {
+      const refs = trackData.trackListCache.get(key.value)
 
-    const { query, results } = useTrackListSearch(asyncData.data)
-    const data = computed(() => {
-      if (query.value) {
-        return sortTrackList(results.value, input.value.sortBy, input.value.sortOrder)
-      }
-      return asyncData.data.value
+      if (!refs)
+        return prev ?? []
+
+      const fullTracks = refs.map((ref) => {
+        const fileEntry = trackData.trackCache.get(ref.path)
+
+        return { ...fileEntry, ...ref } as TrackListEntry
+      })
+
+      return fullTracks
     })
 
     return {
-      ...asyncData,
       data,
+      ...asyncState,
     }
+  }
+
+  async function getTrackListEntries(input: TrackListInput, fresh?: boolean) {
+    const key = createTrackListInputKey(input)
+
+    const cachedEntries = trackData.trackListCache.get(key)
+    if (cachedEntries && !fresh)
+      return cachedEntries
+
+    let tracks: TrackListEntry[] = []
+
+    switch (input.type) {
+      case 'folder': {
+        tracks = (await trackData.getFolderTracks(input.path)).map(entry => ({
+          ...entry,
+          is_playlist_track: false as const,
+        }))
+        break
+      }
+
+      case 'playlist': {
+        const { getPlaylistTracks } = useUserPlaylists()
+        tracks = await getPlaylistTracks(Number(input.path))
+        break
+      }
+
+      case 'library': {
+        const { getLibraryTracks } = useLibrary()
+        tracks = (await getLibraryTracks()).map((entry: FileEntry) => ({
+          ...entry,
+          is_playlist_track: false as const,
+        }))
+        break
+      }
+    }
+
+    const sortedTracks = sortTrackList(tracks, input.sortBy, input.sortOrder)
+
+    const entries: TrackListCacheEntry[] = sortedTracks.map((track) => {
+      if (track.is_playlist_track) {
+        return {
+          added_at: track.added_at,
+          id: track.id,
+          is_playlist_track: true as const,
+          path: track.path,
+          playlist_id: track.playlist_id,
+          position: track.position,
+          track_id: track.track_id,
+        }
+      }
+
+      return {
+        is_playlist_track: false as const,
+        path: track.path,
+      }
+    })
+
+    trackData.trackListCache.set(key, entries)
+
+    return entries
   }
 
   return {
     getTrackList,
     playlistData: trackListInput,
   }
-}
-
-export function createTrackListInputKey(input: TrackListInput) {
-  if (input.type === 'library') {
-    return `library-${input.sortBy}-${input.sortOrder}`
-  }
-
-  return `${input.type}-${input.path}-${input.sortBy}-${input.sortOrder}`
-}
-
-export function refreshTrackListForType(trackListType: TrackListInput['type'], path?: string) {
-  const trackListCache = useTrackListCache()
-
-  if (trackListType === 'library') {
-    trackListCache.value.forEach((_, key, map) => {
-      if (key.startsWith(`library-`)) {
-        map.delete(key)
-        refreshNuxtData(key)
-      }
-    })
-  }
-
-  else {
-    trackListCache.value.forEach((_, key, map) => {
-      if (key.startsWith(`playlist-${path}-`)) {
-        map.delete(key)
-        refreshNuxtData(key)
-      }
-    })
-  }
-}
-
-export function markTrackAsInvalid(trackPath: string) {
-  const trackListCache = useTrackListCache()
-
-  trackListCache.value.forEach((tracks, key) => {
-    const trackIndex = tracks.findIndex(t => t.path === trackPath)
-    if (trackIndex !== -1 && tracks[trackIndex]) {
-      tracks[trackIndex] = {
-        ...tracks[trackIndex],
-        valid: false,
-      }
-      refreshNuxtData(key)
-    }
-  })
-}
-
-export function markTrackAsValid(track: TrackListEntry) {
-  const trackListCache = useTrackListCache()
-
-  trackListCache.value.forEach(async (tracks, key) => {
-    const trackIndex = tracks.findIndex(t => t.path === track.path)
-    if (trackIndex !== -1 && tracks[trackIndex]) {
-      const data = await getTracksData([track.path])
-      if (data[0]) {
-        tracks[trackIndex] = {
-          ...data[0],
-          is_playlist_track: track.is_playlist_track,
-          ...(track.is_playlist_track && {
-            added_at: track.added_at,
-            id: track.track_id,
-            playlist_id: track.playlist_id,
-          }),
-          valid: true,
-        } as TrackListEntry
-      }
-      refreshNuxtData(key)
-    }
-  })
 }
