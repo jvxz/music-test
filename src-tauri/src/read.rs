@@ -46,7 +46,7 @@ pub fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>> {
     return Ok(Arc::new(file_entries));
   };
 
-  let entries = read_dir(&path).expect("Failed to read folder");
+  let entries = read_dir(&path).map_err(|e| Error::FileSystem(e.to_string()))?;
 
   let file_entries = entries
     .filter_map(|result| result.ok())
