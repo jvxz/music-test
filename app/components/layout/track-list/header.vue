@@ -7,8 +7,38 @@ const props = defineProps<{
 }>()
 
 const { deletePlaylist, getPlaylistName } = useUserPlaylists()
-const query = useTrackListSearchQuery()
 const { addFolderToLibrary, removeFolderFromLibrary, useFolderInLibrary } = useLibrary()
+const query = useTrackListSearchQuery()
+
+const isLoading = toRef(props, 'isLoading')
+
+let hasLoadedOnce = false
+watch(isLoading, (v) => {
+  if (!v)
+    hasLoadedOnce = true
+}, { immediate: true })
+
+const showSpinner = shallowRef(false)
+const { start, stop } = useTimeoutFn(() => {
+  if (isLoading.value)
+    showSpinner.value = true
+}, 500, { immediate: false })
+
+watch(isLoading, (v) => {
+  if (v) {
+    if (!hasLoadedOnce) {
+      showSpinner.value = true
+    }
+    else {
+      showSpinner.value = false
+      start()
+    }
+  }
+  else {
+    stop()
+    showSpinner.value = false
+  }
+}, { immediate: true })
 
 const { data: isFolderInLibrary, execute: checkFolderInLibrary } = useFolderInLibrary(props.path ?? '')
 onMounted(() => {
@@ -52,7 +82,7 @@ const title = computed(() => {
           class="size-4"
         />
       </div>
-      <USpinner v-if="isLoading" class="h-[20px]" />
+      <USpinner v-if="showSpinner" class="h-[20px]" />
       <p v-else class="text-sm text-muted-foreground">
         {{ trackCount }} {{ checkPlural(trackCount, 'tracks', 'track') }}
       </p>
