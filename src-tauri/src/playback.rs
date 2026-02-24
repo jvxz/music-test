@@ -18,6 +18,7 @@ pub enum StreamAction {
   SetLoop(bool),
   SetVolume(f32),
   ToggleMute,
+  Reset,
 }
 
 #[derive(Serialize, Clone, Deserialize, Type, Debug)]

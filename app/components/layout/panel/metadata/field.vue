@@ -17,6 +17,7 @@ const isDirty = computed(() => isValueDirty(id3Frame))
       </ULabel>
       <UButton
         v-if="isDirty"
+        tabindex="-1"
         variant="ghost"
         size="icon"
         class="size-5 shrink-0 text-danger hover:text-danger active:text-danger"

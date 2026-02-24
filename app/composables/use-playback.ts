@@ -1,15 +1,24 @@
 export const usePlayback = createSharedComposable(() => {
   const { prefs, store } = useTauri()
   const { scrobbleTrack, updateNowPlaying } = useLastFm()
-  const { getTrackData, refreshTrackData } = useTrackData()
+  const { getTrackData, refreshTrackData, trackCache } = useTrackData()
 
   // internal
   const _playbackStatus = ref<StreamStatus | null>(prefs.get('playback-status') as StreamStatus | null)
-  const _currentTrack = shallowRef<CurrentPlayingTrack | null>(prefs.get('current-track') as CurrentPlayingTrack | null)
-
   // public
   const playbackStatus = readonly(_playbackStatus)
-  const currentTrack = readonly(_currentTrack)
+
+  const _currentTrackContext = shallowRef<CurrentPlayingTrack | null>(prefs.get('current-track') as CurrentPlayingTrack | null)
+  const currentTrack = computed<CurrentPlayingTrack | null>(() => {
+    if (!_currentTrackContext.value)
+      return null
+
+    const fileEntry = trackCache.get(_currentTrackContext.value.path)
+    if (!fileEntry)
+      return _currentTrackContext.value
+
+    return { ...fileEntry, ..._currentTrackContext.value, tags: { ...fileEntry.tags } }
+  })
 
   let timeListenedMs = 0
   let hasScrobbled = false
@@ -51,13 +60,13 @@ export const usePlayback = createSharedComposable(() => {
   })
 
   watch(() => _playbackStatus.value?.position, async () => {
-    if (!_currentTrack.value || !_playbackStatus.value?.position)
+    if (!_currentTrackContext.value || !_playbackStatus.value?.position)
       return
 
     if (_playbackStatus.value.position >= _playbackStatus.value.duration) {
       // track finished, reset position & scrobble if not already scrobbled
       if (canScrobble()) {
-        scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
+        scrobbleTrack(_currentTrackContext.value, _playbackStatus.value.duration)
         hasScrobbled = true
         // await to prevent race condition
         await nextTick()
@@ -69,13 +78,13 @@ export const usePlayback = createSharedComposable(() => {
         _playbackStatus.value.is_playing = false
         _playbackStatus.value.path = null
 
-        _currentTrack.value = null
+        _currentTrackContext.value = null
       }
       else {
         // if looping, reset hasScrobbled & refresh now playing
         hasScrobbled = false
         timeListenedMs = 0
-        updateNowPlaying(_currentTrack.value, _playbackStatus.value.duration)
+        updateNowPlaying(_currentTrackContext.value, _playbackStatus.value.duration)
       }
     }
   })
@@ -93,8 +102,8 @@ export const usePlayback = createSharedComposable(() => {
 
   async function playPauseCurrentTrack(action?: 'Resume' | 'Pause') {
     // scrobble current track if not already scrobbled & applicable
-    if (_currentTrack.value && _playbackStatus.value && canScrobble()) {
-      scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
+    if (_currentTrackContext.value && _playbackStatus.value && canScrobble()) {
+      scrobbleTrack(_currentTrackContext.value, _playbackStatus.value.duration)
       hasScrobbled = true
       await nextTick()
     }
@@ -108,8 +117,8 @@ export const usePlayback = createSharedComposable(() => {
 
   async function playTrack(entry: TrackListEntry) {
     // scrobble previous track if not already scrobbled
-    if (_currentTrack.value && _playbackStatus.value && canScrobble()) {
-      scrobbleTrack(_currentTrack.value, _playbackStatus.value.duration)
+    if (_currentTrackContext.value && _playbackStatus.value && canScrobble()) {
+      scrobbleTrack(_currentTrackContext.value, _playbackStatus.value.duration)
       await nextTick()
     }
 
@@ -144,7 +153,7 @@ export const usePlayback = createSharedComposable(() => {
       })
     }
 
-    _currentTrack.value = {
+    _currentTrackContext.value = {
       ...data,
       playback_source: getInputTypeFromEntry(entry),
       playback_source_id: entry.path,
@@ -159,7 +168,13 @@ export const usePlayback = createSharedComposable(() => {
     hasScrobbled = false
     resumeDurationTimer()
 
-    await updateNowPlaying(_currentTrack.value, _playbackStatus.value.duration)
+    await updateNowPlaying(_currentTrackContext.value, _playbackStatus.value.duration)
+  }
+
+  async function resetPlayback() {
+    const status = await $invoke(commands.controlPlayback, 'Reset')
+    _playbackStatus.value = status
+    _currentTrackContext.value = null
   }
 
   async function setLoop(loop: boolean) {
@@ -212,6 +227,7 @@ export const usePlayback = createSharedComposable(() => {
     playbackStatus,
     playPauseCurrentTrack,
     playTrack,
+    resetPlayback,
     seekCurrentTrack,
     setLoop,
     setVolume,

@@ -178,6 +178,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
                   checkIsSelected(entry.data),
                   playbackStatus?.path === entry.data.path,
                   entry.data.valid,
+                  entry.data.tags,
                 ]"
                 draggable="true"
                 :entry="entry.data"
@@ -216,6 +217,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
                 checkIsSelected(entry),
                 playbackStatus?.path === entry.path,
                 entry.valid,
+                entry.tags,
               ]"
               draggable="true"
               :entry="entry"

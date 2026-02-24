@@ -55,6 +55,7 @@ const computedPosition = computed(() => formatDuration(playbackStatus.value?.pos
         v-model:model-value="localPosition"
         :max="playbackStatus?.duration ?? 0"
         class="relative flex h-4 w-full grow"
+        :key="playbackStatus?.position"
         :step="0.01"
         @pointerdown="handlePointer('down')"
         @pointerup="handlePointer('up')"

@@ -112,17 +112,13 @@ pub fn get_tracks_data(paths: Vec<String>) -> Vec<FileEntry> {
 #[tauri::command]
 #[specta::specta]
 pub fn get_track_data(path_string: Cow<'_, str>, refresh: Option<bool>) -> Result<FileEntry> {
-  if let Some(cached_track) = TRACK_CACHE.get(path_string.as_ref()) {
-    if !refresh.unwrap_or(false) {
-      let data = cached_track.value().clone();
-      return Ok(data);
+  if !refresh.unwrap_or(false) {
+    if let Some(cached_track) = TRACK_CACHE.get(path_string.as_ref()) {
+      return Ok(cached_track.value().clone());
     }
-
-    TRACK_CACHE.remove(path_string.as_ref());
   }
 
   let path = PathBuf::from(path_string.as_ref());
-
   let file_entry = file_entry_from_path(path)?;
 
   TRACK_CACHE.insert(path_string.as_ref().to_string(), file_entry.clone());

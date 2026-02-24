@@ -336,6 +336,17 @@ pub fn spawn_audio_thread(
               .send(state.clone())
               .map_err(|_| Error::Audio("failed to send state after toggling mute".to_string()))?;
           }
+          StreamAction::Reset => {
+            audio_handle.stop();
+            state.path = None;
+            state.duration = 0.0;
+            state.position = 0.0;
+            state.is_playing = false;
+
+            response_tx.send(state.clone()).map_err(|_| {
+              Error::Audio("failed to send state after resetting playback".to_string())
+            })?;
+          }
         }
       }
       InternalEvent::LoadFinished { id, data } => {

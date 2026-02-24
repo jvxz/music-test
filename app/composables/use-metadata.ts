@@ -9,6 +9,9 @@ type Group = 'panel'
 const instances = new LRUCache<string, Ref<TagMap>>({ max: 8 })
 
 export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null | undefined>, group?: Group | string & {}) {
+  const { refreshTrackData } = useTrackData()
+  const { currentTrack, resetPlayback } = usePlayback()
+
   const getOriginalTags = () => toValue(originalFile)?.tags
   const getKey = () => toValue(originalFile) ? `${toValue(originalFile)!.path}${group ? `-${group}` : ''}` : null
   const getInstance = () => {
@@ -62,7 +65,7 @@ export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null
       return
 
     const file = toValue(originalFile)
-    const originalTags = getOriginalTags()
+    const originalTags = file?.tags
 
     if (!file || !originalTags)
       return
@@ -81,7 +84,13 @@ export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null
       })
     }
 
-    const frames = objectEntries(proposedChanges.value)
+    const changes = proposedChanges.value
+
+    if (file?.path === currentTrack.value?.path) {
+      await resetPlayback()
+    }
+
+    const frames = objectEntries(changes)
       .filter(([frame, value]) => originalTags[frame] !== value)
       .map(([frame, value]) => ({
         frame,
@@ -90,6 +99,7 @@ export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null
 
     // todo: make version selectable
     await $invoke(commands.writeId3Frames, file.path, file.primary_tag ?? 'id3v2.4', frames)
+    await refreshTrackData(file.path)
   }
 
   const isValueDirty = createUnrefFn((frame: Id3FrameId) => {
