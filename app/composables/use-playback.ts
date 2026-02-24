@@ -101,6 +101,9 @@ export const usePlayback = createSharedComposable(() => {
   }, 200)
 
   async function playPauseCurrentTrack(action?: 'Resume' | 'Pause') {
+    if (!_currentTrackContext.value || !_playbackStatus.value)
+      return
+
     // scrobble current track if not already scrobbled & applicable
     if (_currentTrackContext.value && _playbackStatus.value && canScrobble()) {
       scrobbleTrack(_currentTrackContext.value, _playbackStatus.value.duration)
