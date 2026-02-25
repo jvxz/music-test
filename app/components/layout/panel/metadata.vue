@@ -20,7 +20,7 @@ onKeyStrokeSafe('meta_r', () => {
 </script>
 
 <template>
-  <LayoutPanelLayout class="gap-0 p-0">
+  <LayoutPanelLayout class="size-full gap-0 overflow-y-auto p-0 *:shrink-0">
     <UContextMenu>
       <UContextMenuTrigger as-child>
         <div class="flex w-full items-center gap-1 border-b pr-2 pl-1">
