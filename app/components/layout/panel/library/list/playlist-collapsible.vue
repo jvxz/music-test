@@ -6,9 +6,8 @@ defineProps<{
 const { createPlaylist, deletePlaylist, renamePlaylist } = useUserPlaylists()
 
 function handleRenameSubmit(playlistId: number, name: string | null | undefined) {
-  if (!name) {
+  if (!name)
     return
-  }
 
   renamePlaylist(playlistId, name)
 }
@@ -17,9 +16,8 @@ const open = shallowRef(false)
 let shouldOpen = false
 
 const debouncedOpen = useDebounceFn(() => {
-  if (shouldOpen) {
+  if (shouldOpen)
     open.value = true
-  }
 }, 500)
 
 function handleDragOver() {

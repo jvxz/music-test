@@ -21,33 +21,30 @@ export const useTrackSelection = createSharedComposable(() => {
     }
     else {
       selectedTrackData.value.entries = selectedTrackData.value.entries.filter((entry) => {
-        if (entry.is_playlist_track && entryToEdit.is_playlist_track) {
+        if (entry.is_playlist_track && entryToEdit.is_playlist_track)
           return entry.position !== entryToEdit.position
-        }
-        else {
+
+        else
           return entry.path !== entryToEdit.path
-        }
       })
     }
   }
 
   function checkIsSelected(entryToCheck: TrackListEntry) {
     const idx = selectedTrackData.value.entries.findIndex((entry) => {
-      if (entry.is_playlist_track && entryToCheck.is_playlist_track) {
+      if (entry.is_playlist_track && entryToCheck.is_playlist_track)
         return entry.position === entryToCheck.position
-      }
-      else {
+
+      else
         return entry.path === entryToCheck.path
-      }
     })
 
     return idx >= 0
   }
 
   function clearSelectedTracks() {
-    if (selectedTrackData.value.entries.length) {
+    if (selectedTrackData.value.entries.length)
       selectedTrackData.value.entries = []
-    }
   }
 
   const router = useRouter()

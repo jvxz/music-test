@@ -23,9 +23,8 @@ async function handlePresetSave() {
     return
 
   let confirmation = true
-  if (presetArray.value.some(p => p.name === presetName.value)) {
+  if (presetArray.value.some(p => p.name === presetName.value))
     confirmation = await confirm('A preset with this name already exists. Overwrite?')
-  }
 
   if (!confirmation)
     return

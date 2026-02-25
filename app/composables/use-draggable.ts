@@ -104,9 +104,8 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
       return null
 
     let el = unrefElement(hoveredElement)
-    while (el && !validElements.has(el)) {
+    while (el && !validElements.has(el))
       el = el.parentElement
-    }
 
     if (!el)
       return null
@@ -139,9 +138,8 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
       handleDragGhost('add')
 
       const classValue = toValue(options).class?.dragging
-      if (draggingItem.value && classValue) {
+      if (draggingItem.value && classValue)
         draggingItem.value.element.classList.add(classValue)
-      }
 
       toValue(options).onDragStart?.(potentialDraggingItem)
 
@@ -163,9 +161,8 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
     handleDragGhost('remove')
 
     const classValue = toValue(options).class?.dragging
-    if (draggingItem.value && classValue) {
+    if (draggingItem.value && classValue)
       draggingItem.value.element.classList.remove(classValue)
-    }
 
     const draggedFromList = draggingItem.value?._listId === listId
     const draggedToList = dropTargetItem.value?._listId === listId
@@ -178,18 +175,16 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
       && dropTargetItem.value
       && isFromSameGroup
       && (draggedFromList || draggedToList)
-    ) {
+    )
       toValue(options).onDragEnd?.(createHookParams())
-    }
   })
 
   const { pause: pauseHoveredElementWatch, resume: resumeHoveredElementWatch } = watch(dropTargetItem, (currentItem) => {
     if (!currentItem || !lookupElement(currentItem.element))
       return
 
-    if (currentItem.group === toValue(options).group) {
+    if (currentItem.group === toValue(options).group)
       toValue(options).onDragOver?.(createHookParams())
-    }
   })
 
   function handlePointerDown(data: T, element: any) {
@@ -241,9 +236,8 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
         draggingItem.value
         && draggingItem.value.group
         && draggingItem.value.group !== toValue(options).group
-      ) {
+      )
         return barStyles.value
-      }
 
       const half = inElementHalf.value
 
@@ -315,9 +309,9 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
 
       function getValidSibling(el: Element, direction: 'next' | 'prev') {
         let sibling = direction === 'next' ? el.nextElementSibling : el.previousElementSibling
-        while (sibling && !lookupElement(sibling)) {
+        while (sibling && !lookupElement(sibling))
           sibling = direction === 'next' ? sibling.nextElementSibling : sibling.previousElementSibling
-        }
+
         return sibling
       }
     }
@@ -343,9 +337,9 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
   })
 
   watch(isDragging, (v) => {
-    if (v) {
+    if (v)
       return resumeRafFn()
-    }
+
     else {
       pauseRafFn()
       barStyles.value = null
@@ -386,14 +380,12 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
 
   function createHookParams(): HookParams<T> {
     const targetItem = lookupElement(dropTargetItem.value?.element ?? null)
-    if (!dropTargetItem.value || !targetItem) {
+    if (!dropTargetItem.value || !targetItem)
       throw new Error('Attempted to make hook params when targetItem was undefined')
-    }
 
     const prevItem = lookupElement(draggingItem.value?.element ?? null)
-    if (!draggingItem.value || !prevItem) {
+    if (!draggingItem.value || !prevItem)
       throw new Error('Attempted to make hook params when prevItem was undefined')
-    }
 
     const targetIdx = list.value.indexOf(targetItem.data)
     const prevIdx = list.value.indexOf(prevItem.data)
@@ -507,9 +499,8 @@ export function handleListRearrange<T>(listRef: MaybeRefOrGetter<T[]>, paramsRef
   }
 
   // handle recieving from different list (add at index)
-  if (params.prevIdx === -1) {
+  if (params.prevIdx === -1)
     return check(filters.doAdding) ? insertAt(list, params.targetIdx, params.prevItem.data) : list
-  }
 
   return check(filters.doMoving) ? moveArrayMember(list, params.prevIdx, params.targetIdx) : list
 
@@ -517,9 +508,8 @@ export function handleListRearrange<T>(listRef: MaybeRefOrGetter<T[]>, paramsRef
     if (!f)
       return true
 
-    if (typeof f === 'function') {
+    if (typeof f === 'function')
       return f()
-    }
 
     return f
   }

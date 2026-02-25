@@ -16,14 +16,13 @@ const { allGroups, allItems, filterState, persistentItems } = useCommand()
 const groupContext = useCommandGroup()
 
 const isRender = computed(() => {
-  if (!filterState.search || props.persistent) {
+  if (!filterState.search || props.persistent)
     return true
-  }
+
   else {
     const filteredCurrentItem = filterState.filtered.items.get(id)
-    if (filteredCurrentItem === undefined) {
+    if (filteredCurrentItem === undefined)
       return true
-    }
 
     return filteredCurrentItem > 0
   }
@@ -35,21 +34,19 @@ onMounted(() => {
   if (!(currentElement.value instanceof HTMLElement))
     return
 
-  if (props.persistent) {
+  if (props.persistent)
     persistentItems.value.set(id, currentElement.value.textContent ?? props?.value!.toString())
-  }
-  else {
+
+  else
     allItems.value.set(id, currentElement.value.textContent ?? props?.value!.toString())
-  }
 
   const groupId = groupContext?.id
   if (groupId) {
-    if (!allGroups.value.has(groupId)) {
+    if (!allGroups.value.has(groupId))
       allGroups.value.set(groupId, new Set([id]))
-    }
-    else {
+
+    else
       allGroups.value.get(groupId)?.add(id)
-    }
   }
 })
 onUnmounted(() => {
@@ -63,7 +60,7 @@ onUnmounted(() => {
     v-bind="forwarded"
     :id="id"
     ref="itemRef"
-    :class="cn('relative flex h-7 cursor-default items-center gap-2 rounded px-2 text-sm outline-hidden select-none peer-[*]:hidden data-highlighted:bg-muted-foreground/15 data-highlighted:text-accent-foreground data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4 [&_svg:not([class*=text-])]:text-muted-foreground', props.class)"
+    :class="cn('relative flex h-7 cursor-default items-center gap-2 rounded-sm px-2 text-sm outline-hidden select-none peer-[*]:hidden data-highlighted:bg-muted-foreground/15 data-highlighted:text-accent-foreground data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4 [&_svg:not([class*=text-])]:text-muted-foreground', props.class)"
     @select="() => {
       filterState.search = ''
     }"

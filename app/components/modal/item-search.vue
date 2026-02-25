@@ -19,9 +19,8 @@ watch(open, () => {
   if (!open.value) {
     const activeElement = document.activeElement as HTMLElement
 
-    if (activeElement && activeElement !== document.body) {
+    if (activeElement && activeElement !== document.body)
       activeElement.blur()
-    }
   }
 })
 
@@ -46,9 +45,8 @@ async function handleEnter(manualInput?: string) {
       newRecents.splice(index, 1)
     }
 
-    if (newRecents.length >= 6) {
+    if (newRecents.length >= 6)
       newRecents.pop()
-    }
 
     newRecents.unshift(inputToUse)
 
@@ -67,9 +65,8 @@ async function handleEnter(manualInput?: string) {
 }
 
 function getInputType(path: string) {
-  if (!path.includes('/') && !path.includes('\\')) {
+  if (!path.includes('/') && !path.includes('\\'))
     return 'query'
-  }
 
   const fileIdx = path.lastIndexOf('.')
   const folderIdx = path.lastIndexOf('/')
@@ -77,16 +74,14 @@ function getInputType(path: string) {
 }
 
 function handleKeyDownRight() {
-  if (!input.value && listBoxHighlightedItem.value?.value) {
+  if (!input.value && listBoxHighlightedItem.value?.value)
     input.value = listBoxHighlightedItem.value.value.toString()
-  }
 }
 
 function handleCmdItemMount(item: VNode) {
   const cmdItemId: string | undefined = item.el?.id
-  if (cmdItemId) {
+  if (cmdItemId)
     commandRootValue.value = cmdItemId
-  }
 }
 </script>
 

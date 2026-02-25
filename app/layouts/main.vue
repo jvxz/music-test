@@ -5,9 +5,9 @@ const tauri = useTauri()
 onBeforeMount(async () => {
   const lastUrl = await tauri.store.get<string>('last-url')
 
-  if (lastUrl) {
+  if (lastUrl)
     router.push(lastUrl)
-  }
+
   router.afterEach((to) => {
     if (to.fullPath === '/playground')
       return

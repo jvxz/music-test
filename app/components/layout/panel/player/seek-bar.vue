@@ -30,9 +30,8 @@ function handlePointer(type: 'up' | 'down') {
 
     seekCurrentTrack(to)
   }
-  else {
+  else
     isChangingPosition.value = true
-  }
 }
 
 const computedDuration = computed(() => formatDuration(playbackStatus.value?.duration ?? 0, 's'))
@@ -52,10 +51,10 @@ const computedPosition = computed(() => formatDuration(playbackStatus.value?.pos
         {{ computedPosition }}
       </p>
       <SliderRoot
+        :key="playbackStatus?.position"
         v-model:model-value="localPosition"
         :max="playbackStatus?.duration ?? 0"
         class="relative flex h-4 w-full grow"
-        :key="playbackStatus?.position"
         :step="0.01"
         @pointerdown="handlePointer('down')"
         @pointerup="handlePointer('up')"

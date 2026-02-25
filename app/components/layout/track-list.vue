@@ -33,9 +33,9 @@ useEventListener('mouseup', () => {
   allowRowDragStart = false
 
   if (!isDraggingEntries && entryToSelectInsteadOfDrag) {
-    if (keys.ctrl?.value) {
+    if (keys.ctrl?.value)
       editTrackSelection('deselect', entryToSelectInsteadOfDrag)
-    }
+
     else {
       clearSelectedTracks()
       editTrackSelection('select', entryToSelectInsteadOfDrag)
@@ -77,12 +77,11 @@ async function handleSelectDragStart(entryTriggeredFrom: TrackListEntry) {
   const isEntryTriggeredFromSelected = checkIsSelected(entryTriggeredFrom)
 
   if (!isEntryTriggeredFromSelected) {
-    if (keys.ctrl?.value) {
+    if (keys.ctrl?.value)
       editTrackSelection('select', entryTriggeredFrom)
-    }
-    else if (!keys.shift?.value) {
+
+    else if (!keys.shift?.value)
       clearSelectedTracks()
-    }
   }
 
   if (isEntryTriggeredFromSelected) {
@@ -130,9 +129,8 @@ async function handleDragHoverSelect(entryToEdit: TrackListEntry) {
 function handleRightClick(entry: TrackListEntry) {
   const clickedOnSelectedTrack = checkIsSelected(entry)
 
-  if (!clickedOnSelectedTrack || !selectedTrackData.value.entries.length || selectedTrackData.value.entries.length === 1) {
+  if (!clickedOnSelectedTrack || !selectedTrackData.value.entries.length || selectedTrackData.value.entries.length === 1)
     selectedTrackData.value.entries = [entry]
-  }
 }
 
 const columnFieldsKey = computed(() => columnFields.value.map(field => field.key).join())

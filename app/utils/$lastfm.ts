@@ -31,9 +31,8 @@ export async function $lastfm<T extends LastFmFetchMethod>(method: T, opts: Last
     method: 'GET',
   })
 
-  if (!response.ok) {
+  if (!response.ok)
     throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-  }
 
   const data = await response.json()
 

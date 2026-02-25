@@ -31,9 +31,8 @@ export function useUserPlaylists() {
   async function deletePlaylist(playlistId: number) {
     await $db().deleteFrom('playlists').where('id', '=', playlistId).execute()
 
-    if ('id' in route.params && Number(route.params.id) === playlistId) {
+    if ('id' in route.params && Number(route.params.id) === playlistId)
       router.back()
-    }
 
     refreshPlaylistList()
   }

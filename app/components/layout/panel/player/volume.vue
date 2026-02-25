@@ -5,12 +5,11 @@ const props = defineProps<{
 const { playbackStatus, setVolume, toggleMute } = usePlayback()
 
 function handleScroll(event: WheelEvent) {
-  if (event.deltaY > 0) {
+  if (event.deltaY > 0)
     setVolume(playbackStatus.value?.volume ?? 0 - 1)
-  }
-  else {
+
+  else
     setVolume(playbackStatus.value?.volume ?? 0 + 1)
-  }
 }
 </script>
 

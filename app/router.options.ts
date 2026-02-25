@@ -4,9 +4,9 @@ export default {
   scrollBehavior(to, _from, savedPosition) {
     return new Promise((resolve, _reject) => {
       setTimeout(() => {
-        if (savedPosition) {
+        if (savedPosition)
           resolve(savedPosition)
-        }
+
         else {
           if (to.hash) {
             resolve({
@@ -14,9 +14,8 @@ export default {
               top: 0,
             })
           }
-          else {
+          else
             resolve({ top: 0 })
-          }
         }
       }, 100)
     })

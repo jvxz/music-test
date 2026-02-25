@@ -34,12 +34,11 @@ export default defineNuxtPlugin({
     })
 
     hook('vue:error', (err) => {
-      if (err instanceof Error) {
+      if (err instanceof Error)
         message(err.message, { kind: 'error', title: ERROR_TITLE_MAP.Other })
-      }
-      else {
+
+      else
         message(String(err), { kind: 'error', title: ERROR_TITLE_MAP.Other })
-      }
     })
 
     return {

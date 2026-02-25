@@ -132,9 +132,8 @@ export const useTrackListColumns = createSharedComposable(() => {
   function getColumnFromKey(key: TrackListColumn['key']): TrackListColumn {
     const col = ALL_TRACK_LIST_COLUMNS[key]
 
-    if (!col) {
+    if (!col)
       throw new Error(`Attempted to get column from key ${key} but it was not found in the list of all columns`)
-    }
 
     return col
   }

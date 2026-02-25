@@ -86,9 +86,8 @@ export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null
 
     const changes = proposedChanges.value
 
-    if (file?.path === currentTrack.value?.path) {
+    if (file?.path === currentTrack.value?.path)
       await resetPlayback()
-    }
 
     const frames = objectEntries(changes)
       .filter(([frame, value]) => originalTags[frame] !== value)

@@ -11,9 +11,8 @@ onMounted(async () => {
       window.hide()
     })
   }
-  else {
+  else
     window.show()
-  }
 })
 
 onUnmounted(() => unlisten?.())

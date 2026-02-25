@@ -63,7 +63,7 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
         placeholder="Search available fields..."
         class="shrink-0"
       />
-      <UDraggableList ref="availableListEl" class="relative flex size-full flex-col gap-1 overflow-y-auto rounded">
+      <UDraggableList ref="availableListEl" class="relative flex size-full flex-col gap-1 overflow-y-auto rounded-sm">
         <div
           v-for="column in ALL_TRACK_LIST_COLUMNS"
           v-show="contains(`${column.label} ${column.key}`, availableListQuery)"

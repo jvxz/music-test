@@ -126,16 +126,16 @@ const isOverflowing = computed(() => {
 })
 
 const shouldAnimate = computed(() => {
-  if (onlyScrollIfNeeded && !isOverflowing.value) {
+  if (onlyScrollIfNeeded && !isOverflowing.value)
     return false
-  }
+
   return play
 })
 
 const duration = computed(() => {
-  if (autoFill) {
+  if (autoFill)
     return (marqueeWidth.value * multiplier.value) / speed
-  }
+
   else {
     return marqueeWidth.value < containerWidth.value
       ? containerWidth.value / speed
@@ -189,9 +189,8 @@ function calculateWidth() {
       multiplier.value
         = _marqueeWidth < _containerWidth ? Math.ceil(_containerWidth / _marqueeWidth) : 1
     }
-    else {
+    else
       multiplier.value = 1
-    }
 
     containerWidth.value = _containerWidth
     marqueeWidth.value = _marqueeWidth
@@ -207,9 +206,8 @@ watch([() => autoFill, () => direction, isMounted, containerRef], () => {
     calculateWidth()
 
     if (marqueeRef.value && containerRef.value) {
-      if (resizeObserver.value) {
+      if (resizeObserver.value)
         resizeObserver.value.disconnect()
-      }
 
       resizeObserver.value = new ResizeObserver(() => calculateWidth())
       resizeObserver.value.observe(containerRef.value)

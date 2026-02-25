@@ -13,9 +13,8 @@ export default defineNuxtPlugin({
 
     listen('tauri://drag-over', (e) => {
       const payload = e.payload as { position: { x: number, y: number } }
-      if (dragMeta.value === null) {
+      if (dragMeta.value === null)
         dragMeta.value = { key: 'UNKNOWN' }
-      }
 
       x.value = payload.position.x
       y.value = payload.position.y

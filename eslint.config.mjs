@@ -9,7 +9,9 @@ export default withNuxt(antfu({
   },
   rules: {
     ...eslintPluginBetterTailwindcss.configs['recommended-warn'].rules,
+    'antfu/curly': ['off'],
     'better-tailwindcss/enforce-consistent-line-wrapping': 'off',
+    'curly': ['warn', 'multi-or-nest'],
     'node/prefer-global/buffer': 'off',
     'node/prefer-global/process': 'off',
     'perfectionist/sort-objects': 'warn',

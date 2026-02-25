@@ -71,24 +71,24 @@ useDraggable(el2, list2, {
   <div class="flex">
     <section
       ref="el1"
-      class="w-300px h-300px m-auto flex flex-col gap-2 overflow-auto rounded bg-gray-500/5 p-4"
+      class="w-300px h-300px m-auto flex flex-col gap-2 overflow-auto rounded-sm bg-gray-500/5 p-4"
     >
       <div
         v-for="item in list1"
         :key="item.id"
-        class="h-30 cursor-move rounded bg-gray-500/5 p-3"
+        class="h-30 cursor-move rounded-sm bg-gray-500/5 p-3"
       >
         {{ item.name }}
       </div>
     </section>
     <section
       ref="el2"
-      class="w-300px h-300px m-auto flex flex-col gap-2 overflow-auto rounded bg-gray-500/5 p-4"
+      class="w-300px h-300px m-auto flex flex-col gap-2 overflow-auto rounded-sm bg-gray-500/5 p-4"
     >
       <div
         v-for="item in list2"
         :key="item.id"
-        class="h-30 cursor-move rounded bg-gray-500/5 p-3"
+        class="h-30 cursor-move rounded-sm bg-gray-500/5 p-3"
       >
         {{ item.name }}
       </div>

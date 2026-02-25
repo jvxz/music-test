@@ -25,11 +25,11 @@ const containerHoverClass = computed(() => {
 <template>
   <div
     ref="containerEl"
-    class="group -m-2 flex items-start gap-2 overflow-hidden rounded p-2"
+    class="group -m-2 flex items-start gap-2 overflow-hidden rounded-sm p-2"
     :class="containerHoverClass"
   >
     <div class="flex shrink-0 flex-col gap-2">
-      <div class="flex aspect-video w-24 rounded border">
+      <div class="flex aspect-video w-24 rounded-sm border">
         <div :class="panel.class" />
       </div>
     </div>

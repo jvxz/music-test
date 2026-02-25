@@ -39,18 +39,16 @@ const isOver = computed(() => {
 })
 
 watch(isOver, () => {
-  if (isOver.value) {
+  if (isOver.value)
     emits('over')
-  }
-  else {
+
+  else
     emits('leave')
-  }
 })
 
 watch($dragHandler.droppedItemPaths, () => {
-  if (checkMatch()) {
+  if (checkMatch())
     emits('drop', $dragHandler.droppedItemPaths.value, dragMeta.value)
-  }
 })
 
 function checkMatch() {

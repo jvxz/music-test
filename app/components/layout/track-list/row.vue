@@ -17,16 +17,14 @@ const classes = 'flex items-center'
 
 function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
   if (frame === 'TIT2') {
-    if (entry.valid) {
+    if (entry.valid)
       return entry.tags[frame] ?? entry.name
-    }
 
     return entry.path
   }
 
-  if (entry.valid && frame) {
+  if (entry.valid && frame)
     return entry.tags[frame]
-  }
 
   return ''
 }

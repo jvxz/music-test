@@ -11,18 +11,16 @@ const selectedFolder = shallowRef<AcceptableValue>(null)
 
 function handleRemoveFolder(folderPath: AcceptableValue) {
   removeFolderFromLibrary(0, folderPath)
-  if (selectedFolder.value === folderPath) {
+  if (selectedFolder.value === folderPath)
     selectedFolder.value = null
-  }
 }
 
 async function handleAddFolder() {
   const folderPath = await openFilePicker({
     directory: true,
   })
-  if (folderPath) {
+  if (folderPath)
     addFolderToLibrary(0, folderPath)
-  }
 }
 
 async function handleDrop(folderPaths: string[]) {

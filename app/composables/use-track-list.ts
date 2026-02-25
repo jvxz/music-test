@@ -29,9 +29,8 @@ export function useTrackList() {
     const key = computed(() => createTrackListInputKey(input.value))
 
     const asyncState = useAsyncState(async (fresh?: boolean) => {
-      if (!trackData.trackListCache.has(key.value) || fresh) {
+      if (!trackData.trackListCache.has(key.value) || fresh)
         await getTrackListEntries(input.value, fresh)
-      }
     }, null)
 
     useTrackListRefresh.on(({ keys }) => {

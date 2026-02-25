@@ -3,9 +3,8 @@ const LESSER = -1
 
 export const sortTrackList = createUnrefFn((trackList: TrackListEntry[], sortBy: TrackListSortByFrame, sortOrder: TrackListSortOrder) => {
   const sortedTrackList = trackList.toSorted((a, b) => {
-    if (!a.valid || !b.valid) {
+    if (!a.valid || !b.valid)
       return LESSER
-    }
 
     let aValue: string | undefined
     let bValue: string | undefined
@@ -19,9 +18,8 @@ export const sortTrackList = createUnrefFn((trackList: TrackListEntry[], sortBy:
       bValue = b.tags[sortBy]
     }
 
-    if (!Number.isNaN(Number(aValue)) && !Number.isNaN(Number(bValue))) {
+    if (!Number.isNaN(Number(aValue)) && !Number.isNaN(Number(bValue)))
       return Number(aValue) - Number(bValue)
-    }
 
     if (aValue === undefined && bValue === undefined)
       return 0

@@ -13,9 +13,8 @@ export default defineNuxtPlugin({
 
     onKeyStrokeSafe('meta_comma', () => createSettingsWindow(), { activeElement })
 
-    if (w.label !== 'main') {
+    if (w.label !== 'main')
       onKeyStrokeSafe('escape', () => HOT_LOADED_WINDOWS.includes(w.label) ? w.hide() : w.close(), { activeElement })
-    }
 
     if (import.meta.dev) {
       onKeyStrokeSafe('meta_r', () => {
@@ -25,9 +24,8 @@ export default defineNuxtPlugin({
 
     useEventListener('keydown', (e) => {
       const blacklist = [' ', 'backspace']
-      if (blacklist.includes(e.key.toLowerCase()) && e.target === document.body) {
+      if (blacklist.includes(e.key.toLowerCase()) && e.target === document.body)
         e.preventDefault()
-      }
     })
   },
 })

@@ -33,9 +33,9 @@ function filterItems() {
   if (!props.doFiltering) {
     filterState.filtered.count = allItems.value.size
     filterState.filtered.groups = new Set(allGroups.value.keys())
-    for (const [id] of allItems.value) {
+    for (const [id] of allItems.value)
       filterState.filtered.items.set(id, 1)
-    }
+
     return
   }
 

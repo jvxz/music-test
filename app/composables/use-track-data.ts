@@ -52,9 +52,9 @@ export function refreshTrackListForType(type: TrackListInput['type'], path?: str
   const { trackListCache } = useTrackData()
   const keys = Array.from(trackListCache.keys())
     .filter((k) => {
-      if (type === 'library') {
+      if (type === 'library')
         return k.startsWith('library-')
-      }
+
       return path ? k.startsWith(`${type}-${path}-`) : k.startsWith(`${type}-`)
     })
 
@@ -62,9 +62,8 @@ export function refreshTrackListForType(type: TrackListInput['type'], path?: str
 }
 
 export function createTrackListInputKey(input: TrackListInput) {
-  if (input.type === 'library') {
+  if (input.type === 'library')
     return `library-${input.sortBy}-${input.sortOrder}`
-  }
 
   return `${input.type}-${input.path}-${input.sortBy}-${input.sortOrder}`
 }

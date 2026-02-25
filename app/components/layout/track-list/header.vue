@@ -26,9 +26,9 @@ const { start, stop } = useTimeoutFn(() => {
 
 watch(isLoading, (v) => {
   if (v) {
-    if (!hasLoadedOnce) {
+    if (!hasLoadedOnce)
       showSpinner.value = true
-    }
+
     else {
       showSpinner.value = false
       start()
@@ -42,9 +42,8 @@ watch(isLoading, (v) => {
 
 const { data: isFolderInLibrary, execute: checkFolderInLibrary } = useFolderInLibrary(props.path ?? '')
 onMounted(() => {
-  if (props.type === 'folder') {
+  if (props.type === 'folder')
     checkFolderInLibrary()
-  }
 })
 
 const searchInput = useTemplateRef<HTMLInputElement>('searchInput')

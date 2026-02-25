@@ -49,7 +49,7 @@ useStyleTag(computed(() => elementDraggingData.value && elementDraggingData.valu
     </ULabel>
     <div
       ref="listEl"
-      class="flex h-fit shrink-0 flex-col gap-1 rounded py-1"
+      class="flex h-fit shrink-0 flex-col gap-1 rounded-sm py-1"
       :class="{
         'opacity-25': elementDraggingData && elementDraggingData.from !== 'AVAILABLE_ELEMENTS',
       }"
@@ -69,7 +69,7 @@ useStyleTag(computed(() => elementDraggingData.value && elementDraggingData.valu
     </div>
     <div
       v-if="elementDraggingData && elementDraggingData.from !== 'AVAILABLE_ELEMENTS'"
-      class="pointer-events-none absolute inset-0 flex size-full items-center justify-center rounded font-medium"
+      class="pointer-events-none absolute inset-0 flex size-full items-center justify-center rounded-sm font-medium"
       :class="!isOutsideList && 'bg-muted/40'"
     >
       Drop to delete

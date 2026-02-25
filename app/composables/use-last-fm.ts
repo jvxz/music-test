@@ -14,9 +14,8 @@ export const useLastFm = defineStore('lastfm', () => {
   const { execute: refreshAuthStatus, isLoading: authStatusPending, state: authStatus } = useAsyncState(async () => {
     const status = await $invoke(commands.getLastfmAuthStatus)
 
-    if (status) {
+    if (status)
       return settings.lastFm.username ?? undefined
-    }
   }, undefined, { immediate: false })
 
   const { execute: fetchLastFmProfile, isLoading: lastFmProfilePending, state: lastFmProfile } = useAsyncState(async () => {
@@ -82,9 +81,8 @@ export const useLastFm = defineStore('lastfm', () => {
       return
 
     const scrobble = getSerializedScrobble(track, duration)
-    if (scrobble) {
+    if (scrobble)
       await $invoke(commands.setNowPlaying, scrobble)
-    }
   }, 2000)
 
   const scrobbleTrack = useDebounceFn(async (track: TrackListEntry, duration: number) => {
@@ -113,9 +111,8 @@ export const useLastFm = defineStore('lastfm', () => {
   }, 2000)
 
   function getSerializedScrobble(track: TrackListEntry, duration: number) {
-    if (!track.valid || !track.tags.TPE1 || !track.tags.TIT2) {
+    if (!track.valid || !track.tags.TPE1 || !track.tags.TIT2)
       return null
-    }
 
     return {
       album: track.tags.TALB ?? null,
@@ -173,9 +170,8 @@ export function getLastFmImage(
   for (let size = maxSize; size >= 1; size--) {
     const label = IMAGE_SIZES[size]
     const found = images.find(img => img.size === label && img['#text'])
-    if (found) {
+    if (found)
       result.push(found)
-    }
   }
   return result[0]?.['#text'] ?? null
 }

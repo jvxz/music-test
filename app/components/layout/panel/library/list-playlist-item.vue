@@ -16,9 +16,8 @@ async function handleDrop(itemPaths: string[]) {
   const tracks = await getTracksData(itemPaths)
   const validTracks = tracks.filter(track => track.valid)
 
-  if (validTracks.length > 0) {
+  if (validTracks.length > 0)
     await addToPlaylist(props.playlist.id, validTracks)
-  }
 }
 
 const route = useRoute()

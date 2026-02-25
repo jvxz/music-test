@@ -54,9 +54,8 @@ export const usePlayback = createSharedComposable(() => {
       lastTimestamp = performance.now()
       resumeDurationTimer()
     }
-    else {
+    else
       pauseDurationTimer()
-    }
   })
 
   watch(() => _playbackStatus.value?.position, async () => {
@@ -111,9 +110,8 @@ export const usePlayback = createSharedComposable(() => {
       await nextTick()
     }
 
-    if (!action) {
+    if (!action)
       action = _playbackStatus.value?.is_playing ? 'Pause' : 'Resume'
-    }
 
     _playbackStatus.value = await $invoke(commands.controlPlayback, action)
   }
@@ -135,9 +133,8 @@ export const usePlayback = createSharedComposable(() => {
         })
       }
 
-      if (!entry.valid) {
+      if (!entry.valid)
         refreshTrackData(entry.path)
-      }
     }
     catch {
       refreshTrackData(entry.path)
@@ -174,9 +171,8 @@ export const usePlayback = createSharedComposable(() => {
 
       await updateNowPlaying(_currentTrackContext.value, _playbackStatus.value.duration)
     }
-    else {
+    else
       _currentTrackContext.value = null
-    }
 
     timeListenedMs = 0
     hasScrobbled = false
@@ -194,9 +190,8 @@ export const usePlayback = createSharedComposable(() => {
       SetLoop: loop,
     })
 
-    if (_playbackStatus.value) {
+    if (_playbackStatus.value)
       _playbackStatus.value.is_looping = loop
-    }
   }
 
   async function seekCurrentTrack(to: number) {
@@ -210,25 +205,22 @@ export const usePlayback = createSharedComposable(() => {
   }
 
   async function setVolume(volume: number) {
-    if (_playbackStatus.value?.is_muted) {
+    if (_playbackStatus.value?.is_muted)
       toggleMute()
-    }
 
     await $invoke(commands.controlPlayback, {
       SetVolume: volume,
     })
 
-    if (_playbackStatus.value) {
+    if (_playbackStatus.value)
       _playbackStatus.value.volume = volume
-    }
   }
 
   async function toggleMute() {
     await $invoke(commands.controlPlayback, 'ToggleMute')
 
-    if (_playbackStatus.value) {
+    if (_playbackStatus.value)
       _playbackStatus.value.is_muted = !_playbackStatus.value.is_muted
-    }
   }
 
   watchDebounced(_playbackStatus, () => store.set('playback-status', _playbackStatus.value), { debounce: 500 })
