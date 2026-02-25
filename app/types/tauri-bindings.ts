@@ -132,7 +132,7 @@ async writeId3Frames(filePath: string, targetTag: TagTypeArg, args: FrameArgs[])
 
 /** user-defined types **/
 
-export type Error = { type: "Audio"; data: string } | { type: "Id3"; data: string } | { type: "FileSystem"; data: string } | { type: "LastFm"; data: string } | { type: "Waveform"; data: string } | { type: "Sql"; data: string } | { type: "Store"; data: string } | { type: "Stronghold"; data: string } | { type: "Other"; data: string }
+export type Error = { type: "Audio"; data: string } | { type: "Backend"; data: string } | { type: "Id3"; data: string } | { type: "FileSystem"; data: string } | { type: "LastFm"; data: string } | { type: "Waveform"; data: string } | { type: "Sql"; data: string } | { type: "Store"; data: string } | { type: "Stronghold"; data: string } | { type: "Other"; data: string }
 export type FileEntry = { path: string; name: string; filename: string; tags: Partial<{ [key in string]: string }>; thumbnail_uri: string; full_uri: string; is_playlist_track: boolean; valid: boolean; primary_tag: TagTypeArg | null; extension: string }
 export type FrameArgs = { frame: string; value: string }
 export type SerializedOfflineScrobble = { scrobble: SerializedScrobble; timestamp: number }

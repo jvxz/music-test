@@ -147,31 +147,40 @@ export const usePlayback = createSharedComposable(() => {
       })
     }
 
-    const data = await getTrackDataEntry(entry)
-    if (!data) {
-      refreshTrackData(entry.path)
-      return emitError({
-        data: `${entry.name} is inaccessible (may have been moved, deleted, or permission denied)`,
-        type: 'FileSystem',
-      })
-    }
-
-    _currentTrackContext.value = {
-      ...data,
-      playback_source: getInputTypeFromEntry(entry),
-      playback_source_id: entry.path,
-    }
-
     const status = await $invoke(commands.controlPlayback, {
       Play: entry.path,
     })
     _playbackStatus.value = status
 
+    if (status.path === entry.path) {
+      const data = await getTrackDataEntry(entry)
+      if (!data) {
+        refreshTrackData(entry.path)
+
+        _currentTrackContext.value = null
+        await $invoke(commands.controlPlayback, 'Reset')
+
+        return emitError({
+          data: `${entry.name} is inaccessible (may have been moved, deleted, or permission denied)`,
+          type: 'FileSystem',
+        })
+      }
+
+      _currentTrackContext.value = {
+        ...data,
+        playback_source: getInputTypeFromEntry(entry),
+        playback_source_id: entry.path,
+      }
+
+      await updateNowPlaying(_currentTrackContext.value, _playbackStatus.value.duration)
+    }
+    else {
+      _currentTrackContext.value = null
+    }
+
     timeListenedMs = 0
     hasScrobbled = false
     resumeDurationTimer()
-
-    await updateNowPlaying(_currentTrackContext.value, _playbackStatus.value.duration)
   }
 
   async function resetPlayback() {

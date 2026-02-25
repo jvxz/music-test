@@ -1,4 +1,3 @@
-// #![deny(clippy::unwrap_used, clippy::expect_used)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use crate::error::{Error, Result};
 use crate::playback::{AudioHandle, StreamAction, StreamStatus};
@@ -218,10 +217,17 @@ pub async fn run() {
           .title_bar_style(tauri::TitleBarStyle::Overlay);
       }
 
-      let cache_dir = app.app_handle().path().app_cache_dir().unwrap();
-      std::fs::create_dir_all(&cache_dir).unwrap();
+      let cache_dir = app
+        .app_handle()
+        .path()
+        .app_cache_dir()
+        .map_err(|e| Error::Backend(format!("Could not resolve app cache directory: {}", e)))?;
+      std::fs::create_dir_all(&cache_dir)
+        .map_err(|e| Error::Backend(format!("Failed to create cache directory: {}", e)))?;
 
-      win_builder.build().unwrap();
+      win_builder
+        .build()
+        .map_err(|e| Error::Backend(format!("Failed to build window: {}", e)))?;
 
       let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
       let menu = Menu::with_items(app, &[&quit_i])?;
@@ -231,9 +237,11 @@ pub async fn run() {
       app.manage(AudioHandle { tx });
 
       let initial_state = get_initial_state(app.app_handle())?;
-      let _join_handle = std::thread::spawn(move || {
-        if let Err(e) = audio::spawn_audio_thread(rx, initial_state) {
-          log::error!("failed to spawn audio thread: {e}");
+      let audio_thread_app_handle = app.app_handle().clone();
+      let _ = std::thread::spawn(move || {
+        if let Err(e) = audio::spawn_audio_thread(rx, initial_state, audio_thread_app_handle) {
+          // log::error!("Failed to spawn audio thread: {e}");
+          println!("Failed to spawn audio thread: {e}");
         }
       });
 
@@ -241,28 +249,40 @@ pub async fn run() {
       let salt_path = app
         .path()
         .app_local_data_dir()
-        .expect("could not resolve app local data path")
+        .map_err(|e| Error::Backend(format!("Could not resolve app local data path: {}", e)))?
         .join("salt.txt");
 
       if let Some(parent_dir) = salt_path.parent() {
-        std::fs::create_dir_all(parent_dir).unwrap();
+        std::fs::create_dir_all(parent_dir)
+          .map_err(|e| Error::Backend(format!("Failed to create parent directory: {}", e)))?;
       }
 
       if !salt_path.exists() {
         let mut salt = [0u8; 32];
-        rand::rng().try_fill_bytes(&mut salt).unwrap();
-        let mut file = std::fs::File::create(&salt_path).unwrap();
-        file.write_all(&salt).unwrap();
+        rand::rng().try_fill_bytes(&mut salt).map_err(|e| {
+          Error::Backend(format!(
+            "Failed to fill bytes when creating salt file: {}",
+            e
+          ))
+        })?;
+        let mut file = std::fs::File::create(&salt_path)
+          .map_err(|e| Error::Backend(format!("Failed to create salt file: {}", e)))?;
+        file
+          .write_all(&salt)
+          .map_err(|e| Error::Backend(format!("Failed to write salt to file: {}", e)))?;
       }
 
       app
         .handle()
         .plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())?;
 
+      let default_window_icon = app
+        .default_window_icon()
+        .ok_or_else(|| Error::Backend("Failed to get default window icon".to_string()))?;
       let _tray = TrayIconBuilder::new()
         .menu(&menu)
         .show_menu_on_left_click(true)
-        .icon(app.default_window_icon().unwrap().clone())
+        .icon(default_window_icon.clone())
         .on_menu_event(|app, event| match event.id.as_ref() {
           "quit" => {
             app.exit(0);

@@ -1,8 +1,12 @@
-#[derive(Debug, thiserror::Error, specta::Type)]
+use tauri::{AppHandle, Emitter};
+
+#[derive(Debug, thiserror::Error, specta::Type, Clone)]
 #[serde(tag = "type", content = "data")]
 pub enum Error {
   #[error("Audio error: `{0}`")]
   Audio(String),
+  #[error("Backend error: `{0}`")]
+  Backend(String),
   #[error("ID3 error: `{0}`")]
   Id3(String),
   #[error("File system error: `{0}`")]
@@ -31,4 +35,8 @@ impl serde::Serialize for Error {
   {
     serializer.serialize_str(self.to_string().as_ref())
   }
+}
+
+pub fn emit_error(app_handle: AppHandle<tauri::Wry>, error: Error) {
+  let _ = app_handle.emit("backend-error", error);
 }
