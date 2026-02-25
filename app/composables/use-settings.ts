@@ -80,13 +80,7 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
   },
   layout: {
     allowResizing: true,
-    element: {
-      coverArt: defaultLayoutElementSettings.coverArt,
-      libraryView: defaultLayoutElementSettings.libraryView,
-      metadataView: defaultLayoutElementSettings.metadataView,
-      player: defaultLayoutElementSettings.player,
-      trackList: defaultLayoutElementSettings.trackList,
-    },
+    element: defaultLayoutElementSettings,
     panel: {
       bottom: {
         elements: ['player'],
