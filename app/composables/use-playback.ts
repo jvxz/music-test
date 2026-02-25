@@ -2,6 +2,7 @@ export const usePlayback = createSharedComposable(() => {
   const { prefs, store } = useTauri()
   const { scrobbleTrack, updateNowPlaying } = useLastFm()
   const { getTrackData, refreshTrackData, trackCache } = useTrackData()
+  const { emitMessage } = useConsole()
 
   // internal
   const _playbackStatus = ref<StreamStatus | null>(prefs.get('playback-status') as StreamStatus | null)
@@ -168,6 +169,12 @@ export const usePlayback = createSharedComposable(() => {
         playback_source: getInputTypeFromEntry(entry),
         playback_source_id: entry.path,
       }
+
+      emitMessage({
+        source: 'Audio',
+        text: `Playing track "${getTrackTitle(_currentTrackContext.value)}"`,
+        type: 'log',
+      })
 
       await updateNowPlaying(_currentTrackContext.value, _playbackStatus.value.duration)
     }
