@@ -1,3 +1,5 @@
+import * as z from 'zod'
+
 export const LastFmUserSchema = z.object({
   age: z.string(),
   album_count: z.string(),
@@ -20,3 +22,4 @@ export const LastFmUserSchema = z.object({
 export const LastFmUserGetInfoResponseSchema = z.object({
   user: LastFmUserSchema,
 })
+export type LastFmProfile = z.infer<typeof LastFmUserGetInfoResponseSchema>['user']

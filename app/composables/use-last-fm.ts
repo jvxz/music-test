@@ -7,23 +7,39 @@ const offlineScrobbleCache = new LazyStore('lastfm-offline-scrobbles.json', {
   },
 })
 
-export function useLastFm() {
+export const useLastFm = defineStore('lastfm', () => {
   const { isOnline } = useNetwork()
   const settings = useSettings()
 
-  const { data: authStatus, execute: refreshAuthStatus, pending: authStatusPending } = useAsyncData('lastfm-auth', async () => {
+  const { execute: refreshAuthStatus, isLoading: authStatusPending, state: authStatus } = useAsyncState(async () => {
     const status = await $invoke(commands.getLastfmAuthStatus)
 
     if (status) {
       return settings.lastFm.username ?? undefined
     }
-  }, {
-    lazy: true,
-    immediate: false,
-  })
+  }, undefined, { immediate: false })
+
+  const { execute: fetchLastFmProfile, isLoading: lastFmProfilePending, state: lastFmProfile } = useAsyncState(async () => {
+    const username = toValue(authStatus.value)
+    if (!username)
+      return
+
+    const res = await $lastfm('user.getInfo', {
+      query: {
+        user: username,
+      },
+    })
+
+    if (!res.success)
+      return
+
+    return res.data.user
+  }, undefined, { immediate: false })
 
   watch([isOnline, authStatus], async (isOnline) => {
     await until(authStatusPending).toBe(false)
+
+    await fetchLastFmProfile()
 
     const shouldProcessOfflineScrobbles = settings.lastFm.doScrobbling && authStatus.value
     if (!shouldProcessOfflineScrobbles)
@@ -45,27 +61,6 @@ export function useLastFm() {
   }, {
     immediate: true,
   })
-
-  const useLastFmProfile = (usernameRef: MaybeRefOrGetter<string | undefined>) => useAsyncData(
-    computed(() => `lastfm-profile${toValue(usernameRef) ? `-${toValue(usernameRef)}` : ''}`),
-    async () => {
-      const username = toValue(usernameRef)
-      if (!username)
-        return null
-
-      const res = await $lastfm('user.getInfo', {
-        query: {
-          user: username,
-        },
-      })
-
-      if (!res.success) {
-        return null
-      }
-
-      return res.data.user
-    },
-  )
 
   const startAuth = () => $invoke(commands.openLastfmAuth)
   const completeAuth = async (token: string) => {
@@ -146,14 +141,22 @@ export function useLastFm() {
     authStatus,
     authStatusPending,
     completeAuth,
+    fetchLastFmProfile,
+    lastFmProfile,
+    lastFmProfilePending,
+    refreshAuthStatus,
     removeAuth,
     scrobbleTrack,
     startAuth,
-    refreshAuthStatus,
     updateNowPlaying,
-    useLastFmProfile,
   }
-}
+}, {
+  tauri: {
+    saveOnChange: true,
+    syncInterval: 300,
+    syncStrategy: 'debounce',
+  },
+})
 
 const IMAGE_SIZES = {
   1: 'small',

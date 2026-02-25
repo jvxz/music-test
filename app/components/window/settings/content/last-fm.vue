@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-const { authStatus, completeAuth, removeAuth, refreshAuthStatus, startAuth, useLastFmProfile } = useLastFm()
+const { completeAuth, refreshAuthStatus, removeAuth, startAuth } = useLastFm()
+const lastFm = useLastFm()
 
 const token = shallowRef<string | null>(null)
 const isAuthDialogOpen = shallowRef(false)
 const isCompletingAuth = shallowRef(false)
 
 async function handleStartAuth() {
-  if (isAuthDialogOpen.value || authStatus.value)
+  if (isAuthDialogOpen.value || lastFm.authStatus)
     return
 
   isAuthDialogOpen.value = true
@@ -40,8 +41,6 @@ async function handleCompleteAuth() {
   }
 }
 
-const { data: profile, pending: profilePending } = useLastFmProfile(authStatus)
-
 const { isOnline } = useNetwork()
 
 onMounted(() => refreshAuthStatus())
@@ -57,7 +56,7 @@ onMounted(() => refreshAuthStatus())
         <USwitch
           id="doScrobbling"
           v-model="$settings.lastFm.doScrobbling"
-          :disabled="!authStatus"
+          :disabled="!lastFm.authStatus"
         />
       </div>
       <div class="flex w-full items-center gap-2">
@@ -67,7 +66,7 @@ onMounted(() => refreshAuthStatus())
         <USwitch
           id="doNowPlayingUpdates"
           v-model="$settings.lastFm.doNowPlayingUpdates"
-          :disabled="!authStatus"
+          :disabled="!lastFm.authStatus"
         />
       </div>
       <div class="flex w-full items-center gap-2">
@@ -77,7 +76,7 @@ onMounted(() => refreshAuthStatus())
         <USwitch
           id="doOfflineScrobbling"
           v-model="$settings.lastFm.doOfflineScrobbling"
-          :disabled="!authStatus"
+          :disabled="!lastFm.authStatus"
         />
       </div>
     </div>
@@ -105,11 +104,11 @@ onMounted(() => refreshAuthStatus())
             </UHoverCardContent>
           </UHoverCardRoot> -->
         </div>
-        <div class="grid size-[72px] place-items-center rounded border border-dashed border-muted">
+        <div class="grid size-[72px] place-items-center rounded-sm border border-dashed border-muted">
           <Icon name="tabler:wifi-off" class="size-6! text-muted-foreground" />
         </div>
       </template>
-      <template v-else-if="profilePending">
+      <template v-else-if="lastFm.lastFmProfilePending">
         <div class="flex flex-col items-end justify-around">
           <USkeleton class="h-lh w-32" />
           <UButton
@@ -120,11 +119,11 @@ onMounted(() => refreshAuthStatus())
             Loading...
           </UButton>
         </div>
-        <div class="size-[72px] rounded border border-dashed border-muted"></div>
+        <div class="size-[72px] rounded-sm border border-dashed border-muted"></div>
       </template>
-      <template v-else-if="profile">
+      <template v-else-if="lastFm.lastFmProfile">
         <div class="flex flex-col items-end justify-around">
-          <p>Signed in as <span class="font-bold">{{ authStatus }}</span></p>
+          <p>Signed in as <span class="font-bold">{{ lastFm.authStatus }}</span></p>
           <UButton
             class="w-fit"
             variant="danger"
@@ -134,11 +133,11 @@ onMounted(() => refreshAuthStatus())
           </UButton>
         </div>
         <img
-          :src="getLastFmImage(profile.image, 3) ?? ''"
+          :src="getLastFmImage(lastFm.lastFmProfile.image, 3) ?? ''"
           alt=""
           width="72"
           height="72"
-          class="rounded"
+          class="rounded-sm"
         >
       </template>
       <template v-else>
@@ -169,7 +168,7 @@ onMounted(() => refreshAuthStatus())
             </UAlertDialogContent>
           </UAlertDialogRoot>
         </div>
-        <div class="size-[72px] rounded border border-dashed border-muted"/>
+        <div class="size-[72px] rounded-sm border border-dashed border-muted" />
       </template>
     </div>
   </WindowSettingsContentTabLayout>
