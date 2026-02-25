@@ -8,6 +8,7 @@ const offlineScrobbleCache = new LazyStore('lastfm-offline-scrobbles.json', {
 })
 
 export const useLastFm = defineStore('lastfm', () => {
+  const { emitMessage } = useConsole()
   const { isOnline } = useNetwork()
   const settings = useSettings()
 
@@ -49,6 +50,11 @@ export const useLastFm = defineStore('lastfm', () => {
       if (scrobbles && scrobbles.length > 0) {
         try {
           await $invoke(commands.processOfflineScrobbles, scrobbles)
+          emitMessage({
+            source: 'LastFm',
+            text: `Processed ${scrobbles.length} offline scrobbles`,
+            type: 'log',
+          })
         }
         catch {
           emitError({ data: `Failed to process offline scrobbles. Your ${scrobbles.length} ${checkPlural(scrobbles.length, 'cached scrobbles')} can be manually processed in settings`, type: 'LastFm' })
@@ -77,12 +83,17 @@ export const useLastFm = defineStore('lastfm', () => {
   }
 
   const updateNowPlaying = useDebounceFn(async (track: TrackListEntry, duration: number) => {
-    if (!settings.lastFm.doScrobbling || !isOnline.value || !track.valid)
+    if (!settings.lastFm.doScrobbling || !settings.lastFm.doNowPlayingUpdates || !isOnline.value || !track.valid)
       return
 
     const scrobble = getSerializedScrobble(track, duration)
     if (scrobble)
       await $invoke(commands.setNowPlaying, scrobble)
+    emitMessage({
+      source: 'LastFm',
+      text: `Updated now playing status for "${getTrackTitle(track)}"`,
+      type: 'log',
+    })
   }, 2000)
 
   const scrobbleTrack = useDebounceFn(async (track: TrackListEntry, duration: number) => {
@@ -100,8 +111,18 @@ export const useLastFm = defineStore('lastfm', () => {
 
       try {
         await $invoke(commands.scrobbleTrack, scrobble)
+        emitMessage({
+          source: 'LastFm',
+          text: `Scrobbled track "${getTrackTitle(track)}"`,
+          type: 'log',
+        })
       }
       catch {
+        emitMessage({
+          source: 'LastFm',
+          text: `Failed to scrobble track "${getTrackTitle(track)}", adding to offline cache`,
+          type: 'warn',
+        })
         return await addOfflineScrobble({
           scrobble,
           timestamp: Math.floor(Date.now() / 1000),
