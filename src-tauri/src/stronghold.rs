@@ -11,6 +11,9 @@ static STRONGHOLD_INIT: Mutex<bool> = Mutex::const_new(false);
 
 pub async fn load_stronghold(app: &AppHandle<tauri::Wry>) -> Result<State<'_, Stronghold>> {
   let mut init = STRONGHOLD_INIT.lock().await;
+  if *init {
+    return Ok(app.state::<Stronghold>());
+  }
 
   let stronghold = app.app_handle().try_state::<Stronghold>();
 
@@ -48,7 +51,7 @@ pub async fn load_stronghold(app: &AppHandle<tauri::Wry>) -> Result<State<'_, St
       .await
       .map_err(|e| Error::Stronghold(e.to_string()))?
     }
-  };
+  }?;
 
   *init = true;
 
