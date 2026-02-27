@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::borrow::Cow;
 use std::convert::Into;
+use tauri::async_runtime::spawn_blocking;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -51,23 +52,30 @@ pub async fn write_id3_frames(
   target_tag: TagTypeArg,
   args: Vec<FrameArgs>,
 ) -> Result<()> {
-  let version = id3::Version::from(target_tag);
-  let mut tag = get_tag(Cow::Borrowed(file_path.as_str()), Cow::Borrowed(&target_tag))?;
+  return spawn_blocking(move || {
+    let version = id3::Version::from(target_tag);
+    let mut tag = get_tag(
+      Cow::Borrowed(file_path.as_str()),
+      Cow::Borrowed(&target_tag),
+    )?;
 
-  for arg in args {
-    if arg.value.is_empty() {
-      tag.remove(&arg.frame);
-      continue;
+    for arg in args {
+      if arg.value.is_empty() {
+        tag.remove(&arg.frame);
+        continue;
+      }
+
+      tag.set_text(&arg.frame, &arg.value);
     }
 
-    tag.set_text(&arg.frame, &arg.value);
-  }
+    tag
+      .write_to_path(&file_path, version)
+      .map_err(|e| Error::Id3(format!("Failed to write ID3 tag: {}", e)))?;
 
-  tag
-    .write_to_path(&file_path, version)
-    .map_err(|e| Error::Id3(format!("Failed to write ID3 tag: {}", e)))?;
-
-  return Ok(());
+    return Ok(());
+  })
+  .await
+  .map_err(|e| Error::Id3(e.to_string()))?;
 }
 
 fn get_tag<'a>(file_path: Cow<'a, str>, target_tag: Cow<'a, TagTypeArg>) -> Result<Tag> {
