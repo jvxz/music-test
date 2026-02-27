@@ -2,6 +2,7 @@ import { listen } from '@tauri-apps/api/event'
 import { message } from '@tauri-apps/plugin-dialog'
 
 export default defineNuxtPlugin({
+  dependsOn: ['tauri'],
   parallel: true,
   setup: setupNuxtTauriPlugin('main', ({ hook }) => {
     const { emitMessage: emitConsoleMessage } = useConsole()
