@@ -10,7 +10,8 @@
     "metadata-view-settings",
     "player-settings",
     "track-list-settings",
-    "track-list-columns"
+    "track-list-columns",
+    "console-settings"
   ],
   "permissions": [
     "core:window:allow-start-dragging",
