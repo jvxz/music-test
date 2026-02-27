@@ -213,12 +213,7 @@ pub async fn get_lastfm_auth_status(app_handle: AppHandle<tauri::Wry>) -> Result
 #[specta::specta]
 pub async fn get_lastfm_profile(app_handle: AppHandle<tauri::Wry>) -> Result<String> {
   let session_key = get_session_key(app_handle).await?;
-  let (api_key, session_key) = tokio::task::spawn_blocking(move || {
-    let (api_key, _) = get_lastfm_secrets()?;
-    Ok::<_, Error>((api_key, session_key))
-  })
-  .await
-  .map_err(|e| Error::LastFm(e.to_string()))??;
+  let (api_key, _) = get_lastfm_secrets()?;
 
   let url = reqwest::Url::parse_with_params(
     "http://ws.audioscrobbler.com/2.0/?method=user.getinfo&format=json",
