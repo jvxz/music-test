@@ -20,8 +20,4 @@ export const useConsole = defineStore('console', () => {
     consoleMessages,
     emitMessage,
   }
-}, {
-  tauri: {
-    save: false,
-  },
 })

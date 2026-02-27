@@ -6,7 +6,7 @@ export default defineNuxtPlugin({
   setup: async ({ $pinia }) => {
     ($pinia as Pinia).use(createPlugin())
 
-    const stores = [useSettings, useConsole]
+    const stores = [useSettings]
     for (const store of stores) {
       const instance = store()
       await instance.$tauri.start()
