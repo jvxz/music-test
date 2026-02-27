@@ -7,12 +7,12 @@ use id3::ErrorKind;
 use id3::Tag;
 use serde::Serialize;
 use specta::Type;
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fs::read_dir;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::{Arc, LazyLock};
+use tauri::async_runtime::spawn_blocking;
 
 pub type SerializableTagMap = HashMap<String, String>;
 
@@ -35,43 +35,59 @@ pub static TRACK_CACHE: LazyLock<DashMap<String, FileEntry>> = LazyLock::new(Das
 
 #[tauri::command]
 #[specta::specta]
-pub fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>> {
-  if let Some(cached_dir) = FOLDER_CACHE.get(&path) {
-    let paths = cached_dir.value();
-    let file_entries = paths
-      .iter()
-      .map(|path| get_track_data(Cow::Borrowed(path), None))
+pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>> {
+  spawn_blocking(move || {
+    if let Some(cached_dir) = FOLDER_CACHE.get(&path) {
+      let paths = cached_dir.value();
+      let file_entries = paths
+        .iter()
+        .map(|path| get_track_data_core(path.clone(), None))
+        .collect::<Result<Vec<FileEntry>>>()?;
+
+      return Ok(Arc::new(file_entries));
+    };
+
+    let entries = read_dir(&path).map_err(|e| Error::FileSystem(e.to_string()))?;
+
+    let file_entries = entries
+      .filter_map(|result| result.ok())
+      .filter(|dir_entry| dir_entry.path().is_file())
+      .filter(|dir_entry| is_supported(dir_entry.path()))
+      .map(|dir_entry| file_entry_from_path(dir_entry.path()))
       .collect::<Result<Vec<FileEntry>>>()?;
 
-    return Ok(Arc::new(file_entries));
-  };
+    let data = Arc::new(file_entries.clone());
+    let paths = file_entries
+      .iter()
+      .map(|entry| entry.path.clone())
+      .collect::<Vec<String>>();
 
-  let entries = read_dir(&path).map_err(|e| Error::FileSystem(e.to_string()))?;
+    FOLDER_CACHE.insert(path, Arc::new(paths));
 
-  let file_entries = entries
-    .filter_map(|result| result.ok())
-    .filter(|dir_entry| dir_entry.path().is_file())
-    .filter(|dir_entry| is_supported(dir_entry.path()))
-    .map(|dir_entry| file_entry_from_path(dir_entry.path()))
-    .collect::<Result<Vec<FileEntry>>>()?;
-
-  let data = Arc::new(file_entries.clone());
-  let paths = file_entries
-    .iter()
-    .map(|entry| entry.path.clone())
-    .collect::<Vec<String>>();
-
-  FOLDER_CACHE.insert(path, Arc::new(paths));
-
-  return Ok(data);
+    return Ok(data);
+  })
+  .await
+  .map_err(|e| Error::FileSystem(e.to_string()))?
 }
 
 #[tauri::command]
 #[specta::specta]
-pub fn get_folder_track_paths(path: String, deep: Option<bool>) -> Result<Vec<String>> {
-  if !deep.unwrap_or(false) {
-    let paths = read_dir(&path)
-      .map_err(|e| Error::FileSystem(e.to_string()))?
+pub async fn get_folder_track_paths(path: String, deep: Option<bool>) -> Result<Vec<String>> {
+  spawn_blocking(move || {
+    if !deep.unwrap_or(false) {
+      let paths = read_dir(&path)
+        .map_err(|e| Error::FileSystem(e.to_string()))?
+        .filter_map(|entry| entry.ok())
+        .filter(|entry| entry.path().is_file())
+        .filter(|entry| is_supported(entry.path()))
+        .map(|entry| entry.path().to_string_lossy().to_string())
+        .collect::<Vec<String>>();
+
+      return Ok(paths);
+    }
+
+    let paths = jwalk::WalkDir::new(&path)
+      .into_iter()
       .filter_map(|entry| entry.ok())
       .filter(|entry| entry.path().is_file())
       .filter(|entry| is_supported(entry.path()))
@@ -79,49 +95,55 @@ pub fn get_folder_track_paths(path: String, deep: Option<bool>) -> Result<Vec<St
       .collect::<Vec<String>>();
 
     return Ok(paths);
-  }
-
-  let paths = jwalk::WalkDir::new(&path)
-    .into_iter()
-    .filter_map(|entry| entry.ok())
-    .filter(|entry| entry.path().is_file())
-    .filter(|entry| is_supported(entry.path()))
-    .map(|entry| entry.path().to_string_lossy().to_string())
-    .collect::<Vec<String>>();
-
-  return Ok(paths);
+  })
+  .await
+  .map_err(|e| Error::FileSystem(e.to_string()))?
 }
 
 #[tauri::command]
 #[specta::specta]
-pub fn get_canonical_path(path: String) -> Result<String> {
-  std::fs::canonicalize(path)
-    .map(|p| p.to_string_lossy().to_string())
-    .map_err(|e| Error::Other(e.to_string()))
+pub async fn get_canonical_path(path: String) -> Result<String> {
+  spawn_blocking(move || {
+    std::fs::canonicalize(path)
+      .map(|p| p.to_string_lossy().to_string())
+      .map_err(|e| Error::Other(e.to_string()))
+  })
+  .await
+  .map_err(|e| Error::Other(e.to_string()))?
 }
 
 #[tauri::command]
 #[specta::specta]
-pub fn get_tracks_data(paths: Vec<String>) -> Vec<FileEntry> {
-  paths
-    .into_iter()
-    .filter_map(|path| get_track_data(Cow::Owned(path), None).ok())
-    .collect()
+pub async fn get_tracks_data(paths: Vec<String>) -> Result<Vec<FileEntry>> {
+  spawn_blocking(move || {
+    paths
+      .into_iter()
+      .filter_map(|path| get_track_data_core(path, None).ok())
+      .collect()
+  })
+  .await
+  .map_err(|e| Error::FileSystem(e.to_string()))
 }
 
 #[tauri::command]
 #[specta::specta]
-pub fn get_track_data(path_string: Cow<'_, str>, refresh: Option<bool>) -> Result<FileEntry> {
+pub async fn get_track_data(path_string: String, refresh: Option<bool>) -> Result<FileEntry> {
+  spawn_blocking(move || get_track_data_core(path_string, refresh))
+    .await
+    .map_err(|e| Error::FileSystem(e.to_string()))?
+}
+
+fn get_track_data_core(path_string: String, refresh: Option<bool>) -> Result<FileEntry> {
   if !refresh.unwrap_or(false) {
-    if let Some(cached_track) = TRACK_CACHE.get(path_string.as_ref()) {
+    if let Some(cached_track) = TRACK_CACHE.get(&path_string) {
       return Ok(cached_track.value().clone());
     }
   }
 
-  let path = PathBuf::from(path_string.as_ref());
+  let path = PathBuf::from(&path_string);
   let file_entry = file_entry_from_path(path)?;
 
-  TRACK_CACHE.insert(path_string.as_ref().to_string(), file_entry.clone());
+  TRACK_CACHE.insert(path_string, file_entry.clone());
 
   return Ok(file_entry);
 }
