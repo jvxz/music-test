@@ -54,11 +54,21 @@ export interface LayoutElementSettings extends Record<LayoutElementKey, unknown>
     columnFields: TrackListColumn['key'][]
   }
   coverArt: unknown
-  console: unknown
+  console: {
+    messageMono: boolean
+    timestampMono: boolean
+    wrapText: boolean
+    // filterSources: Error['type'][]
+  }
 }
 
 export const defaultLayoutElementSettings = {
-  console: {},
+  console: {
+    // filterSources: [],
+    messageMono: false,
+    timestampMono: true,
+    wrapText: true,
+  },
   coverArt: {},
   libraryView: {
     showFolders: true,
