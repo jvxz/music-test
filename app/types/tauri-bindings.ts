@@ -117,6 +117,14 @@ async getLastfmAuthStatus() : Promise<Result<boolean, Error>> {
     else return { status: "error", error: e  as any };
 }
 },
+async getLastfmProfile() : Promise<Result<string, Error>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_lastfm_profile") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async writeId3Frames(filePath: string, targetTag: TagTypeArg, args: FrameArgs[]) : Promise<Result<null, Error>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("write_id3_frames", { filePath, targetTag, args }) };

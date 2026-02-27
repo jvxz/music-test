@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::AppHandle;
+use tauri_plugin_http::reqwest::{self};
 use tauri_plugin_opener::OpenerExt;
 
 #[derive(Serialize, Clone, Deserialize, Type, Debug)]
@@ -206,6 +207,31 @@ pub async fn remove_lastfm_account(app_handle: AppHandle<tauri::Wry>) -> Result<
 pub async fn get_lastfm_auth_status(app_handle: AppHandle<tauri::Wry>) -> Result<bool> {
   let client = get_lastfm_client(app_handle).await;
   return Ok(client.is_ok());
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn get_lastfm_profile(app_handle: AppHandle<tauri::Wry>) -> Result<String> {
+  let session_key = get_session_key(app_handle).await?;
+  let (api_key, session_key) = tokio::task::spawn_blocking(move || {
+    let (api_key, _) = get_lastfm_secrets()?;
+    Ok::<_, Error>((api_key, session_key))
+  })
+  .await
+  .map_err(|e| Error::LastFm(e.to_string()))??;
+
+  let url = reqwest::Url::parse_with_params(
+    "http://ws.audioscrobbler.com/2.0/?method=user.getinfo&format=json",
+    &[("sk", &session_key), ("api_key", &api_key)],
+  )
+  .map_err(|_| Error::LastFm("failed to parse url when getting lastfm profile".to_string()))?;
+
+  reqwest::get(url)
+    .await
+    .map_err(|_| Error::LastFm("failed to get lastfm profile".to_string()))?
+    .text()
+    .await
+    .map_err(|_| Error::LastFm("failed to get lastfm profile".to_string()))
 }
 
 async fn get_lastfm_client(app_handle: AppHandle<tauri::Wry>) -> Result<Client> {
