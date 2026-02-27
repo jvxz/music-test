@@ -22,19 +22,31 @@ const sourceColorMap: Record<Error['type'], string> = {
     <div
       v-for="message in consoleStore.consoleMessages"
       :key="message.timestamp"
-      class="shrink-0 *:select-auto *:pr-1.5"
+      class="shrink-0 *:pr-1.5 *:select-auto"
     >
-      <span class="font-mono text-muted-foreground">
+      <span
+        class="text-muted-foreground"
+        :class="{
+          'font-mono': $settings.layout.element.console.timestampMono,
+        }"
+      >
         {{ $dayjs(message.timestamp).format('HH:mm') }}
       </span>
       <span
         v-if="message.source"
         class="font-medium"
-        :class="sourceColorMap[message.source]"
+        :class="[sourceColorMap[message.source], {
+          'font-mono': $settings.layout.element.console.messageMono,
+        }]"
       >
         {{ message.source }}
       </span>
-      <span class="text-pretty">
+      <span
+        :class="{
+          'font-mono': $settings.layout.element.console.messageMono,
+          'text-nowrap': !$settings.layout.element.console.wrapText,
+        }"
+      >
         {{ message.text }}
       </span>
     </div>
