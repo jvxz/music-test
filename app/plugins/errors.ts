@@ -4,7 +4,7 @@ import { message } from '@tauri-apps/plugin-dialog'
 export default defineNuxtPlugin({
   dependsOn: ['tauri'],
   parallel: true,
-  setup: setupNuxtTauriPlugin('main', ({ hook }) => {
+  setup: ({ hook }) => {
     const { emitMessage: emitConsoleMessage } = useConsole()
 
     const emitDialog = useThrottleFn(message, 1000)
@@ -47,5 +47,5 @@ export default defineNuxtPlugin({
         })
       }
     })
-  }),
+  },
 })
