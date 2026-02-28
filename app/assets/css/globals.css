@@ -156,6 +156,10 @@
     height: 12px;
   }
 
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
   :focus {
     outline: none;
   }
