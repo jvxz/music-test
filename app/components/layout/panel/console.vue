@@ -15,10 +15,36 @@ const sourceColorMap: Record<Error['type'], string> = {
   Stronghold: 'text-indigo-500',
   Waveform: 'text-red-500',
 }
+
+const container = useTemplateRef<HTMLDivElement>('container')
+let pinnedToBottom = true
+watch(() => consoleStore.consoleMessages.length, async () => {
+  const containerEl = unrefElement(container)
+  if (!containerEl)
+    return
+
+  const lastChild = containerEl.lastElementChild
+  if (!lastChild)
+    return
+
+  await nextTick()
+
+  if (pinnedToBottom)
+    lastChild.scrollIntoView({ block: 'start' })
+})
+
+function handleScroll(event: Event) {
+  const target = event.target as HTMLElement
+  pinnedToBottom = (target.scrollHeight - target.scrollTop - target.clientHeight) <= 10
+}
 </script>
 
 <template>
-  <LayoutPanelLayout class="flex size-full p-2 text-sm">
+  <LayoutPanelLayout
+    ref="container"
+    class="flex size-full p-2 text-sm"
+    @scroll.passive="handleScroll"
+  >
     <div
       v-for="message in consoleStore.consoleMessages"
       :key="message.timestamp"
@@ -30,7 +56,7 @@ const sourceColorMap: Record<Error['type'], string> = {
           'font-mono': $settings.layout.element.console.timestampMono,
         }"
       >
-        {{ $dayjs(message.timestamp).format('HH:mm') }}
+        {{ $dayjs(message.timestamp).format($settings.layout.element.console.timestamp24Hr ? 'HH:mm' : 'hh:mm') }}
       </span>
       <span
         v-if="message.source"
