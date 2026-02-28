@@ -5,6 +5,7 @@ import { getAllWebviewWindows, getCurrentWebviewWindow, WebviewWindow } from '@t
 export function useTauriWindow(label: string, options?: Omit<WebviewOptions, 'x' | 'y' | 'width' | 'height'> & WindowOptions) {
   const settings = useSettings()
   const isHotLoaded = getCurrentWebviewWindow().label === 'main' ? HOT_LOADED_WINDOWS.includes(label) : false
+  const { emitMessage } = useConsole()
 
   const { execute: _createWindow, state: window, ...rest } = useAsyncState(async () => new WebviewWindow(label, $defu(
     options,
@@ -30,6 +31,12 @@ export function useTauriWindow(label: string, options?: Omit<WebviewOptions, 'x'
     }
 
     await _createWindow()
+
+    emitMessage({
+      source: 'Backend',
+      text: `Window "${label}" created`,
+      type: 'log',
+    })
   }
 
   return {

@@ -5,6 +5,7 @@ export function useUserPlaylists() {
   const route = useRoute()
   const { addTracksToLibrary } = useLibrary()
   const { getTrackData } = useTrackData()
+  const { emitMessage } = useConsole()
 
   const { data: playlists, refresh: refreshPlaylistList } = useAsyncData<Selectable<DB['playlists']>[]>('playlists', () => $db().selectFrom('playlists').selectAll().execute(), {
     default: () => [],
@@ -17,24 +18,45 @@ export function useUserPlaylists() {
     }).returningAll().executeTakeFirstOrThrow()
 
     refreshPlaylistList()
+
+    emitMessage({
+      source: 'Sql',
+      text: `Playlist "${opts.name}" created`,
+      type: 'log',
+    })
   }
 
   async function renamePlaylist(playlistId: number, name: string) {
+    const originalName = getPlaylistName(playlistId)
+
     await $db().updateTable('playlists').set({
       name,
     }).where('id', '=', playlistId).execute()
 
     refreshPlaylistList()
     refreshTrackListForType('playlist', String(playlistId))
+
+    emitMessage({
+      source: 'Sql',
+      text: `Playlist "${originalName}" renamed to "${name}"`,
+      type: 'log',
+    })
   }
 
   async function deletePlaylist(playlistId: number) {
+    const playlistName = getPlaylistName(playlistId)
     await $db().deleteFrom('playlists').where('id', '=', playlistId).execute()
 
     if ('id' in route.params && Number(route.params.id) === playlistId)
       router.back()
 
     refreshPlaylistList()
+
+    emitMessage({
+      source: 'Sql',
+      text: `Playlist "${playlistName}" deleted`,
+      type: 'log',
+    })
   }
 
   async function getPlaylistTracks(playlistId: number): Promise<PlaylistEntry[]> {
@@ -100,9 +122,15 @@ export function useUserPlaylists() {
 
     refreshPlaylistList()
     refreshTrackListForType('playlist', String(playlistId))
+
+    const playlistName = getPlaylistName(playlistId)
+    emitMessage({
+      source: 'Sql',
+      text: `${validTracks.length} ${checkPlural(validTracks.length, 'track', 'tracks')} added to playlist "${playlistName}"`,
+      type: 'log',
+    })
   }
 
-  // TODO: allow multiple tracks
   async function removeFromPlaylist(tracks: PlaylistEntry[]) {
     const playlistId = tracks[0]?.playlist_id
 
@@ -129,6 +157,13 @@ export function useUserPlaylists() {
     refreshPlaylistList()
     refreshTrackListForType('playlist', String(playlistId))
     refreshTrackListForType('library')
+
+    const playlistName = getPlaylistName(playlistId)
+    emitMessage({
+      source: 'Sql',
+      text: `${tracks.length} ${checkPlural(tracks.length, 'track', 'tracks')} removed from playlist "${playlistName}"`,
+      type: 'log',
+    })
   }
 
   async function checkPlaylistExists(playlistId: number) {
