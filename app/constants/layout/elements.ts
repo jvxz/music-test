@@ -58,6 +58,7 @@ export interface LayoutElementSettings extends Record<LayoutElementKey, unknown>
     messageMono: boolean
     timestampMono: boolean
     wrapText: boolean
+    timestamp24Hr: boolean
     // filterSources: Error['type'][]
   }
 }
@@ -66,6 +67,7 @@ export const defaultLayoutElementSettings = {
   console: {
     // filterSources: [],
     messageMono: false,
+    timestamp24Hr: false,
     timestampMono: true,
     wrapText: true,
   },

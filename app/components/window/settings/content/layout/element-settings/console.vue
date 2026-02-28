@@ -6,6 +6,8 @@ const monoTokens = ['timestamp', 'message'] as const
   <FormSubtitle>
     Console
   </FormSubtitle>
+  <FormCheckbox v-model:model-value="$settings.layout.element.console.wrapText" label="Wrap text" />
+  <FormCheckbox v-model:model-value="$settings.layout.element.console.timestamp24Hr" label="Use 24-hour format for timestamps" />
   <FormPrimitive label="Use mono font for:" class="pb-2">
     <FormCheckbox
       v-for="token in monoTokens"
@@ -15,5 +17,4 @@ const monoTokens = ['timestamp', 'message'] as const
       :label="upperFirst(token)"
     />
   </FormPrimitive>
-  <FormCheckbox v-model:model-value="$settings.layout.element.console.wrapText" label="Wrap text" />
 </template>
