@@ -86,14 +86,15 @@ export const useLastFm = defineStore('lastfm', () => {
       return
 
     const scrobble = getSerializedScrobble(track, duration)
-    if (scrobble)
+    if (scrobble) {
       await $invoke(commands.setNowPlaying, scrobble)
 
-    emitMessage({
-      source: 'LastFm',
-      text: `Updated now playing status for "${getTrackTitle(track)}"`,
-      type: 'log',
-    })
+      emitMessage({
+        source: 'LastFm',
+        text: `Updated now playing status for "${getTrackTitle(track)}"`,
+        type: 'log',
+      })
+    }
   }, 2000)
 
   const scrobbleTrack = useDebounceFn(async (track: TrackListEntry, duration: number) => {
