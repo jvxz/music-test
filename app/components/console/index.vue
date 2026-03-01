@@ -23,11 +23,11 @@ watch(() => consoleStore.consoleMessages.length, async () => {
   if (!containerEl)
     return
 
+  await nextTick()
+
   const lastChild = containerEl.lastElementChild
   if (!lastChild)
     return
-
-  await nextTick()
 
   if (pinnedToBottom)
     lastChild.scrollIntoView({ block: 'start' })
