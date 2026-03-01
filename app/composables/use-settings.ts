@@ -2,6 +2,11 @@ type SettingsEntryKeyFormat = `${typeof SETTINGS_WINDOW_TABS[number]}`
 
 export interface Settings {
   appearance: {
+    ui: {
+      scale: number
+      spacing: number
+      cornerRadius: number
+    }
     font: {
       name: 'SYSTEM' | (string & {})
       weight: string
@@ -67,6 +72,11 @@ export const DEFAULT_SETTINGS: EnforcedSettingsKeys<Settings> = {
       muted: '#1D1D1D',
       primary: '#5A907C',
       surface: '#0E0E0E',
+    },
+    ui: {
+      cornerRadius: 0.25,
+      scale: 1,
+      spacing: 0.25,
     },
   },
   general: {
