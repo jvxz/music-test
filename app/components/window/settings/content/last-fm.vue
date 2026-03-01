@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { completeAuth, refreshAuthStatus, removeAuth, startAuth } = useLastFm()
+const { completeAuth, removeAuth, startAuth } = useLastFm()
 const lastFm = useLastFm()
 
 const token = shallowRef<string | null>(null)
@@ -7,7 +7,7 @@ const isAuthDialogOpen = shallowRef(false)
 const isCompletingAuth = shallowRef(false)
 
 async function handleStartAuth() {
-  if (isAuthDialogOpen.value || lastFm.authStatus)
+  if (isAuthDialogOpen.value || lastFm.lastFmProfile)
     return
 
   isAuthDialogOpen.value = true
@@ -42,8 +42,6 @@ async function handleCompleteAuth() {
 }
 
 const { isOnline } = useNetwork()
-
-onMounted(() => refreshAuthStatus())
 </script>
 
 <template>
@@ -56,7 +54,7 @@ onMounted(() => refreshAuthStatus())
         <USwitch
           id="doScrobbling"
           v-model="$settings.lastFm.doScrobbling"
-          :disabled="!lastFm.authStatus"
+          :disabled="!lastFm.lastFmProfile"
         />
       </div>
       <div class="flex w-full items-center gap-2">
@@ -66,7 +64,7 @@ onMounted(() => refreshAuthStatus())
         <USwitch
           id="doNowPlayingUpdates"
           v-model="$settings.lastFm.doNowPlayingUpdates"
-          :disabled="!lastFm.authStatus"
+          :disabled="!lastFm.lastFmProfile"
         />
       </div>
       <div class="flex w-full items-center gap-2">
@@ -76,7 +74,7 @@ onMounted(() => refreshAuthStatus())
         <USwitch
           id="doOfflineScrobbling"
           v-model="$settings.lastFm.doOfflineScrobbling"
-          :disabled="!lastFm.authStatus"
+          :disabled="!lastFm.lastFmProfile"
         />
       </div>
     </div>
@@ -123,7 +121,7 @@ onMounted(() => refreshAuthStatus())
       </template>
       <template v-else-if="lastFm.lastFmProfile">
         <div class="flex flex-col items-end justify-around">
-          <p>Signed in as <span class="font-bold">{{ lastFm.authStatus }}</span></p>
+          <p>Signed in as <span class="font-bold">{{ lastFm.lastFmProfile.name }}</span></p>
           <UButton
             class="w-fit"
             variant="danger"

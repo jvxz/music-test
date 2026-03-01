@@ -10,7 +10,9 @@
     "metadata-view-settings",
     "player-settings",
     "track-list-settings",
-    "track-list-columns"
+    "track-list-columns",
+    "console-settings",
+    "console"
   ],
   "permissions": [
     "core:window:allow-start-dragging",
@@ -89,6 +91,7 @@
         }
       ]
     },
-    "system-fonts:default"
+    "system-fonts:default",
+    "http:default"
   ]
 }

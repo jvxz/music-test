@@ -3,24 +3,34 @@ interface LayoutElement {
   label: string
 }
 
-export const layoutPanelElementKeys = ['coverArt', 'libraryView', 'metadataView', 'player', 'trackList'] as const
+export const layoutPanelElementKeys = ['coverArt', 'libraryView', 'metadataView', 'player', 'trackList', 'console'] as const
 
-export const layoutPanelElements: LayoutElement[] = [{
-  key: 'coverArt',
-  label: 'Cover art',
-}, {
-  key: 'libraryView',
-  label: 'Library view',
-}, {
-  key: 'metadataView',
-  label: 'Metadata view',
-}, {
-  key: 'player',
-  label: 'Player',
-}, {
-  key: 'trackList',
-  label: 'Track list',
-}]
+export const layoutPanelElements: LayoutElement[] = [
+  {
+    key: 'coverArt',
+    label: 'Cover art',
+  },
+  {
+    key: 'libraryView',
+    label: 'Library view',
+  },
+  {
+    key: 'metadataView',
+    label: 'Metadata view',
+  },
+  {
+    key: 'player',
+    label: 'Player',
+  },
+  {
+    key: 'trackList',
+    label: 'Track list',
+  },
+  {
+    key: 'console',
+    label: 'Console',
+  },
+]
 
 export interface LayoutElementSettings extends Record<LayoutElementKey, unknown> {
   libraryView: {
@@ -44,9 +54,23 @@ export interface LayoutElementSettings extends Record<LayoutElementKey, unknown>
     columnFields: TrackListColumn['key'][]
   }
   coverArt: unknown
+  console: {
+    messageMono: boolean
+    timestampMono: boolean
+    wrapText: boolean
+    timestamp24Hr: boolean
+    // filterSources: Error['type'][]
+  }
 }
 
 export const defaultLayoutElementSettings = {
+  console: {
+    // filterSources: [],
+    messageMono: false,
+    timestamp24Hr: false,
+    timestampMono: true,
+    wrapText: true,
+  },
   coverArt: {},
   libraryView: {
     showFolders: true,

@@ -23,6 +23,7 @@ const settings = useSettings()
   <DefinePanels>
     <LayoutPanelPlayer v-if="element === 'player'" />
     <LayoutPanelCoverArt v-if="element === 'coverArt'" />
+    <LayoutPanelConsole v-if="element === 'console'" />
     <LayoutPanelMetadata v-if="element === 'metadataView'" />
     <LayoutPanelLibrary v-if="element === 'libraryView'" />
   </DefinePanels>

@@ -8,39 +8,41 @@ const offlineScrobbleCache = new LazyStore('lastfm-offline-scrobbles.json', {
 })
 
 export const useLastFm = defineStore('lastfm', () => {
+  const { emitMessage } = useConsole()
   const { isOnline } = useNetwork()
   const settings = useSettings()
 
-  const { execute: refreshAuthStatus, isLoading: authStatusPending, state: authStatus } = useAsyncState(async () => {
-    const status = await $invoke(commands.getLastfmAuthStatus)
-
-    if (status)
-      return settings.lastFm.username ?? undefined
-  }, undefined, { immediate: false })
-
   const { execute: fetchLastFmProfile, isLoading: lastFmProfilePending, state: lastFmProfile } = useAsyncState(async () => {
-    const username = toValue(authStatus.value)
-    if (!username)
-      return
+    try {
+      const status = await $invoke(commands.getLastfmAuthStatus)
+      if (!status)
+        return
 
-    const res = await $lastfm('user.getInfo', {
-      query: {
-        user: username,
-      },
-    })
+      const profile = await $invoke(commands.getLastfmProfile)
 
-    if (!res.success)
-      return
+      const res = LastFmUserGetInfoResponseSchema.safeParse(JSON.parse(profile))
+      if (!res.success)
+        return
 
-    return res.data.user
+      emitMessage({
+        source: 'LastFm',
+        text: `Logged in as "${res.data.user.name}"`,
+        type: 'log',
+      })
+
+      return res.data.user
+    }
+    catch {
+      return null
+    }
   }, undefined, { immediate: false })
 
-  watch([isOnline, authStatus], async (isOnline) => {
-    await until(authStatusPending).toBe(false)
+  watch(isOnline, async (isOnline) => {
+    await until(lastFmProfilePending).toBe(false)
 
     await fetchLastFmProfile()
 
-    const shouldProcessOfflineScrobbles = settings.lastFm.doScrobbling && authStatus.value
+    const shouldProcessOfflineScrobbles = settings.lastFm.doScrobbling && lastFmProfile.value
     if (!shouldProcessOfflineScrobbles)
       return
 
@@ -49,6 +51,11 @@ export const useLastFm = defineStore('lastfm', () => {
       if (scrobbles && scrobbles.length > 0) {
         try {
           await $invoke(commands.processOfflineScrobbles, scrobbles)
+          emitMessage({
+            source: 'LastFm',
+            text: `Processed ${scrobbles.length} offline scrobbles`,
+            type: 'log',
+          })
         }
         catch {
           emitError({ data: `Failed to process offline scrobbles. Your ${scrobbles.length} ${checkPlural(scrobbles.length, 'cached scrobbles')} can be manually processed in settings`, type: 'LastFm' })
@@ -65,24 +72,29 @@ export const useLastFm = defineStore('lastfm', () => {
   const completeAuth = async (token: string) => {
     const username = await $invoke(commands.completeLastfmAuth, token)
     if (username) {
-      settings.lastFm.username = username
-      await refreshAuthStatus()
+      await fetchLastFmProfile()
       return username
     }
   }
   const removeAuth = async () => {
     await $invoke(commands.removeLastfmAccount)
-    settings.lastFm.username = null
-    await refreshAuthStatus()
+    await fetchLastFmProfile()
   }
 
   const updateNowPlaying = useDebounceFn(async (track: TrackListEntry, duration: number) => {
-    if (!settings.lastFm.doScrobbling || !isOnline.value || !track.valid)
+    if (!settings.lastFm.doScrobbling || !settings.lastFm.doNowPlayingUpdates || !isOnline.value || !track.valid || !lastFmProfile.value)
       return
 
     const scrobble = getSerializedScrobble(track, duration)
-    if (scrobble)
+    if (scrobble) {
       await $invoke(commands.setNowPlaying, scrobble)
+
+      emitMessage({
+        source: 'LastFm',
+        text: `Updated now playing status for "${getTrackTitle(track)}"`,
+        type: 'log',
+      })
+    }
   }, 2000)
 
   const scrobbleTrack = useDebounceFn(async (track: TrackListEntry, duration: number) => {
@@ -100,8 +112,18 @@ export const useLastFm = defineStore('lastfm', () => {
 
       try {
         await $invoke(commands.scrobbleTrack, scrobble)
+        emitMessage({
+          source: 'LastFm',
+          text: `Scrobbled track "${getTrackTitle(track)}"`,
+          type: 'log',
+        })
       }
       catch {
+        emitMessage({
+          source: 'LastFm',
+          text: `Failed to scrobble track "${getTrackTitle(track)}", adding to offline cache`,
+          type: 'warn',
+        })
         return await addOfflineScrobble({
           scrobble,
           timestamp: Math.floor(Date.now() / 1000),
@@ -125,7 +147,7 @@ export const useLastFm = defineStore('lastfm', () => {
   }
 
   async function addOfflineScrobble(scrobble: SerializedOfflineScrobble) {
-    const shouldCacheOfflineScrobbles = settings.lastFm.doOfflineScrobbling && authStatus.value
+    const shouldCacheOfflineScrobbles = settings.lastFm.doOfflineScrobbling && lastFmProfile.value
     if (!shouldCacheOfflineScrobbles)
       return
 
@@ -135,13 +157,10 @@ export const useLastFm = defineStore('lastfm', () => {
   }
 
   return {
-    authStatus,
-    authStatusPending,
     completeAuth,
     fetchLastFmProfile,
     lastFmProfile,
     lastFmProfilePending,
-    refreshAuthStatus,
     removeAuth,
     scrobbleTrack,
     startAuth,
@@ -149,9 +168,7 @@ export const useLastFm = defineStore('lastfm', () => {
   }
 }, {
   tauri: {
-    saveOnChange: true,
-    syncInterval: 300,
-    syncStrategy: 'debounce',
+    save: false,
   },
 })
 

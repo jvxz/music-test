@@ -11,6 +11,7 @@ const instances = new LRUCache<string, Ref<TagMap>>({ max: 8 })
 export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null | undefined>, group?: Group | string & {}) {
   const { refreshTrackData } = useTrackData()
   const { currentTrack, resetPlayback } = usePlayback()
+  const { emitMessage } = useConsole()
 
   const getOriginalTags = () => toValue(originalFile)?.tags
   const getKey = () => toValue(originalFile) ? `${toValue(originalFile)!.path}${group ? `-${group}` : ''}` : null
@@ -99,6 +100,12 @@ export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null
     // todo: make version selectable
     await $invoke(commands.writeId3Frames, file.path, file.primary_tag ?? 'id3v2.4', frames)
     await refreshTrackData(file.path)
+
+    emitMessage({
+      source: 'Id3',
+      text: `Metadata written to ${file.path}`,
+      type: 'log',
+    })
   }
 
   const isValueDirty = createUnrefFn((frame: Id3FrameId) => {
