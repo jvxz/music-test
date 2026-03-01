@@ -126,7 +126,7 @@ export function useUserPlaylists() {
     const playlistName = getPlaylistName(playlistId)
     emitMessage({
       source: 'Sql',
-      text: `${validTracks.length} ${checkPlural(validTracks.length, 'track', 'tracks')} added to playlist "${playlistName}"`,
+      text: `${validTracks.length} ${checkPlural(validTracks.length, 'tracks', 'track')} added to playlist "${playlistName}"`,
       type: 'log',
     })
   }
