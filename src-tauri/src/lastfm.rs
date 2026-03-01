@@ -216,7 +216,7 @@ pub async fn get_lastfm_profile(app_handle: AppHandle<tauri::Wry>) -> Result<Str
   let (api_key, _) = get_lastfm_secrets()?;
 
   let url = reqwest::Url::parse_with_params(
-    "http://ws.audioscrobbler.com/2.0/?method=user.getinfo&format=json",
+    "https://ws.audioscrobbler.com/2.0/?method=user.getinfo&format=json",
     &[("sk", &session_key), ("api_key", &api_key)],
   )
   .map_err(|_| Error::LastFm("failed to parse url when getting lastfm profile".to_string()))?;
