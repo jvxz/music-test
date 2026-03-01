@@ -11,7 +11,8 @@
     "player-settings",
     "track-list-settings",
     "track-list-columns",
-    "console-settings"
+    "console-settings",
+    "console"
   ],
   "permissions": [
     "core:window:allow-start-dragging",
