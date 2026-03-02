@@ -10,14 +10,13 @@ withDefaults(defineProps<{
 
 const { playbackStatus, seekCurrentTrack } = usePlayback()
 
-const isChangingPosition = ref(false)
-const localPosition = ref([playbackStatus.value?.position ?? 0])
+const isChangingPosition = shallowRef(false)
+const localPosition = shallowRef([playbackStatus.value?.position ?? 0])
 
-watch(() => playbackStatus.value?.position, () => {
-  if (isChangingPosition.value || !playbackStatus.value || playbackStatus.value.position === undefined)
+watch(() => playbackStatus.value?.position, (pos) => {
+  if (isChangingPosition.value || pos === undefined)
     return
-
-  localPosition.value = [playbackStatus.value.position]
+  localPosition.value = [pos]
 })
 
 function handlePointer(type: 'up' | 'down') {
@@ -47,11 +46,13 @@ const computedPosition = computed(() => formatDuration(playbackStatus.value?.pos
       {{ computedPosition }} / {{ computedDuration }}
     </p>
     <div class="flex w-full items-center gap-4">
-      <p v-if="showDuration === 'both-sides'" class="text-xs text-muted-foreground">
+      <p
+        v-if="showDuration === 'both-sides'"
+        class="text-xs text-muted-foreground tabular-nums"
+      >
         {{ computedPosition }}
       </p>
       <SliderRoot
-        :key="playbackStatus?.position"
         v-model:model-value="localPosition"
         :max="playbackStatus?.duration ?? 0"
         class="relative flex h-4 w-full grow"
@@ -68,7 +69,10 @@ const computedPosition = computed(() => formatDuration(playbackStatus.value?.pos
           @pointerup="handlePointer('up')"
         />
       </SliderRoot>
-      <p v-if="showDuration === 'both-sides'" class="text-xs text-muted-foreground">
+      <p
+        v-if="showDuration === 'both-sides'"
+        class="text-xs text-muted-foreground tabular-nums"
+      >
         {{ computedDuration }}
       </p>
     </div>
