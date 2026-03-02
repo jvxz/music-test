@@ -22,6 +22,8 @@ export const buttonVariants = cva(
         link: interactiveStyles.variant.link,
         outline: interactiveStyles.variant.outline,
         soft: interactiveStyles.variant.soft,
+        togglable: interactiveStyles.variant.togglable,
+        toggled: interactiveStyles.variant.toggled,
       },
     },
   },

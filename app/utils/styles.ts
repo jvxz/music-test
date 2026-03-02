@@ -16,6 +16,8 @@ const interactiveStyles = {
     outline:
     'hover:bg-muted/90 active:bg-muted/80 border bg-transparent',
     soft: 'text-muted-foreground hover:text-foreground active:text-foreground hover:bg-muted/90 active:bg-muted/80 border bg-card',
+    togglable: 'hover:bg-muted/55 data-drag-over:bg-muted/55 active:bg-muted/40 text-muted-foreground hover:text-foreground active:text-foreground',
+    toggled: 'bg-muted/90 data-drag-over:bg-muted/90 active:bg-muted/75 text-muted-foreground hover:text-foreground active:text-foreground',
   },
 }
 
