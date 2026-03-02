@@ -4,7 +4,6 @@ const { createPlaylist } = useUserPlaylists()
 
 <template>
   <LayoutPanelLayout>
-    <LayoutPanelLibraryActions />
     <UContextMenu>
       <UContextMenuTrigger as-child>
         <LayoutPanelLibraryList />

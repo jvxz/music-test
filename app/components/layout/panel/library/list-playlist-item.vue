@@ -1,6 +1,10 @@
 <script lang="ts" setup>
+import type { HTMLAttributes } from 'vue'
+
 const props = defineProps<{
   playlist: Selectable<DB['playlists']>
+  isSelected: boolean
+  class?: HTMLAttributes['class']
 }>()
 
 const emits = defineEmits<{
@@ -29,6 +33,7 @@ const urlPlaylistId = computed(() => 'id' in route.params ? Number(route.params.
     v-slot="{ submit, edit, isEditing }"
     :default-value="playlist.name"
     activation-mode="dblclick"
+    tabindex="-1"
     @submit="(name) => emits('submitRename', name)"
   >
     <UContextMenu>
@@ -38,10 +43,11 @@ const urlPlaylistId = computed(() => 'id' in route.params ? Number(route.params.
           @drop="handleDrop"
         >
           <UButton
-            variant="ghost"
-            class="group w-full justify-start text-foreground data-drag-over:bg-muted"
-            :class="cn(isEditing ? 'bg-transparent!' : '', urlPlaylistId === playlist.id && 'ghost-button-active')"
-            @click="navigateTo({
+            :variant="isSelected ? 'toggled' : 'togglable'"
+            class="group w-full justify-start text-foreground"
+            :class="cn(isEditing ? 'bg-transparent!' : '', urlPlaylistId === playlist.id && 'ghost-button-active', props.class)"
+            v-bind="$attrs"
+            @click="!isEditing && navigateTo({
               name: 'playlist-id',
               params: {
                 id: playlist.id,
@@ -52,15 +58,16 @@ const urlPlaylistId = computed(() => 'id' in route.params ? Number(route.params.
               <EditablePreview as-child>
                 <span>{{ playlist.name }}</span>
               </EditablePreview>
-              <EditableInput class="-mx-1 bg-card p-1 outline-none" @keydown.enter="submit" />
+              <EditableInput
+                class="w-full bg-card outline-none"
+                @blur="submit"
+                @keydown.enter="submit"
+              />
             </EditableArea>
           </UButton>
         </TauriDragoverProvider>
       </UContextMenuTrigger>
       <UContextMenuContent class="w-52">
-        <UContextMenuLabel class="truncate">
-          {{ playlist.name }}
-        </UContextMenuLabel>
         <UContextMenuItem @click="edit">
           Rename
         </UContextMenuItem>

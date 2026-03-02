@@ -1,19 +1,16 @@
 <script lang="ts" setup>
 defineProps<{
   folder: Selectable<DB['library_folders']>
+  isSelected: boolean
 }>()
-
-const route = useRoute()
-
-const urlFolderPath = computed(() => 'path' in route.params ? decodeURIComponent(route.params.path) : '')
 </script>
 
 <template>
   <UContextMenu>
     <UContextMenuTrigger as-child>
       <UButton
-        variant="ghost"
-        :class="cn('w-full justify-start text-foreground', urlFolderPath === folder.path && 'ghost-button-active')"
+        :variant="isSelected ? 'toggled' : 'togglable'"
+        :class="cn('w-full justify-start text-foreground')"
         @click="navigateTo({
           name: 'folder-path',
           params: {
@@ -27,9 +24,6 @@ const urlFolderPath = computed(() => 'path' in route.params ? decodeURIComponent
       </UButton>
     </UContextMenuTrigger>
     <UContextMenuContent class="w-52">
-      <UContextMenuLabel class="truncate">
-        {{ folder.path }}
-      </UContextMenuLabel>
       <UContextMenuItem @click="() => {}">
         Remove from library
       </UContextMenuItem>
