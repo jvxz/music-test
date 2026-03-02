@@ -65,8 +65,9 @@ function checkMatch() {
 <template>
   <div
     ref="elRef"
-    :class="props.class ? 'contents' : props.class"
+    :class="cn('contents', props.class)"
     v-bind="$attrs"
+    tabindex="-1"
   >
     <RekaSlot :data-drag-over="isOver ? '' : undefined">
       <slot :is-over :drag-meta />
