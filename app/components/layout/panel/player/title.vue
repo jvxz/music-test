@@ -41,7 +41,7 @@ const [DefineMarquee, ReuseMarquee] = createReusableTemplate()
 
   <div
     :data-position="$settings.layout.element.player.titlePosition"
-    class="group flex cursor-default flex-col data-[position=center]:h-9 data-[position=center]:items-center"
+    class="group flex cursor-default self-center justify-center h-full flex-col data-[position=center]:h-9 data-[position=center]:items-center"
     draggable="true"
     @dragstart.prevent="handleDragStart"
   >
