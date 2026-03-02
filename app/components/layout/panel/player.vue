@@ -54,9 +54,6 @@ async function handleDragStart() {
     <div class="flex flex-1 justify-end gap-4">
       <LayoutPanelPlayerVolume class="translate-y-0" />
       <div class="flex items-center gap-2">
-        <UButton variant="ghost" size="icon">
-          <Icon name="tabler:info-circle" class="size-4!" />
-        </UButton>
         <UButton
           variant="ghost"
           size="icon"
