@@ -10,9 +10,9 @@ const themeTokens = ['background', 'border', 'foreground', 'primary', 'surface',
       </FormSubtitle>
       <WindowSettingsContentAppearancePresets />
       <WindowSettingsContentAppearanceColorPicker
-      v-for="token in themeTokens"
-      :key="token"
-      :setting-key="token"
+        v-for="token in themeTokens"
+        :key="token"
+        :setting-key="token"
       />
       <WindowSettingsContentAppearanceUi />
       <WindowSettingsContentAppearanceFont />

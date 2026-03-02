@@ -35,7 +35,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
       v-bind="{ ...$attrs, ...forwarded }"
       :class="cn(
         popoverStyles.content,
-        'relative z-50 max-h-(--reka-select-content-available-height) w-(--reka-select-trigger-width) min-w-[8rem] overflow-hidden p-0 data-[state=open]:slide-in-from-top-2',
+        'relative z-50 max-h-(--reka-select-content-available-height) w-(--reka-select-trigger-width) min-w-32 overflow-hidden p-0 data-[state=open]:slide-in-from-top-2',
         position === 'popper'
           && 'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
         props.class,
