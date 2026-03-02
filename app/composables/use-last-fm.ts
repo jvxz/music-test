@@ -82,7 +82,7 @@ export const useLastFm = defineStore('lastfm', () => {
   }
 
   const updateNowPlaying = useDebounceFn(async (track: TrackListEntry, duration: number) => {
-    if (!settings.lastFm.doScrobbling || !settings.lastFm.doNowPlayingUpdates || !isOnline.value || !track.valid || !lastFmProfile.value)
+    if (!lastFmProfile.value || !settings.lastFm.doScrobbling || !settings.lastFm.doNowPlayingUpdates || !isOnline.value || !track.valid)
       return
 
     const scrobble = getSerializedScrobble(track, duration)
@@ -98,7 +98,7 @@ export const useLastFm = defineStore('lastfm', () => {
   }, 2000)
 
   const scrobbleTrack = useDebounceFn(async (track: TrackListEntry, duration: number) => {
-    if (!settings.lastFm.doScrobbling || !track.valid)
+    if (!lastFmProfile.value || !settings.lastFm.doScrobbling || !track.valid)
       return
 
     const scrobble = getSerializedScrobble(track, duration)
@@ -166,10 +166,6 @@ export const useLastFm = defineStore('lastfm', () => {
     startAuth,
     updateNowPlaying,
   }
-}, {
-  tauri: {
-    save: false,
-  },
 })
 
 const IMAGE_SIZES = {
