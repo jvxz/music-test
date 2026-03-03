@@ -72,13 +72,12 @@ const title = computed(() => {
   <div class="flex h-16 shrink-0 items-center justify-between border-b bg-background px-4">
     <div class="flex flex-col justify-center">
       <div class="flex items-center gap-2">
-        <p :title class="text-md w-md truncate font-medium">
+        <p :title class="max-w-md truncate font-medium">
           {{ title }}
         </p>
         <Icon
           v-if="isFolderInLibrary"
           name="tabler:folder-check"
-          class="size-4"
         />
       </div>
       <USpinner v-if="showSpinner" class="h-[20px]" />
