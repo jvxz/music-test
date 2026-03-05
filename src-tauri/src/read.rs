@@ -9,9 +9,14 @@ use serde::Serialize;
 use specta::Type;
 use std::collections::HashMap;
 use std::fs::read_dir;
+use std::fs::File;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::{Arc, LazyLock};
+use symphonia::core::formats::FormatOptions;
+use symphonia::core::io::MediaSourceStream;
+use symphonia::core::meta::MetadataOptions;
+use symphonia::core::probe::Hint;
 use tauri::async_runtime::spawn_blocking;
 
 pub type SerializableTagMap = HashMap<String, String>;
@@ -28,6 +33,7 @@ pub struct FileEntry {
   pub valid: bool,
   pub primary_tag: Option<TagTypeArg>,
   pub extension: String,
+  pub duration: f64,
 }
 
 pub static FOLDER_CACHE: LazyLock<DashMap<String, Arc<Vec<String>>>> = LazyLock::new(DashMap::new);
@@ -167,6 +173,7 @@ fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
       valid: false,
       primary_tag: None,
       extension: String::new(),
+      duration: -1.0,
     });
   }
 
@@ -174,6 +181,7 @@ fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
   let tag_map = get_tag_map(primary_tag.clone())?;
   let full_uri = build_cover_uri(path.to_string_lossy().as_ref(), "full");
   let thumbnail_uri = build_cover_uri(path.to_string_lossy().as_ref(), "thumbnail");
+  let duration = get_duration(&path)?;
   let name = path
     .file_name()
     .map(|n| n.to_string_lossy().to_string())
@@ -198,6 +206,7 @@ fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
     valid: true,
     primary_tag: get_primary_tag_version(primary_tag),
     extension,
+    duration,
   });
 }
 
@@ -241,6 +250,55 @@ fn get_primary_tag_version(tag: Option<Tag>) -> Option<TagTypeArg> {
     }
     None => None,
   };
+}
+
+fn get_duration(path: impl AsRef<Path>) -> Result<f64> {
+  let path = path.as_ref();
+  let file = File::open(path).map_err(|e| Error::FileSystem(e.to_string()))?;
+  let mss = MediaSourceStream::new(Box::new(file), Default::default());
+
+  let extension = match path.extension().and_then(|ext| ext.to_str()) {
+    Some(ext) => ext,
+    None => return Ok(-1.0),
+  };
+
+  let probe = symphonia::default::get_probe()
+    .format(
+      Hint::new().with_extension(extension),
+      mss,
+      &FormatOptions::default(),
+      &MetadataOptions::default(),
+    )
+    .map_err(|e| Error::Audio(e.to_string()))?;
+
+  let format = probe.format;
+  let track = match format.tracks().first() {
+    Some(track) => track,
+    None => {
+      println!("no track found for path: {}", path.to_string_lossy());
+      return Ok(-1.0);
+    }
+  };
+
+  let time_base = match track.codec_params.time_base {
+    Some(time_base) => time_base,
+    None => {
+      println!("no time_base found for path: {}", path.to_string_lossy());
+      return Ok(-1.0);
+    }
+  };
+
+  match track.codec_params.n_frames {
+    Some(n_frames) => {
+      let duration = (n_frames as f64 * time_base.numer as f64) / time_base.denom as f64;
+
+      return Ok(duration);
+    }
+    None => {
+      println!("no n_frames found for path: {}", path.to_string_lossy());
+      return Ok(-1.0);
+    }
+  }
 }
 
 fn is_supported(path: impl AsRef<Path>) -> bool {
