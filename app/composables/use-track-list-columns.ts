@@ -1,5 +1,3 @@
-import { getAllWebviewWindows } from '@tauri-apps/api/webviewWindow'
-
 type CustomColumnKey = 'CURRENTLY_PLAYING'
 
 export const ALL_TRACK_LIST_COLUMNS: Record<Id3FrameId | CustomColumnKey, TrackListColumn> = $defu(
@@ -60,26 +58,13 @@ export const useTrackListColumns = createSharedComposable(() => {
     8.3333333333,
   ])
 
-  const { execute: createSetDisplayedFieldsWindow, state: setDisplayedFieldsWindow } = useAsyncState(async () => createTauriWindow('track-list-columns', {
-    center: true,
+  const { createWindow: openSetDisplayedFieldsWindow, window: setDisplayedFieldsWindow } = useTauriWindow('track-list-columns', {
     height: 900,
     resizable: import.meta.env.DEV,
     title: 'Set displayed fields',
     url: '/set-displayed-fields',
     width: 800,
-  }), null, { immediate: false })
-
-  async function openSetDisplayedFieldsWindow() {
-    const webviews = await getAllWebviewWindows()
-    const targetWebview = webviews.find(w => w.label === 'track-list-columns')
-
-    if (targetWebview) {
-      targetWebview.setFocus()
-      return
-    }
-
-    createSetDisplayedFieldsWindow()
-  }
+  })
 
   const settings = useSettings()
 
