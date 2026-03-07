@@ -1,3 +1,7 @@
+import { writeM3U } from '@iptv/playlist'
+import { } from '@tauri-apps/api/path'
+import { save } from '@tauri-apps/plugin-dialog'
+import { writeFile } from '@tauri-apps/plugin-fs'
 import { sql } from 'kysely'
 
 export function useUserPlaylists() {
@@ -179,11 +183,57 @@ export function useUserPlaylists() {
     return playlists.value.find(playlist => playlist.id === playlistId)?.name
   }
 
+  const exportPlaylistAsM3u = createUnrefFn(async (playlistId: Selectable<DB['playlists']>['id'], includeInvalid = true) => {
+    let tracks = await getPlaylistTracks(playlistId)
+
+    if (!includeInvalid)
+      tracks = tracks.filter(track => !track.valid)
+
+    const channels = await Promise.all(tracks.map(async (track) => {
+      const { duration } = await getTrackData(track.path)
+
+      const name = track.tags.TPE1 ? `${getTrackTitle(track)} - ${track.tags.TPE1}` : getTrackTitle(track)
+      const url = await $invoke(commands.getCanonicalPath, track.path)
+
+      return {
+        duration: Math.round(duration),
+        name,
+        url,
+      }
+    }))
+
+    const m3u = writeM3U({
+      channels,
+    })
+
+    const playlistName = getPlaylistName(playlistId)
+    const savedPath = await save({
+      defaultPath: `${playlistName}.m3u`,
+      filters: [
+        {
+          extensions: ['.m3u'],
+          name: 'm3u playlist',
+        },
+      ],
+      title: 'Export playlist as M3U',
+    })
+    if (!savedPath)
+      return
+
+    await writeFile(savedPath, new TextEncoder().encode(m3u))
+
+    emitMessage({
+      source: 'FileSystem',
+      text: `Exported playlist "${playlistName}" to ${savedPath}`,
+    })
+  })
+
   return {
     addToPlaylist,
     checkPlaylistExists,
     createPlaylist,
     deletePlaylist,
+    exportPlaylistAsM3u,
     getPlaylistName,
     getPlaylistTracks,
     playlists,
