@@ -6,7 +6,7 @@ const props = defineProps<{
   isLoading: boolean
 }>()
 
-const { deletePlaylist, getPlaylistName } = useUserPlaylists()
+const { deletePlaylist, exportPlaylistAsM3u, getPlaylistName } = useUserPlaylists()
 const { addFolderToLibrary, removeFolderFromLibrary, useFolderInLibrary } = useLibrary()
 const query = useTrackListSearchQuery()
 
@@ -112,6 +112,9 @@ const title = computed(() => {
           <template v-else-if="type === 'playlist'">
             <UDropdownMenuItem @click="deletePlaylist(Number(path))">
               Delete playlist
+            </UDropdownMenuItem>
+            <UDropdownMenuItem @click="exportPlaylistAsM3u(Number(path))">
+              Export playlist as M3U
             </UDropdownMenuItem>
           </template>
           <template v-else-if="type === 'library'">
