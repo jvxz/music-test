@@ -14,7 +14,7 @@ export type TrackListSortOrder = 'Asc' | 'Desc'
 export type TrackListInput = {
   //    ↓ playlist id or folder path
   path: string
-  sortBy: TrackListSortByFrame
+  sortBy?: TrackListSortByFrame
   sortOrder: TrackListSortOrder
   type: TrackListEntryType
 } | {
