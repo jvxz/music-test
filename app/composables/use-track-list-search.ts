@@ -24,7 +24,7 @@ export function useTrackListSearch(entries: Ref<TrackListEntry[]>, input: MaybeR
   function resultsToEntries(results: FuseResult<TrackListEntry>[]): TrackListEntry[] {
     const mappedEntries = results.map(result => result.item)
 
-    return sortTrackList(mappedEntries, toValue(input).sortBy, toValue(input).sortOrder)
+    return sortTrackList(mappedEntries, toValue(input))
   }
 
   return {
