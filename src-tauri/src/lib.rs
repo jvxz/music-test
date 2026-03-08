@@ -1,6 +1,8 @@
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use crate::error::{Error, Result};
 use crate::playback::{AudioHandle, StreamAction, StreamStatus};
+use diesel::r2d2::{ConnectionManager, Pool};
+use diesel::SqliteConnection;
 use rand::TryRngCore;
 use std::io::Write;
 use tauri::{
@@ -16,6 +18,7 @@ use tokio::sync::{mpsc, oneshot};
 
 mod audio;
 mod cover_protocol;
+mod diesel_schema;
 mod error;
 mod hooks;
 mod id3;
@@ -24,6 +27,8 @@ mod playback;
 mod read;
 mod stronghold;
 mod waveform;
+
+pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 
 #[tokio::main]
 #[allow(clippy::expect_used, clippy::unwrap_used)]
@@ -225,6 +230,20 @@ pub async fn run() {
         .title("swim")
         .inner_size(800.0, 600.0)
         .decorations(true);
+
+      // make db pool
+      let db_path = app
+        .path()
+        .app_local_data_dir()
+        .map_err(|e| Error::Backend(format!("Could not resolve app local data path: {}", e)))?
+        .join("swim.db");
+
+      let db = ConnectionManager::<SqliteConnection>::new(format!(
+        "sqlite://{}",
+        db_path.to_string_lossy()
+      ));
+      let db: DbPool = Pool::builder().build(db)?;
+      app.manage(db);
 
       #[cfg(target_os = "macos")]
       {
