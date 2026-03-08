@@ -241,7 +241,7 @@ pub struct PlayCountResponse {
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_play_count(
+pub async fn get_lastfm_play_count(
   app_handle: AppHandle<tauri::Wry>,
   title: String,
   artist: String,

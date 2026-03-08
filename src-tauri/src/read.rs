@@ -278,12 +278,6 @@ fn get_play_count(
   hasher.write(String::as_bytes(&format!("{}{}", title, artist)));
   let id_hash_res = hasher.finish() as u32;
   let id_hash_res = id_hash_res.to_string();
-  if title == "Empty" {
-    println!(
-      "id_hash_res for title: {} artist: {} is: {}",
-      title, artist, id_hash_res
-    );
-  }
 
   let play_count_res: Option<i32> = track_play_count
     .filter(id_hash.eq(&id_hash_res))
