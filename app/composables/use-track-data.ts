@@ -1,4 +1,4 @@
-type CacheEntryKeysToOmit = 'name' | 'filename' | 'tags' | 'thumbnail_uri' | 'full_uri' | 'extension' | 'primary_tag' | 'valid'
+type CacheEntryKeysToOmit = 'name' | 'filename' | 'tags' | 'thumbnail_uri' | 'full_uri' | 'extension' | 'primary_tag' | 'valid' | 'duration' | 'play_count'
 export type TrackListCacheEntry = Prettify<Omit<PlaylistEntry, CacheEntryKeysToOmit> | Omit<FolderEntry, CacheEntryKeysToOmit>>
 
 export const useTrackData = defineStore('track-data', () => {
@@ -67,3 +67,6 @@ export function createTrackListInputKey(input: TrackListInput) {
 
   return `${input.type}-${input.path}-${input.sortBy}-${input.sortOrder}`
 }
+
+if (import.meta.hot)
+  import.meta.hot.accept(acceptHMRUpdate(useTrackData, import.meta.hot))
