@@ -1,4 +1,4 @@
-type CustomColumnKey = 'CURRENTLY_PLAYING'
+type CustomColumnKey = 'CURRENTLY_PLAYING' | 'PLAYLIST_ORDER' | 'PLAY_COUNT'
 
 export const ALL_TRACK_LIST_COLUMNS: Record<Id3FrameId | CustomColumnKey, TrackListColumn> = $defu(
   {
@@ -19,6 +19,23 @@ export const ALL_TRACK_LIST_COLUMNS: Record<Id3FrameId | CustomColumnKey, TrackL
       minSize: 1.5,
       special: true,
     },
+    PLAY_COUNT: {
+      canSort: true,
+      hideLabelInColumn: false,
+      key: 'PLAY_COUNT',
+      label: 'Play count',
+      minSize: 1.5,
+      special: true,
+    },
+    PLAYLIST_ORDER: {
+      canSort: true,
+      hideLabelInColumn: false,
+      key: 'PLAYLIST_ORDER',
+      label: 'Playlist order',
+      maxSize: 1.5,
+      minSize: 1.5,
+      special: true,
+    },
   },
   objectFromEntries(
     objectKeys(ID3_MAP).map(key => [
@@ -29,7 +46,7 @@ export const ALL_TRACK_LIST_COLUMNS: Record<Id3FrameId | CustomColumnKey, TrackL
         key,
         label: ID3_MAP[key],
         minSize: 3,
-      },
+      } satisfies TrackListColumn,
     ]),
   ),
 )
@@ -108,6 +125,7 @@ export const useTrackListColumns = createSharedComposable(() => {
       }
 
       const toSubtract = newColSize / oldColumns.length - remainder
+      // const newLayoutPanelSizes = layoutPanels.value.map((p, i) => i === newColIdx ? newColSize : p - toSubtract + (i > 0 ? i * 0.01 : 0))
       const newLayoutPanelSizes = layoutPanels.value.map((p, i) => i === newColIdx ? newColSize : p - toSubtract)
 
       layoutPanels.set(newLayoutPanelSizes)
