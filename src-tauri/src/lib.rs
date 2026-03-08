@@ -106,6 +106,21 @@ pub async fn run() {
     },
     Migration {
       kind: MigrationKind::Up,
+      description: "create track_play_count table",
+      sql: "
+          CREATE TABLE track_play_count (
+            id_hash TEXT PRIMARY KEY,
+            human_readable_id TEXT NOT NULL,
+            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+            last_updated_from TEXT NOT NULL,
+            play_count INTEGER NOT NULL,
+            UNIQUE (id_hash)
+          );
+    ",
+      version: 6,
+    },
+    Migration {
+      kind: MigrationKind::Up,
       description: "create reorder_after_delete trigger",
       sql: "
           CREATE TRIGGER reorder_after_delete 
@@ -116,7 +131,7 @@ pub async fn run() {
             WHERE playlist_id = OLD.playlist_id AND position > OLD.position;
           END;
     ",
-      version: 6,
+      version: 7,
     },
     Migration {
       kind: MigrationKind::Up,
@@ -132,7 +147,7 @@ pub async fn run() {
               AND track_id = OLD.track_id;
           END;
     ",
-      version: 7,
+      version: 8,
     },
     Migration {
       kind: MigrationKind::Up,
@@ -148,7 +163,7 @@ pub async fn run() {
             DELETE FROM library_tracks WHERE id = OLD.track_id;
           END;
     ",
-      version: 8,
+      version: 9,
     },
   ];
 
