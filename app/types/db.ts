@@ -56,6 +56,14 @@ export interface PlaylistTracks {
   track_id: number;
 }
 
+export interface TrackPlayCount {
+  human_readable_id: string;
+  id_hash: string | null;
+  last_updated: Generated<string | null>;
+  last_updated_from: string;
+  play_count: number;
+}
+
 export interface DB {
   _sqlx_migrations: _SqlxMigrations;
   library_folders: LibraryFolders;
@@ -63,4 +71,5 @@ export interface DB {
   library_tracks_source: LibraryTracksSource;
   playlist_tracks: PlaylistTracks;
   playlists: Playlists;
+  track_play_count: TrackPlayCount;
 }

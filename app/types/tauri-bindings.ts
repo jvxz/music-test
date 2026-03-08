@@ -125,6 +125,14 @@ async getLastfmProfile() : Promise<Result<string, Error>> {
     else return { status: "error", error: e  as any };
 }
 },
+async getPlayCount(title: string, artist: string, username: string) : Promise<Result<PlayCountResponse, Error>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_play_count", { title, artist, username }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async writeId3Frames(filePath: string, targetTag: TagTypeArg, args: FrameArgs[]) : Promise<Result<null, Error>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("write_id3_frames", { filePath, targetTag, args }) };
@@ -146,14 +154,16 @@ async writeId3Frames(filePath: string, targetTag: TagTypeArg, args: FrameArgs[])
 /** user-defined types **/
 
 export type Error = { type: "Audio"; data: string } | { type: "Backend"; data: string } | { type: "Id3"; data: string } | { type: "FileSystem"; data: string } | { type: "LastFm"; data: string } | { type: "Waveform"; data: string } | { type: "Sql"; data: string } | { type: "Store"; data: string } | { type: "Stronghold"; data: string } | { type: "Other"; data: string }
-export type FileEntry = { path: string; name: string; filename: string; tags: Partial<{ [key in string]: string }>; thumbnail_uri: string; full_uri: string; is_playlist_track: boolean; valid: boolean; primary_tag: TagTypeArg | null; extension: string; duration: number }
+export type FileEntry = { path: string; name: string; filename: string; tags: Partial<{ [key in string]: string }>; thumbnail_uri: string; full_uri: string; is_playlist_track: boolean; valid: boolean; primary_tag: TagTypeArg | null; extension: string; duration: number; play_count: number }
 export type FrameArgs = { frame: string; value: string }
+export type PlayCountResponse = { track: Track }
 export type SerializedOfflineScrobble = { scrobble: SerializedScrobble; timestamp: number }
 export type SerializedScrobble = { artist: string; track: string; album: string | null; track_number: number | null; duration: number; album_artist: string | null }
 export type SerializedScrobbleResponse = { accepted: number; ignored: number }
 export type StreamAction = { Play: string } | "Pause" | "Resume" | { Seek: number } | { SetLoop: boolean } | { SetVolume: number } | "ToggleMute" | "Reset"
 export type StreamStatus = { is_playing: boolean; position: number; duration: number; is_looping: boolean; path: string | null; volume: number; is_muted: boolean }
 export type TagTypeArg = "id3v2.2" | "id3v2.3" | "id3v2.4"
+export type Track = { playcount: string }
 
 /** tauri-specta globals **/
 
