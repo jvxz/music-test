@@ -7,7 +7,10 @@ export type FolderEntry = Prettify<FileEntry & {
 
 export type TrackListEntry = PlaylistEntry | FolderEntry
 
-export type TrackListSortByFrame = keyof typeof ID3_MAP
+export type TrackListSortByFrame = {
+  [K in keyof typeof ALL_TRACK_LIST_COLUMNS]: typeof ALL_TRACK_LIST_COLUMNS[K]['key']
+}[keyof typeof ALL_TRACK_LIST_COLUMNS]
+
 export type TrackListEntryType = 'folder' | 'playlist' | 'library'
 export type TrackListSortOrder = 'Asc' | 'Desc'
 
