@@ -57,7 +57,6 @@ export interface PlaylistTracks {
 }
 
 export interface TrackPlayCount {
-  human_readable_id: string;
   id_hash: string | null;
   last_updated: Generated<string | null>;
   last_updated_from: string;

@@ -125,9 +125,9 @@ async getLastfmProfile() : Promise<Result<string, Error>> {
     else return { status: "error", error: e  as any };
 }
 },
-async getPlayCount(title: string, artist: string, username: string) : Promise<Result<PlayCountResponse, Error>> {
+async getLastfmPlayCount(title: string, artist: string, username: string) : Promise<Result<PlayCountResponse | null, Error>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("get_play_count", { title, artist, username }) };
+    return { status: "ok", data: await TAURI_INVOKE("get_lastfm_play_count", { title, artist, username }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
