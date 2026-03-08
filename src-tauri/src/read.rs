@@ -2,6 +2,7 @@ use crate::diesel_schema::track_play_count::dsl::*;
 use crate::error::Error;
 use crate::error::Result;
 use crate::id3::TagTypeArg;
+use crate::utils::get_track_identity_key;
 use crate::DbPool;
 use dashmap::DashMap;
 use diesel::query_dsl::methods::FilterDsl;
@@ -17,7 +18,6 @@ use specta::Type;
 use std::collections::HashMap;
 use std::fs::read_dir;
 use std::fs::File;
-use std::hash::Hasher;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::{Arc, LazyLock};
@@ -28,8 +28,6 @@ use symphonia::core::probe::Hint;
 use tauri::async_runtime::spawn_blocking;
 use tauri::AppHandle;
 use tauri::Manager;
-
-const XXHASH_SEED: u32 = 0x23232323;
 
 pub type SerializableTagMap = HashMap<String, String>;
 
@@ -273,11 +271,7 @@ fn get_play_count(
     None => return Ok(None),
   };
 
-  let mut hasher = twox_hash::XxHash32::with_seed(XXHASH_SEED);
-
-  hasher.write(String::as_bytes(&format!("{}{}", title, artist)));
-  let id_hash_res = hasher.finish() as u32;
-  let id_hash_res = id_hash_res.to_string();
+  let id_hash_res = get_track_identity_key(Some(title), Some(artist));
 
   let play_count_res: Option<i32> = track_play_count
     .filter(id_hash.eq(&id_hash_res))

@@ -246,7 +246,7 @@ pub async fn get_lastfm_play_count(
   title: String,
   artist: String,
   username: String,
-) -> Result<PlayCountResponse> {
+) -> Result<Option<PlayCountResponse>> {
   let session_key = get_session_key(app_handle).await?;
   let (api_key, _) = get_lastfm_secrets()?;
 
@@ -262,17 +262,12 @@ pub async fn get_lastfm_play_count(
   )
   .map_err(|_| Error::LastFm("failed to parse url when getting play count".to_string()))?;
 
-  return reqwest::get(url)
+  let res = reqwest::get(url)
     .await
-    .map_err(|e| Error::LastFm(format!("failed to get play count: {}", e)))?
-    .json::<PlayCountResponse>()
-    .await
-    .map_err(|e| {
-      Error::LastFm(format!(
-        "failed to parse last.fm play count response: {}",
-        e
-      ))
-    });
+    .map_err(|e| Error::LastFm(format!("failed to get play count: {}", e)))?;
+
+  let play_count = res.json::<PlayCountResponse>().await.ok();
+  return Ok(play_count);
 }
 
 async fn get_lastfm_client(app_handle: AppHandle<tauri::Wry>) -> Result<Client> {

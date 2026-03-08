@@ -26,6 +26,7 @@ mod lastfm;
 mod playback;
 mod read;
 mod stronghold;
+mod utils;
 mod waveform;
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
@@ -115,7 +116,6 @@ pub async fn run() {
       sql: "
           CREATE TABLE track_play_count (
             id_hash TEXT PRIMARY KEY,
-            human_readable_id TEXT NOT NULL,
             last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
             last_updated_from TEXT NOT NULL,
             play_count INTEGER NOT NULL,
@@ -188,7 +188,7 @@ pub async fn run() {
     lastfm::set_now_playing,
     lastfm::get_lastfm_auth_status,
     lastfm::get_lastfm_profile,
-    lastfm::get_play_count,
+    lastfm::get_lastfm_play_count,
     id3::write_id3_frames,
   ]);
 
