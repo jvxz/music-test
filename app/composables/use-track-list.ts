@@ -51,7 +51,7 @@ export function useTrackList() {
       const fullTracks = refs.map((ref) => {
         const fileEntry = trackData.trackCache.get(ref.path)
 
-        return { ...fileEntry, ...ref } as TrackListEntry
+        return { ...ref, ...fileEntry } as TrackListEntry
       })
 
       return fullTracks
