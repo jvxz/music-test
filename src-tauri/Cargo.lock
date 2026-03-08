@@ -6864,7 +6864,6 @@ dependencies = [
  "tauri-specta",
  "thiserror 2.0.18",
  "tokio",
- "twox-hash",
  "urlencoding",
  "uuid",
 ]
@@ -8408,15 +8407,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2df906b07856748fa3f6e0ad0cbaa047052d4a7dd609e231c4f72cee8c36f31"
 dependencies = [
  "core_maths",
-]
-
-[[package]]
-name = "twox-hash"
-version = "2.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ea3136b675547379c4bd395ca6b938e5ad3c3d20fad76e7fe85f9e0d011419c"
-dependencies = [
- "rand 0.9.2",
 ]
 
 [[package]]
