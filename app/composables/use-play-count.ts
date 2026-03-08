@@ -5,22 +5,31 @@ export const playCountLazyStore = new LazyStore('play-count-cache.json', {
   defaults: {},
 })
 
-export function usePlayCount() {
+export const usePlayCount = createSharedComposable(() => {
   const { lastFmProfile, lastFmProfilePending } = storeToRefs(useLastFm())
   const { refreshTrackData } = useTrackData()
   const { emitMessage } = useConsole()
 
-  const updatePlayCount = useDebounceFn(async (track: TrackListEntry) => {
+  const currentlyUpdatingPlayCount = ref<Set<string>>(new Set())
+
+  const updatePlayCount = useDebounceFn(async (track: TrackListEntry, force: boolean = false) => {
     await until(lastFmProfilePending).toBe(false)
 
-    if (!lastFmProfile.value || !canProcessTrack(track))
+    if (!lastFmProfile.value || !canProcessTrack(track) || track.duration <= 30)
       return null
 
-    const key = await getTrackKey(track)
+    const key = getTrackKey(track)
     if (!key)
       return null
 
-    const playCountRes = await $invoke(commands.getPlayCount, track.tags.TIT2, track.tags.TPE1, lastFmProfile.value.name)
+    currentlyUpdatingPlayCount.value.add(key)
+
+    const playCountRes = await $invoke(commands.getLastfmPlayCount, track.tags.TIT2, track.tags.TPE1, lastFmProfile.value.name)
+    if (!playCountRes) {
+      currentlyUpdatingPlayCount.value.delete(key)
+      return null
+    }
+
     const playCount = Number(playCountRes.track.playcount)
 
     const exists = await $db()
@@ -30,6 +39,18 @@ export function usePlayCount() {
       .executeTakeFirst()
 
     if (exists) {
+      if (!force || (exists.last_updated && (Date.now() - new Date(exists.last_updated).getTime() < 60 * 60 * 1000))) {
+        emitMessage({
+          source: 'LastFm',
+          text: `Play count for track "${getTrackTitle(track)}" has been updated within the last hour, skipping update`,
+          type: 'log',
+        })
+
+        currentlyUpdatingPlayCount.value.delete(key)
+
+        return null
+      }
+
       await $db()
         .updateTable('track_play_count')
         .set({
@@ -42,7 +63,6 @@ export function usePlayCount() {
       await $db()
         .insertInto('track_play_count')
         .values({
-          human_readable_id: track.tags.TPE1 + track.tags.TIT2,
           id_hash: key,
           last_updated_from: 'lastfm',
           play_count: playCount,
@@ -58,22 +78,74 @@ export function usePlayCount() {
       type: 'log',
     })
 
+    currentlyUpdatingPlayCount.value.delete(key)
+
     return playCount
   }, 1000)
+
+  async function incrementPlayCount(track: TrackListEntry) {
+    if (!track.tags.TPE1 || !track.tags.TIT2)
+      return
+
+    const key = getTrackKey(track)
+    if (!key)
+      return
+
+    const exists = await $db()
+      .selectFrom('track_play_count')
+      .where('id_hash', '=', key)
+      .selectAll()
+      .executeTakeFirst()
+
+    if (!exists) {
+      await $db()
+        .insertInto('track_play_count')
+        .values({
+          id_hash: key,
+          last_updated_from: 'local',
+          play_count: 1,
+        })
+        .execute()
+    }
+    else {
+      await $db()
+        .updateTable('track_play_count')
+        .set({
+          play_count: exists.play_count + 1,
+        })
+        .where('id_hash', '=', key)
+        .execute()
+    }
+
+    await refreshTrackData(track.path)
+  }
 
   function canProcessTrack(track: TrackListEntry): track is TrackListEntry & { tags: { TPE1: string, TIT2: string } } {
     return !!(lastFmProfile && track.valid && track.tags.TPE1 && track.tags.TIT2)
   }
 
-  async function getTrackKey(track: TrackListEntry) {
+  function isUpdatingPlayCount(track: TrackListEntry): boolean {
+    const key = getTrackKey(track)
+    if (!key)
+      return false
+
+    return currentlyUpdatingPlayCount.value.has(key)
+  }
+
+  function getTrackKey(track: TrackListEntry): string | null {
     if (!track.tags.TPE1 || !track.tags.TIT2)
       return null
 
-    const hasher = await getHasher()
-    return hasher(new TextEncoder().encode(track.tags.TIT2 + track.tags.TPE1)).toString()
+    const t = track.tags.TIT2.trim().toLowerCase()
+    const a = track.tags.TPE1.trim().toLowerCase()
+
+    return `${t.length}:${t}${a.length}:${a}`
   }
 
   return {
+    currentlyUpdatingPlayCount,
+    incrementPlayCount,
+    isUpdatingPlayCount,
     updatePlayCount,
   }
-}
+})
