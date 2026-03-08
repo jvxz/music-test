@@ -14,6 +14,11 @@ export async function $invoke<T extends Command>(cmd: T, ...args: Parameters<T>)
     return returnValue as UnwrapResult<ReturnType<T>>
 
   if (returnValue.status === 'error') {
+    if (typeof returnValue.error === 'string') {
+      emitError({ data: returnValue.error, type: 'Other' })
+      throw returnValue.error
+    }
+
     emitError(returnValue.error)
     throw returnValue.error
   }
