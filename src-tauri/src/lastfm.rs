@@ -229,6 +229,52 @@ pub async fn get_lastfm_profile(app_handle: AppHandle<tauri::Wry>) -> Result<Str
     .map_err(|_| Error::LastFm("failed to get lastfm profile".to_string()))
 }
 
+#[derive(Serialize, Clone, Deserialize, Type, Debug)]
+pub struct Track {
+  playcount: String,
+}
+
+#[derive(Serialize, Clone, Deserialize, Type, Debug)]
+pub struct PlayCountResponse {
+  track: Track,
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn get_play_count(
+  app_handle: AppHandle<tauri::Wry>,
+  title: String,
+  artist: String,
+  username: String,
+) -> Result<PlayCountResponse> {
+  let session_key = get_session_key(app_handle).await?;
+  let (api_key, _) = get_lastfm_secrets()?;
+
+  let url = reqwest::Url::parse_with_params(
+    "https://ws.audioscrobbler.com/2.0/?method=track.getinfo&format=json",
+    &[
+      ("sk", &session_key),
+      ("api_key", &api_key),
+      ("track", &title),
+      ("artist", &artist),
+      ("username", &username),
+    ],
+  )
+  .map_err(|_| Error::LastFm("failed to parse url when getting play count".to_string()))?;
+
+  return reqwest::get(url)
+    .await
+    .map_err(|e| Error::LastFm(format!("failed to get play count: {}", e)))?
+    .json::<PlayCountResponse>()
+    .await
+    .map_err(|e| {
+      Error::LastFm(format!(
+        "failed to parse last.fm play count response: {}",
+        e
+      ))
+    });
+}
+
 async fn get_lastfm_client(app_handle: AppHandle<tauri::Wry>) -> Result<Client> {
   let session_key = get_session_key(app_handle).await?;
   let (api_key, api_secret) = get_lastfm_secrets().map_err(|_| {

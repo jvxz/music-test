@@ -188,6 +188,7 @@ pub async fn run() {
     lastfm::set_now_playing,
     lastfm::get_lastfm_auth_status,
     lastfm::get_lastfm_profile,
+    lastfm::get_play_count,
     id3::write_id3_frames,
   ]);
 
