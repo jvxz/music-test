@@ -179,7 +179,7 @@ export const usePlayback = createSharedComposable(() => {
       })
 
       await updateNowPlaying(_currentTrackContext.value, _playbackStatus.value.duration)
-      await updatePlayCount(_currentTrackContext.value)
+      updatePlayCount([_currentTrackContext.value])
     }
     else
       _currentTrackContext.value = null

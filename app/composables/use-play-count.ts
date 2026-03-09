@@ -1,8 +1,9 @@
-import { LazyStore } from '@tauri-apps/plugin-store'
+import PQueue from 'p-queue'
 
-export const playCountLazyStore = new LazyStore('play-count-cache.json', {
-  autoSave: 500,
-  defaults: {},
+const queue = new PQueue({
+  concurrency: 1,
+  interval: 1000,
+  timeout: 10000,
 })
 
 export const usePlayCount = createSharedComposable(() => {
@@ -12,76 +13,80 @@ export const usePlayCount = createSharedComposable(() => {
 
   const currentlyUpdatingPlayCount = ref<Set<string>>(new Set())
 
-  const updatePlayCount = useDebounceFn(async (track: TrackListEntry, force: boolean = false) => {
-    await until(lastFmProfilePending).toBe(false)
+  const updatePlayCount = (tracks: TrackListEntry[], force: boolean = false) => {
+    const tasks = tracks.map(track => async () => {
+      await until(lastFmProfilePending).toBe(false)
 
-    if (!lastFmProfile.value || !canProcessTrack(track) || track.duration <= 30)
-      return null
+      if (!lastFmProfile.value || !canProcessTrack(track) || track.duration <= 30)
+        return null
 
-    const key = getTrackKey(track)
-    if (!key)
-      return null
+      const key = getTrackKey(track)
+      if (!key)
+        return null
 
-    currentlyUpdatingPlayCount.value.add(key)
+      currentlyUpdatingPlayCount.value.add(key)
 
-    const playCountRes = await $invoke(commands.getLastfmPlayCount, track.tags.TIT2, track.tags.TPE1, lastFmProfile.value.name)
-    if (!playCountRes) {
-      currentlyUpdatingPlayCount.value.delete(key)
-      return null
-    }
-
-    const playCount = Number(playCountRes.track.playcount)
-
-    const exists = await $db()
-      .selectFrom('track_play_count')
-      .where('id_hash', '=', key)
-      .selectAll()
-      .executeTakeFirst()
-
-    if (exists) {
-      if (!force || (exists.last_updated && (Date.now() - new Date(exists.last_updated).getTime() < 60 * 60 * 1000))) {
-        emitMessage({
-          source: 'LastFm',
-          text: `Play count for track "${getTrackTitle(track)}" has been updated within the last hour, skipping update`,
-          type: 'log',
-        })
-
+      const playCountRes = await $invoke(commands.getLastfmPlayCount, track.tags.TIT2, track.tags.TPE1, lastFmProfile.value.name)
+      if (!playCountRes) {
         currentlyUpdatingPlayCount.value.delete(key)
-
         return null
       }
 
-      await $db()
-        .updateTable('track_play_count')
-        .set({
-          play_count: playCount,
-        })
+      const playCount = Number(playCountRes.track.playcount)
+
+      const exists = await $db()
+        .selectFrom('track_play_count')
         .where('id_hash', '=', key)
-        .execute()
-    }
-    else {
-      await $db()
-        .insertInto('track_play_count')
-        .values({
-          id_hash: key,
-          last_updated_from: 'lastfm',
-          play_count: playCount,
-        })
-        .execute()
-    }
+        .selectAll()
+        .executeTakeFirst()
 
-    await refreshTrackData(track.path)
+      if (exists) {
+        if (!force && exists.last_updated && (Date.now() - new Date(exists.last_updated).getTime() < 60 * 60 * 1000)) {
+          emitMessage({
+            source: 'LastFm',
+            text: `Play count for track "${getTrackTitle(track)}" has been updated within the last hour, skipping update`,
+            type: 'log',
+          })
 
-    emitMessage({
-      source: 'LastFm',
-      text: `Updated play count for track "${getTrackTitle(track)}" to ${playCount}`,
-      type: 'log',
+          currentlyUpdatingPlayCount.value.delete(key)
+
+          return null
+        }
+
+        await $db()
+          .updateTable('track_play_count')
+          .set({
+            play_count: playCount,
+          })
+          .where('id_hash', '=', key)
+          .execute()
+      }
+      else {
+        await $db()
+          .insertInto('track_play_count')
+          .values({
+            id_hash: key,
+            last_updated_from: 'lastfm',
+            play_count: playCount,
+          })
+          .execute()
+      }
+
+      await refreshTrackData(track.path)
+
+      emitMessage({
+        source: 'LastFm',
+        text: `Updated play count for track "${getTrackTitle(track)}" to ${playCount}`,
+        type: 'log',
+      })
+
+      currentlyUpdatingPlayCount.value.delete(key)
+
+      return playCount
     })
 
-    currentlyUpdatingPlayCount.value.delete(key)
-
-    return playCount
-  }, 1000)
+    void queue.addAll(tasks)
+  }
 
   async function incrementPlayCount(track: TrackListEntry) {
     if (!track.tags.TPE1 || !track.tags.TIT2)
