@@ -63,7 +63,6 @@ diesel::table! {
 diesel::table! {
     track_play_count (id_hash) {
         id_hash -> Nullable<Text>,
-        human_readable_id -> Text,
         last_updated -> Nullable<Timestamp>,
         last_updated_from -> Text,
         play_count -> Integer,
