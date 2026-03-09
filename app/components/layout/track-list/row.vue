@@ -80,6 +80,15 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
           class="size-3!"
         />
       </div>
+      <!-- duration column -->
+      <div
+        v-else-if="col.key === 'DURATION'"
+        :class="classes"
+        class="truncate px-1 text-sm duration-150"
+        @dragstart="emits('textDragStart', $event)"
+      >
+        {{ formatDuration(entry.duration, 'seconds') }}
+      </div>
       <!-- play count column -->
       <div
         v-else-if="col.key === 'PLAY_COUNT'"
