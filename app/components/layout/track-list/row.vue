@@ -67,6 +67,16 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
           @dragstart="emits('textDragStart', $event)"
         />
       </template>
+      <!-- TYER column -->
+      <p
+        v-else-if="col.key === 'TYER'"
+        :class="classes"
+        class="truncate px-1 text-sm"
+        :title="getTrackYear(entry, $settings.layout.element.trackList.deriveYearFromTDRC)"
+        @dragstart="emits('textDragStart', $event)"
+      >
+        {{ getTrackYear(entry, $settings.layout.element.trackList.deriveYearFromTDRC) }}
+      </p>
       <!-- playing column -->
       <div
         v-else-if="col.key === 'CURRENTLY_PLAYING'"
