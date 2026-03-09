@@ -2,6 +2,7 @@ const GREATER = 1
 const LESSER = -1
 
 export const sortTrackList = createUnrefFn((trackList: TrackListEntry[], input: TrackListInput) => {
+  const settings = useSettings()
   const isPlaylist = isTrackListPlaylist(trackList)
 
   const sortedTrackList = trackList.toSorted((a, b) => {
@@ -17,6 +18,10 @@ export const sortTrackList = createUnrefFn((trackList: TrackListEntry[], input: 
     if (input.sortBy === 'TIT2') {
       aValue = getTrackTitle(a)
       bValue = getTrackTitle(b)
+    }
+    else if (input.sortBy === 'TYER') {
+      aValue = getTrackYear(a, settings.layout.element.trackList.deriveYearFromTDRC)
+      bValue = getTrackYear(b, settings.layout.element.trackList.deriveYearFromTDRC)
     }
     else if (input.sortBy === 'DURATION') {
       aValue = a.duration.toString()
