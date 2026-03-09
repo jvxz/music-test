@@ -158,7 +158,13 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
         v-slot="{ containerProps, list, wrapperProps }"
         :entries="folderEntries"
       >
-        <div class="h-full cursor-default scrollbar-gutter-stable overflow-y-auto select-none" v-bind="containerProps">
+        <div
+          class="h-full cursor-default overflow-y-auto select-none"
+          v-bind="containerProps"
+          :class="{
+            'scrollbar-gutter-stable': settings.layout.element.trackList.showScrollbarGutter,
+          }"
+        >
           <LayoutTrackListColumns v-bind="props" class="sticky top-0 z-30 h-8" />
           <LayoutTrackListRowContextMenu :entries="contextMenuEntries">
             <div
@@ -201,7 +207,10 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
       </LayoutTrackListVirtualProvider>
       <div
         v-else
-        class="h-full cursor-default scrollbar-gutter-stable overflow-y-auto select-none"
+        class="h-full cursor-default overflow-y-auto select-none"
+        :class="{
+          'scrollbar-gutter-stable': settings.layout.element.trackList.showScrollbarGutter,
+        }"
       >
         <LayoutTrackListColumns v-bind="props" class="sticky top-0 z-30 h-8" />
         <LayoutTrackListRowContextMenu :entries="contextMenuEntries">
