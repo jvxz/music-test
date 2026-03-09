@@ -9,6 +9,8 @@ jobs:
     permissions:
       pull-requests: write
     steps:
+      - name: checkout
+        uses: actions/checkout@v4
       - run: gh pr edit ${{ github.event.pull_request.number }} --add-assignee ${{ github.actor }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
