@@ -79,13 +79,6 @@ const { barStyles, getDragElementProps } = useDraggable(columnFields, container,
           <UContextMenuSubContent class="max-h-64 overflow-x-hidden overflow-y-auto">
             <UContextMenuRadioGroup v-model:model-value="trackListInput.sortBy">
               <UContextMenuRadioItem
-                v-if="trackListInput.type === 'playlist'"
-                value="playlist-order"
-                @click="trackListInput.sortBy = undefined; trackListInput.sortOrder = 'Asc'"
-              >
-                Playlist order
-              </UContextMenuRadioItem>
-              <UContextMenuRadioItem
                 v-for="key in objectKeys(ALL_TRACK_LIST_COLUMNS)"
                 :key="key"
                 :value="key"
