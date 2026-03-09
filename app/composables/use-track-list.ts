@@ -51,7 +51,11 @@ export function useTrackList() {
       const fullTracks = refs.map((ref) => {
         const fileEntry = trackData.trackCache.get(ref.path)
 
-        return { ...fileEntry, ...ref } as TrackListEntry
+        return {
+          ...fileEntry,
+          ...ref,
+          play_count: fileEntry?.play_count,
+        } as TrackListEntry
       })
 
       return fullTracks
@@ -99,7 +103,7 @@ export function useTrackList() {
       }
     }
 
-    const sortedTracks = sortTrackList(tracks, input.sortBy, input.sortOrder)
+    const sortedTracks = sortTrackList(tracks, input)
 
     const entries: TrackListCacheEntry[] = sortedTracks.map((track) => {
       if (track.is_playlist_track) {

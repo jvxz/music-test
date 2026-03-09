@@ -1,6 +1,8 @@
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 use crate::error::{Error, Result};
 use crate::playback::{AudioHandle, StreamAction, StreamStatus};
+use diesel::r2d2::{ConnectionManager, Pool};
+use diesel::SqliteConnection;
 use rand::TryRngCore;
 use std::io::Write;
 use tauri::{
@@ -16,6 +18,7 @@ use tokio::sync::{mpsc, oneshot};
 
 mod audio;
 mod cover_protocol;
+mod diesel_schema;
 mod error;
 mod hooks;
 mod id3;
@@ -23,7 +26,10 @@ mod lastfm;
 mod playback;
 mod read;
 mod stronghold;
+mod utils;
 mod waveform;
+
+pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 
 #[tokio::main]
 #[allow(clippy::expect_used, clippy::unwrap_used)]
@@ -106,6 +112,20 @@ pub async fn run() {
     },
     Migration {
       kind: MigrationKind::Up,
+      description: "create track_play_count table",
+      sql: "
+          CREATE TABLE track_play_count (
+            id_hash TEXT PRIMARY KEY,
+            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+            last_updated_from TEXT NOT NULL,
+            play_count INTEGER NOT NULL,
+            UNIQUE (id_hash)
+          );
+    ",
+      version: 6,
+    },
+    Migration {
+      kind: MigrationKind::Up,
       description: "create reorder_after_delete trigger",
       sql: "
           CREATE TRIGGER reorder_after_delete 
@@ -116,7 +136,7 @@ pub async fn run() {
             WHERE playlist_id = OLD.playlist_id AND position > OLD.position;
           END;
     ",
-      version: 6,
+      version: 7,
     },
     Migration {
       kind: MigrationKind::Up,
@@ -132,7 +152,7 @@ pub async fn run() {
               AND track_id = OLD.track_id;
           END;
     ",
-      version: 7,
+      version: 8,
     },
     Migration {
       kind: MigrationKind::Up,
@@ -148,7 +168,7 @@ pub async fn run() {
             DELETE FROM library_tracks WHERE id = OLD.track_id;
           END;
     ",
-      version: 8,
+      version: 9,
     },
   ];
 
@@ -168,6 +188,7 @@ pub async fn run() {
     lastfm::set_now_playing,
     lastfm::get_lastfm_auth_status,
     lastfm::get_lastfm_profile,
+    lastfm::get_lastfm_play_count,
     id3::write_id3_frames,
   ]);
 
@@ -210,6 +231,20 @@ pub async fn run() {
         .title("swim")
         .inner_size(800.0, 600.0)
         .decorations(true);
+
+      // make db pool
+      let db_path = app
+        .path()
+        .app_local_data_dir()
+        .map_err(|e| Error::Backend(format!("Could not resolve app local data path: {}", e)))?
+        .join("swim.db");
+
+      let db = ConnectionManager::<SqliteConnection>::new(format!(
+        "sqlite://{}",
+        db_path.to_string_lossy()
+      ));
+      let db: DbPool = Pool::builder().build(db)?;
+      app.manage(db);
 
       #[cfg(target_os = "macos")]
       {

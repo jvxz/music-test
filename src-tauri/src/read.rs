@@ -1,7 +1,15 @@
+use crate::diesel_schema::track_play_count::dsl::*;
 use crate::error::Error;
 use crate::error::Result;
 use crate::id3::TagTypeArg;
+use crate::utils::get_track_identity_key;
+use crate::DbPool;
 use dashmap::DashMap;
+use diesel::query_dsl::methods::FilterDsl;
+use diesel::query_dsl::methods::SelectDsl;
+use diesel::ExpressionMethods;
+use diesel::OptionalExtension;
+use diesel::RunQueryDsl;
 use id3::v1v2::read_from_path;
 use id3::ErrorKind;
 use id3::Tag;
@@ -18,6 +26,8 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 use tauri::async_runtime::spawn_blocking;
+use tauri::AppHandle;
+use tauri::Manager;
 
 pub type SerializableTagMap = HashMap<String, String>;
 
@@ -34,6 +44,7 @@ pub struct FileEntry {
   pub primary_tag: Option<TagTypeArg>,
   pub extension: String,
   pub duration: f64,
+  pub play_count: i32,
 }
 
 pub static FOLDER_CACHE: LazyLock<DashMap<String, Arc<Vec<String>>>> = LazyLock::new(DashMap::new);
@@ -41,13 +52,16 @@ pub static TRACK_CACHE: LazyLock<DashMap<String, FileEntry>> = LazyLock::new(Das
 
 #[tauri::command]
 #[specta::specta]
-pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>> {
+pub async fn read_folder(
+  app_handle: AppHandle<tauri::Wry>,
+  path: String,
+) -> Result<Arc<Vec<FileEntry>>> {
   spawn_blocking(move || {
     if let Some(cached_dir) = FOLDER_CACHE.get(&path) {
       let paths = cached_dir.value();
       let file_entries = paths
         .iter()
-        .map(|path| get_track_data_core(path.clone(), None))
+        .map(|path| get_track_data_core(app_handle.clone(), path.clone(), None))
         .collect::<Result<Vec<FileEntry>>>()?;
 
       return Ok(Arc::new(file_entries));
@@ -59,7 +73,7 @@ pub async fn read_folder(path: String) -> Result<Arc<Vec<FileEntry>>> {
       .filter_map(|result| result.ok())
       .filter(|dir_entry| dir_entry.path().is_file())
       .filter(|dir_entry| is_supported(dir_entry.path()))
-      .map(|dir_entry| file_entry_from_path(dir_entry.path()))
+      .map(|dir_entry| file_entry_from_path(app_handle.clone(), dir_entry.path()))
       .collect::<Result<Vec<FileEntry>>>()?;
 
     let data = Arc::new(file_entries.clone());
@@ -120,11 +134,14 @@ pub async fn get_canonical_path(path: String) -> Result<String> {
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_tracks_data(paths: Vec<String>) -> Result<Vec<FileEntry>> {
+pub async fn get_tracks_data(
+  app_handle: AppHandle<tauri::Wry>,
+  paths: Vec<String>,
+) -> Result<Vec<FileEntry>> {
   spawn_blocking(move || {
     paths
       .into_iter()
-      .filter_map(|path| get_track_data_core(path, None).ok())
+      .filter_map(|path| get_track_data_core(app_handle.clone(), path, None).ok())
       .collect()
   })
   .await
@@ -133,13 +150,21 @@ pub async fn get_tracks_data(paths: Vec<String>) -> Result<Vec<FileEntry>> {
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_track_data(path_string: String, refresh: Option<bool>) -> Result<FileEntry> {
-  spawn_blocking(move || get_track_data_core(path_string, refresh))
+pub async fn get_track_data(
+  app_handle: AppHandle<tauri::Wry>,
+  path_string: String,
+  refresh: Option<bool>,
+) -> Result<FileEntry> {
+  spawn_blocking(move || get_track_data_core(app_handle, path_string, refresh))
     .await
     .map_err(|e| Error::FileSystem(e.to_string()))?
 }
 
-fn get_track_data_core(path_string: String, refresh: Option<bool>) -> Result<FileEntry> {
+fn get_track_data_core(
+  app_handle: AppHandle<tauri::Wry>,
+  path_string: String,
+  refresh: Option<bool>,
+) -> Result<FileEntry> {
   if !refresh.unwrap_or(false) {
     if let Some(cached_track) = TRACK_CACHE.get(&path_string) {
       return Ok(cached_track.value().clone());
@@ -147,14 +172,14 @@ fn get_track_data_core(path_string: String, refresh: Option<bool>) -> Result<Fil
   }
 
   let path = PathBuf::from(&path_string);
-  let file_entry = file_entry_from_path(path)?;
+  let file_entry = file_entry_from_path(app_handle, path)?;
 
   TRACK_CACHE.insert(path_string, file_entry.clone());
 
   return Ok(file_entry);
 }
 
-fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
+fn file_entry_from_path(app_handle: AppHandle<tauri::Wry>, path: PathBuf) -> Result<FileEntry> {
   if !path.is_file() {
     return Ok(FileEntry {
       filename: path
@@ -174,6 +199,7 @@ fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
       primary_tag: None,
       extension: String::new(),
       duration: -1.0,
+      play_count: 0,
     });
   }
 
@@ -194,6 +220,7 @@ fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
     .extension()
     .map(|n| n.to_string_lossy().to_string())
     .unwrap_or("Unknown extension".to_string());
+  let play_count_res = get_play_count(app_handle, &tag_map)?;
 
   return Ok(FileEntry {
     filename,
@@ -207,6 +234,7 @@ fn file_entry_from_path(path: PathBuf) -> Result<FileEntry> {
     primary_tag: get_primary_tag_version(primary_tag),
     extension,
     duration,
+    play_count: play_count_res.unwrap_or(-1),
   });
 }
 
@@ -223,6 +251,36 @@ fn get_tag_map(tag: Option<Tag>) -> Result<SerializableTagMap> {
     }
     None => Ok(SerializableTagMap::new()),
   };
+}
+
+fn get_play_count(
+  app_handle: AppHandle<tauri::Wry>,
+  tag_map: &SerializableTagMap,
+) -> Result<Option<i32>> {
+  let mut conn = app_handle
+    .state::<DbPool>()
+    .get()
+    .map_err(|e| Error::LastFm(e.to_string()))?;
+
+  let title = match tag_map.get("TIT2").map(String::as_str) {
+    Some(title) => title,
+    None => return Ok(None),
+  };
+  let artist = match tag_map.get("TPE1").map(String::as_str) {
+    Some(artist) => artist,
+    None => return Ok(None),
+  };
+
+  let id_hash_res = get_track_identity_key(Some(title), Some(artist));
+
+  let play_count_res: Option<i32> = track_play_count
+    .filter(id_hash.eq(&id_hash_res))
+    .select(play_count)
+    .first(&mut conn)
+    .optional()
+    .map_err(|e| Error::LastFm(e.to_string()))?;
+
+  return Ok(play_count_res);
 }
 
 fn get_primary_tag(path: impl AsRef<Path>) -> Result<Option<Tag>> {

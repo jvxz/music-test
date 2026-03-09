@@ -132,6 +132,18 @@ export const useLastFm = defineStore('lastfm', () => {
     }
   }, 2000)
 
+  const getLastFmPlayCount = (track: TrackListEntry) => useAsyncState(async () => {
+    if (!lastFmProfile.value || !track.valid || !track.tags.TPE1 || !track.tags.TIT2)
+      return
+
+    return $invoke(
+      commands.getLastfmPlayCount,
+      track.tags.TIT2,
+      track.tags.TPE1,
+      lastFmProfile.value.name,
+    )
+  }, undefined, { immediate: false })
+
   function getSerializedScrobble(track: TrackListEntry, duration: number) {
     if (!track.valid || !track.tags.TPE1 || !track.tags.TIT2)
       return null
@@ -159,6 +171,7 @@ export const useLastFm = defineStore('lastfm', () => {
   return {
     completeAuth,
     fetchLastFmProfile,
+    getLastFmPlayCount,
     lastFmProfile,
     lastFmProfilePending,
     removeAuth,
@@ -188,3 +201,6 @@ export function getLastFmImage(
   }
   return result[0]?.['#text'] ?? null
 }
+
+if (import.meta.hot)
+  import.meta.hot.accept(acceptHMRUpdate(useLastFm, import.meta.hot))

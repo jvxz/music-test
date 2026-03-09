@@ -1,26 +1,30 @@
 const GREATER = 1
 const LESSER = -1
 
-export const sortTrackList = createUnrefFn((trackList: TrackListEntry[], sortBy: TrackListInput['sortBy'], sortOrder: TrackListInput['sortOrder']) => {
+export const sortTrackList = createUnrefFn((trackList: TrackListEntry[], input: TrackListInput) => {
   const isPlaylist = isTrackListPlaylist(trackList)
 
   const sortedTrackList = trackList.toSorted((a, b) => {
     if (!a.valid || !b.valid)
       return LESSER
 
-    if (!sortBy && isPlaylist)
+    if (!input.sortBy && isPlaylist)
       return (a as PlaylistEntry).position - (b as PlaylistEntry).position
 
     let aValue: string | undefined
     let bValue: string | undefined
 
-    if (sortBy === 'TIT2') {
+    if (input.sortBy === 'TIT2') {
       aValue = getTrackTitle(a)
       bValue = getTrackTitle(b)
     }
+    else if (input.sortBy === 'PLAY_COUNT') {
+      aValue = a.play_count.toString()
+      bValue = b.play_count.toString()
+    }
     else {
-      aValue = a.tags[sortBy ?? 'TIT2']
-      bValue = b.tags[sortBy ?? 'TIT2']
+      aValue = a.tags[input.sortBy ?? 'TIT2']
+      bValue = b.tags[input.sortBy ?? 'TIT2']
     }
 
     if (!Number.isNaN(Number(aValue)) && !Number.isNaN(Number(bValue)))
@@ -36,5 +40,5 @@ export const sortTrackList = createUnrefFn((trackList: TrackListEntry[], sortBy:
     return aValue.localeCompare(bValue)
   })
 
-  return sortOrder === 'Asc' ? sortedTrackList : sortedTrackList.reverse()
+  return input.sortOrder === 'Asc' ? sortedTrackList : sortedTrackList.reverse()
 })

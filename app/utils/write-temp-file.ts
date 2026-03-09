@@ -1,17 +1,7 @@
-import type { XXHashAPI } from 'xxhash-wasm'
 import { join, tempDir } from '@tauri-apps/api/path'
 import { BaseDirectory, exists, writeFile } from '@tauri-apps/plugin-fs'
-import xxhash from 'xxhash-wasm'
 
-let h64Raw: XXHashAPI['h64Raw'] | null = null
 let tempPath: string | null = null
-
-async function getHasher() {
-  if (!h64Raw)
-    h64Raw = (await xxhash()).h64Raw
-
-  return h64Raw
-}
 
 async function getTempPath() {
   if (!tempPath)

@@ -3,6 +3,7 @@ export const usePlayback = createSharedComposable(() => {
   const { scrobbleTrack, updateNowPlaying } = useLastFm()
   const { getTrackData, refreshTrackData, trackCache } = useTrackData()
   const { emitMessage } = useConsole()
+  const { incrementPlayCount, updatePlayCount } = usePlayCount()
 
   // internal
   const _playbackStatus = ref<StreamStatus | null>(prefs.get('playback-status') as StreamStatus | null)
@@ -71,6 +72,7 @@ export const usePlayback = createSharedComposable(() => {
         // await to prevent race condition
         await nextTick()
       }
+      incrementPlayCount(_currentTrackContext.value)
       _playbackStatus.value.position = 0
 
       // if not looping, stop playback & reset current track
@@ -177,6 +179,7 @@ export const usePlayback = createSharedComposable(() => {
       })
 
       await updateNowPlaying(_currentTrackContext.value, _playbackStatus.value.duration)
+      updatePlayCount([_currentTrackContext.value])
     }
     else
       _currentTrackContext.value = null

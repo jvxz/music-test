@@ -4,4 +4,8 @@
     :values="['bordered', 'alternating', 'none']"
     label="Row style"
   />
+  <FormCheckbox
+    v-model:model-value="$settings.layout.element.trackList.showScrollbarGutter"
+    label="Always show scrollbar gutter"
+  />
 </template>

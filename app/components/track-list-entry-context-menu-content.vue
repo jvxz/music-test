@@ -8,6 +8,8 @@ const { entries } = defineProps<{
 
 const { addToPlaylist, playlists, removeFromPlaylist } = useUserPlaylists()
 const trackListInput = useTrackListInput()
+const { updatePlayCount } = usePlayCount()
+const { lastFmProfile, lastFmProfilePending } = useLastFm()
 
 async function handleReveal() {
   if (!entries)
@@ -68,5 +70,15 @@ async function handleRemove() {
     <UContextMenuItem @click="handleReveal">
       Reveal in file explorer
     </UContextMenuItem>
+    <UContextMenuSub>
+      <UContextMenuSubTrigger :disabled="!lastFmProfile || lastFmProfilePending">
+        Last.fm
+      </UContextMenuSubTrigger>
+      <UContextMenuSubContent>
+        <UContextMenuItem @click="updatePlayCount(entries, true)">
+          Force update play count
+        </UContextMenuItem>
+      </UContextMenuSubContent>
+    </UContextMenuSub>
   </UContextMenuContent>
 </template>

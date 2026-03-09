@@ -4,6 +4,7 @@ defineProps<{
   isSelected: boolean
   isPlaying: boolean
   isEven: boolean
+  isUpdatingPlayCount: boolean
   columns: TrackListColumn[]
 }>()
 
@@ -49,22 +50,13 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
       <!-- cover column -->
       <template v-if="col.key === 'APIC'">
         <div
-          v-if="!entry.valid"
+          v-if="!entry.valid || !entry.tags.APIC"
           class="mx-auto justify-center"
           :class="classes"
           @dragstart="emits('textDragStart', $event)"
         >
-          -
+          {{ PLACEHOLDER_CHAR }}
         </div>
-        <div
-          v-else-if="!entry.tags.APIC"
-          class="mx-auto justify-center"
-          :class="classes"
-          @dragstart="emits('textDragStart', $event)"
-        >
-          -
-        </div>
-
         <img
           v-else
           :src="entry.thumbnail_uri"
@@ -88,11 +80,26 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
           class="size-3!"
         />
       </div>
+      <!-- play count column -->
+      <div
+        v-else-if="col.key === 'PLAY_COUNT'"
+        :class="[
+          classes,
+          {
+            'font-medium': entry.play_count === -1,
+            'animate-pulse': isUpdatingPlayCount,
+          },
+        ]"
+        class="truncate px-1 text-sm duration-150"
+        @dragstart="emits('textDragStart', $event)"
+      >
+        {{ entry.play_count === -1 ? PLACEHOLDER_CHAR : entry.play_count }}
+      </div>
       <!-- other columns -->
       <p
         v-else
         :class="classes"
-        class="truncate px-2 text-sm"
+        class="truncate px-1 text-sm"
         :title="getCellContent(entry, col.id3)"
         @dragstart="emits('textDragStart', $event)"
       >

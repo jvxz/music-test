@@ -10,6 +10,7 @@ const keys = useGlobalKeys()
 const { getTrackList } = useTrackList()
 const { playbackStatus, playTrack } = usePlayback()
 const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
+const { isUpdatingPlayCount } = usePlayCount()
 const { checkIsSelected, clearSelectedTracks, editTrackSelection, selectedTrackData } = useTrackSelection()
 const settings = useSettings()
 
@@ -150,20 +151,27 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
       :track-count="folderEntries.length"
       :is-loading="isLoadingPlaylistData"
     />
-    <LayoutTrackListColumns v-bind="props" />
+
     <OnClickOutside @trigger="settings.general.clickOutsideToDeselect ? clearSelectedTracks() : null">
       <LayoutTrackListVirtualProvider
         v-if="shouldVirtualize || forceVirtualize"
         v-slot="{ containerProps, list, wrapperProps }"
         :entries="folderEntries"
       >
-        <div class="h-full cursor-default select-none" v-bind="containerProps">
+        <div
+          class="h-full cursor-default overflow-y-auto select-none"
+          v-bind="containerProps"
+          :class="{
+            'scrollbar-gutter-stable': settings.layout.element.trackList.showScrollbarGutter,
+          }"
+        >
+          <LayoutTrackListColumns v-bind="props" class="sticky top-0 z-30 h-8" />
           <LayoutTrackListRowContextMenu :entries="contextMenuEntries">
             <div
               class="grid h-full"
               v-bind="wrapperProps"
               :style="{
-                gridTemplateColumns: playlistHeaderPercents.map((p) => `${p}%`).join(' '),
+                gridTemplateColumns: playlistHeaderPercents.map((p) => `${p}fr`).join(' '),
                 gridAutoRows: `${TRACK_LIST_ITEM_HEIGHT}px`,
               }"
             >
@@ -177,6 +185,8 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
                   playbackStatus?.path === entry.data.path,
                   entry.data.valid,
                   entry.data.tags,
+                  entry.data.play_count,
+                  isUpdatingPlayCount(entry.data),
                 ]"
                 draggable="true"
                 :entry="entry.data"
@@ -184,6 +194,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
                 :is-selected="checkIsSelected(entry.data)"
                 :is-playing="playbackStatus?.path === entry.data.path"
                 :is-even="entry.index % 2 === 0"
+                :is-updating-play-count="isUpdatingPlayCount(entry.data)"
                 @row-drag-start="handleRowDragStart($event, checkIsSelected(entry.data))"
                 @mousedown.left="handleSelectDragStart(entry.data)"
                 @mouseover="handleDragHoverSelect(entry.data)"
@@ -196,13 +207,18 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
       </LayoutTrackListVirtualProvider>
       <div
         v-else
-        class="h-full overflow-y-auto"
+        class="h-full cursor-default overflow-y-auto select-none"
+        :class="{
+          'scrollbar-gutter-stable': settings.layout.element.trackList.showScrollbarGutter,
+        }"
       >
+        <LayoutTrackListColumns v-bind="props" class="sticky top-0 z-30 h-8" />
         <LayoutTrackListRowContextMenu :entries="contextMenuEntries">
           <div
             class="grid"
             :style="{
-              gridTemplateColumns: playlistHeaderPercents.map((p) => `${p}%`).join(' '),
+              columnGap: '1px',
+              gridTemplateColumns: playlistHeaderPercents.map((p) => `${p}fr`).join(' '),
               gridAutoRows: `${TRACK_LIST_ITEM_HEIGHT}px`,
             }"
           >
@@ -216,6 +232,8 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
                 playbackStatus?.path === entry.path,
                 entry.valid,
                 entry.tags,
+                entry.play_count,
+                isUpdatingPlayCount(entry),
               ]"
               draggable="true"
               :entry="entry"
@@ -223,6 +241,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
               :is-selected="checkIsSelected(entry)"
               :is-playing="playbackStatus?.path === entry.path"
               :is-even="index % 2 === 0"
+              :is-updating-play-count="isUpdatingPlayCount(entry)"
               @row-drag-start="handleRowDragStart($event, checkIsSelected(entry))"
               @mousedown.left="handleSelectDragStart(entry)"
               @mouseover="handleDragHoverSelect(entry)"
@@ -235,3 +254,10 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
     </OnClickOutside>
   </div>
 </template>
+
+<style scoped>
+*::-webkit-scrollbar {
+  width: 15px;
+  height: 15px;
+}
+</style>
