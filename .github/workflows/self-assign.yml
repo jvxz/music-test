@@ -1,0 +1,16 @@
+name: self assign
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  assign:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - run: gh pr edit ${{ github.event.pull_request.number }} --add-assignee ${{ github.actor }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
