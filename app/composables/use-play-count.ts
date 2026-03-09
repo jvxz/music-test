@@ -25,65 +25,68 @@ export const usePlayCount = createSharedComposable(() => {
       if (!key)
         return null
 
-      currentlyUpdatingPlayCount.value.add(key)
+      try {
+        currentlyUpdatingPlayCount.value.add(key)
 
-      const playCountRes = await $invoke(commands.getLastfmPlayCount, track.tags.TIT2, track.tags.TPE1, lastFmProfile.value.name)
-      if (!playCountRes) {
-        currentlyUpdatingPlayCount.value.delete(key)
-        return null
-      }
-
-      const playCount = Number(playCountRes.track.playcount)
-
-      const exists = await $db()
-        .selectFrom('track_play_count')
-        .where('id_hash', '=', key)
-        .selectAll()
-        .executeTakeFirst()
-
-      if (exists) {
-        if (!force && exists.last_updated && (Date.now() - new Date(exists.last_updated).getTime() < 60 * 60 * 1000)) {
-          emitMessage({
-            source: 'LastFm',
-            text: `Play count for track "${getTrackTitle(track)}" has been updated within the last hour, skipping update`,
-            type: 'log',
-          })
-
+        const playCountRes = await $invoke(commands.getLastfmPlayCount, track.tags.TIT2, track.tags.TPE1, lastFmProfile.value.name)
+        if (!playCountRes) {
           currentlyUpdatingPlayCount.value.delete(key)
-
           return null
         }
 
-        await $db()
-          .updateTable('track_play_count')
-          .set({
-            play_count: playCount,
-          })
+        const playCount = Number(playCountRes.track.playcount)
+
+        const exists = await $db()
+          .selectFrom('track_play_count')
           .where('id_hash', '=', key)
-          .execute()
+          .selectAll()
+          .executeTakeFirst()
+
+        if (exists) {
+          if (!force && exists.last_updated && (Date.now() - new Date(exists.last_updated).getTime() < 60 * 60 * 1000)) {
+            emitMessage({
+              source: 'LastFm',
+              text: `Play count for track "${getTrackTitle(track)}" has been updated within the last hour, skipping update`,
+              type: 'log',
+            })
+
+            currentlyUpdatingPlayCount.value.delete(key)
+
+            return null
+          }
+
+          await $db()
+            .updateTable('track_play_count')
+            .set({
+              play_count: playCount,
+            })
+            .where('id_hash', '=', key)
+            .execute()
+        }
+        else {
+          await $db()
+            .insertInto('track_play_count')
+            .values({
+              id_hash: key,
+              last_updated_from: 'lastfm',
+              play_count: playCount,
+            })
+            .execute()
+        }
+
+        await refreshTrackData(track.path)
+
+        emitMessage({
+          source: 'LastFm',
+          text: `Updated play count for track "${getTrackTitle(track)}" to ${playCount}`,
+          type: 'log',
+        })
+
+        return playCount
       }
-      else {
-        await $db()
-          .insertInto('track_play_count')
-          .values({
-            id_hash: key,
-            last_updated_from: 'lastfm',
-            play_count: playCount,
-          })
-          .execute()
+      finally {
+        currentlyUpdatingPlayCount.value.delete(key)
       }
-
-      await refreshTrackData(track.path)
-
-      emitMessage({
-        source: 'LastFm',
-        text: `Updated play count for track "${getTrackTitle(track)}" to ${playCount}`,
-        type: 'log',
-      })
-
-      currentlyUpdatingPlayCount.value.delete(key)
-
-      return playCount
     })
 
     void queue.addAll(tasks)
