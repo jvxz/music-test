@@ -18,6 +18,10 @@ export const sortTrackList = createUnrefFn((trackList: TrackListEntry[], input: 
       aValue = getTrackTitle(a)
       bValue = getTrackTitle(b)
     }
+    else if (input.sortBy === 'DURATION') {
+      aValue = a.duration.toString()
+      bValue = b.duration.toString()
+    }
     else if (input.sortBy === 'PLAY_COUNT') {
       aValue = a.play_count.toString()
       bValue = b.play_count.toString()
