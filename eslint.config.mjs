@@ -21,6 +21,7 @@ export default withNuxt(antfu({
     'antfu/curly': ['off'],
     'better-tailwindcss/enforce-consistent-line-wrapping': 'off',
     'curly': ['warn', 'multi-or-nest'],
+    'no-console': 'warn',
     'node/prefer-global/buffer': 'off',
     'node/prefer-global/process': 'off',
     'perfectionist/sort-objects': 'warn',
