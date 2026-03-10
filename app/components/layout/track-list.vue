@@ -149,7 +149,8 @@ syncRefs(nonVirtualScrollY, scrollY)
 const { scrollStateMap } = useTrackListScrollState()
 const { path } = useRoute()
 onBeforeRouteLeave(() => {
-  scrollStateMap.set(path, scrollY.value)
+  if (settings.layout.element.trackList.persistScroll)
+    scrollStateMap.set(path, scrollY.value)
 })
 
 onMounted(() => {
