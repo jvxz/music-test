@@ -14,7 +14,7 @@
     "generate": "nuxt generate",
     "preinstall": "npx only-allow bun",
     "postinstall": "nuxt prepare",
-    "lint": "eslint . --fix",
+    "lint": "eslint .",
     "bump": "bumpp",
     "tauri": "tauri",
     "dev": "tauri dev",
