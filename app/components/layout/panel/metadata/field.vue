@@ -66,6 +66,7 @@ const isDirty = computed(() => isValueDirty(id3Frame))
         v-model:model-value="proposedChanges[id3Frame]"
         v-no-autocorrect
         style="text-transform: none"
+        @keydown.meta.enter.prevent
       />
       <UInput v-else disabled />
     </template>
