@@ -138,6 +138,28 @@ const columnFieldsKey = computed(() => columnFields.value.map(field => field.key
 
 onKeyStrokeSafe('ctrl_a', () => selectedTrackData.value.entries = folderEntries.value)
 onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
+
+const scrollY = shallowRef(0)
+
+const nonVirtualContainer = useTemplateRef<HTMLDivElement>('nonVirtualContainer')
+const { y: nonVirtualScrollY } = useScroll(nonVirtualContainer, { throttle: 500 })
+
+syncRefs(nonVirtualScrollY, scrollY)
+
+const { scrollStateMap } = useTrackListScrollState()
+const { path } = useRoute()
+onBeforeRouteLeave(() => {
+  scrollStateMap.set(path, scrollY.value)
+})
+
+onMounted(() => {
+  const savedScrollY = scrollStateMap.get(path)
+  if (!savedScrollY)
+    return
+
+  scrollY.value = savedScrollY
+  nonVirtualScrollY.value = savedScrollY
+})
 </script>
 
 <template>
@@ -156,6 +178,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
       <LayoutTrackListVirtualProvider
         v-if="shouldVirtualize || forceVirtualize"
         v-slot="{ containerProps, list, wrapperProps }"
+        v-model:scroll-y="scrollY"
         :entries="folderEntries"
       >
         <div
@@ -207,6 +230,7 @@ onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
       </LayoutTrackListVirtualProvider>
       <div
         v-else
+        ref="nonVirtualContainer"
         class="h-full cursor-default overflow-y-auto select-none"
         :class="{
           'scrollbar-gutter-stable': settings.layout.element.trackList.showScrollbarGutter,
