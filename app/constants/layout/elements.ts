@@ -54,6 +54,7 @@ export interface LayoutElementSettings extends Record<LayoutElementKey, unknown>
     columnFields: TrackListColumn['key'][]
     showScrollbarGutter: boolean
     deriveYearFromTDRC: boolean
+    persistScroll: boolean
   }
   coverArt: unknown
   console: {
@@ -93,6 +94,7 @@ export const defaultLayoutElementSettings = {
   trackList: {
     columnFields: ['APIC', 'CURRENTLY_PLAYING', 'TIT2', 'TPE1', 'TALB', 'TYER', 'TCON', 'TRCK'],
     deriveYearFromTDRC: true,
+    persistScroll: true,
     rowStyle: 'bordered',
     showScrollbarGutter: true,
   },

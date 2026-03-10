@@ -9,6 +9,10 @@
     label="Always show scrollbar gutter"
   />
   <FormCheckbox
+    v-model:model-value="$settings.layout.element.trackList.persistScroll"
+    label="Restore vertical scroll position when returning to track list"
+  />
+  <FormCheckbox
     v-model:model-value="$settings.layout.element.trackList.deriveYearFromTDRC"
     label="Derive year from recording date (TDRC) when no year (TYER) is present"
   />
