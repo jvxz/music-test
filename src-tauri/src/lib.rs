@@ -3,7 +3,7 @@ use crate::error::{Error, Result};
 use crate::playback::{AudioHandle, StreamAction, StreamStatus};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
-use rand::TryRngCore;
+use rand::TryRng;
 use std::io::Write;
 use tauri::{
   menu::{Menu, MenuItem},
