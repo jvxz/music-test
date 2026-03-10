@@ -4,6 +4,15 @@ import withNuxt from './.nuxt/eslint.config.mjs'
 
 export default withNuxt(antfu({
   formatters: true,
+  ignores: [
+    './src-tauri/**',
+    './.output/**',
+    './.nuxt/**',
+    './app/types/tauri-bindings.ts',
+    './app/types/db.ts',
+    './.kysely-codegenrc.json',
+    './app/utils/id3.ts',
+  ],
   plugins: {
     'better-tailwindcss': eslintPluginBetterTailwindcss,
   },
