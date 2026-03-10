@@ -8,7 +8,7 @@ const { openElementWindow } = useLayout()
 
 const form = useTemplateRef<HTMLFormElement>('form')
 const { focused: isFormFocused } = useFocusWithin(form)
-onKeyStrokeSafe('meta_s', () => {
+onKeyStrokeSafe(['meta_s', 'meta_enter'], () => {
   if (isDirty.value && isFormFocused.value)
     commitChanges()
 }, { activeElement: form })
@@ -87,7 +87,7 @@ onKeyStrokeSafe('meta_r', () => {
       </UContextMenuContent>
     </UContextMenu>
 
-    <form class="flex flex-col gap-2 p-4">
+    <form ref="form" class="flex flex-col gap-2 p-4">
       <LayoutPanelMetadataField
         v-for="frame in $settings.layout.element.metadataView.frames"
         :key="frame"
