@@ -154,11 +154,10 @@ onBeforeRouteLeave(() => {
 
 onMounted(() => {
   const savedScrollY = scrollStateMap.get(path)
-  if (!savedScrollY)
-    return
-
-  scrollY.value = savedScrollY
-  nonVirtualScrollY.value = savedScrollY
+  if (savedScrollY && settings.layout.element.trackList.persistScroll) {
+    scrollY.value = savedScrollY
+    nonVirtualScrollY.value = savedScrollY
+  }
 })
 </script>
 
