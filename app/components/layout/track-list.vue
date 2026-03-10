@@ -147,14 +147,14 @@ const { y: nonVirtualScrollY } = useScroll(nonVirtualContainer, { throttle: 500 
 syncRefs(nonVirtualScrollY, scrollY)
 
 const { scrollStateMap } = useTrackListScrollState()
-const { path } = useRoute()
+const { path: routePath } = useRoute()
 onBeforeRouteLeave(() => {
   if (settings.layout.element.trackList.persistScroll)
-    scrollStateMap.set(path, scrollY.value)
+    scrollStateMap.set(routePath, scrollY.value)
 })
 
 onMounted(() => {
-  const savedScrollY = scrollStateMap.get(path)
+  const savedScrollY = scrollStateMap.get(routePath)
   if (savedScrollY && settings.layout.element.trackList.persistScroll) {
     scrollY.value = savedScrollY
     nonVirtualScrollY.value = savedScrollY
