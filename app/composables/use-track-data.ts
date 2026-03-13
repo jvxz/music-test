@@ -24,18 +24,44 @@ export const useTrackData = defineStore('track-data', () => {
   }
 
   async function getTracksData(paths: string[]) {
-    const tracks = await $invoke(commands.getTracksData, paths)
+    const tracks = await $invoke(commands.getTracksData, paths, false)
 
     tracks.forEach(track => trackCache.set(track.path, track))
 
     return tracks
   }
 
-  async function refreshTrackData(path: string) {
+  async function refreshTrackData(path: string[]): Promise<FileEntry[]>
+  async function refreshTrackData(path: string): Promise<FileEntry>
+  async function refreshTrackData(path: string | string[]) {
+    if (Array.isArray(path)) {
+      const tracks = await $invoke(commands.getTracksData, path, true)
+      tracks.forEach(track => trackCache.set(track.path, track))
+      return tracks
+    }
+
     const track = await $invoke(commands.getTrackData, path, true)
     trackCache.set(path, track)
 
     return track
+  }
+
+  function toTrackListEntry(entry: TrackListCacheEntry): TrackListEntry {
+    const track = trackCache.get(entry.path)!
+
+    if (entry.is_playlist_track) {
+      return {
+        ...entry,
+        ...track,
+        is_playlist_track: true as const,
+      }
+    }
+
+    return {
+      ...entry,
+      ...track,
+      is_playlist_track: false as const,
+    }
   }
 
   return {
@@ -43,6 +69,7 @@ export const useTrackData = defineStore('track-data', () => {
     getTrackData,
     getTracksData,
     refreshTrackData,
+    toTrackListEntry,
     trackCache,
     trackListCache,
   }
@@ -60,6 +87,24 @@ export function refreshTrackListForType(type: TrackListInput['type'], path?: str
 
   useTrackListRefresh.trigger({ keys })
 }
+
+// export function toCacheEntry(entry: TrackListEntry): TrackListCacheEntry {
+//   if (entry.is_playlist_track) {
+//     return {
+//       added_at: entry.added_at,
+//       id: entry.id,
+//       is_playlist_track: true as const,
+//       path: entry.path,
+//       playlist_id: entry.playlist_id,
+//       position: entry.position,
+//       track_id: entry.track_id,
+//     }
+//   }
+//   return {
+//     is_playlist_track: entry.is_playlist_track,
+//     path: entry.path,
+//   }
+// }
 
 export function createTrackListInputKey(input: TrackListInput) {
   if (input.type === 'library')
