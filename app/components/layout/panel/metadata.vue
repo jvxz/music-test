@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 const { currentTrack } = usePlayback()
+const { selectedTrackData } = useTrackSelection()
 
-const { commitChanges, isDirty, revertAllChanges } = useMetadata(currentTrack, 'panel')
+const { commitChanges, isCommittingChanges, isDirty, revertAllChanges } = useProvideMetadata(() => selectedTrackData.value.entries)
 
 const id3Tag = computed(() => currentTrack.value?.primary_tag ?? ID3_DEFAULT_TAG)
 const { openElementWindow } = useLayout()
@@ -27,6 +28,7 @@ onKeyStrokeSafe('meta_r', () => {
           <div class="m-1 flex items-center gap-1">
             <UButton
               :disabled="!isDirty"
+              :is-loading="isCommittingChanges"
               variant="ghost"
               size="icon"
               class="size-6 shrink-0"
@@ -39,7 +41,7 @@ onKeyStrokeSafe('meta_r', () => {
               <Icon name="tabler:check" />
             </UButton>
             <UButton
-              :disabled="!isDirty"
+              :disabled="!isDirty || isCommittingChanges"
               variant="ghost"
               size="icon"
               class="size-6 shrink-0"
@@ -87,7 +89,7 @@ onKeyStrokeSafe('meta_r', () => {
       </UContextMenuContent>
     </UContextMenu>
 
-    <form ref="form" class="flex flex-col gap-2 p-4">
+    <form class="flex flex-col gap-2 p-4">
       <LayoutPanelMetadataField
         v-for="frame in $settings.layout.element.metadataView.frames"
         :key="frame"

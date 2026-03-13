@@ -4,7 +4,7 @@ const { id3Frame, track } = defineProps<{
   track: TrackListEntry | null
 }>()
 
-const { isValueDirty, proposedChanges, revertChange } = useMetadata(() => track, 'panel')
+const { isCommittingChanges, isValueDirty, proposedChanges, revertChange } = useMetadataStore()!
 
 const isDirty = computed(() => isValueDirty(id3Frame))
 </script>
@@ -17,6 +17,7 @@ const isDirty = computed(() => isValueDirty(id3Frame))
       </ULabel>
       <UButton
         v-if="isDirty"
+        :disabled="isCommittingChanges"
         tabindex="-1"
         variant="ghost"
         size="icon"
@@ -42,29 +43,12 @@ const isDirty = computed(() => isValueDirty(id3Frame))
       v-else-if="id3Frame === 'COMM'"
       :track
     />
-    <!-- <template v-else-if="['TYER'].includes(id3Frame)">
-      <UNumberFieldRoot>
-        <UNumberFieldInput
-          v-if="track && track.valid"
-          v-model:model-value="proposedChanges[id3Frame]"
-          v-no-autocorrect
-          type="number"
-          style="text-transform: none"
-        />
-      </UNumberFieldRoot>
-      <UInput
-        v-if="track && track.valid"
-        v-model:model-value="proposedChanges[id3Frame]"
-        v-no-autocorrect
-        type="number"
-        style="text-transform: none"
-      />
-    </template> -->
     <template v-else>
       <UInput
         v-if="track && track.valid"
-        v-model:model-value="proposedChanges[id3Frame]"
+        v-model:model-value="proposedChanges.frames[id3Frame]"
         v-no-autocorrect
+        :placeholder="proposedChanges.mixedFrames.has(id3Frame) ? 'Mixed...' : undefined"
         style="text-transform: none"
         @keydown.meta.enter.prevent
       />

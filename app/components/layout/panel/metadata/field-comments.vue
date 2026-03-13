@@ -10,15 +10,16 @@ const textarea = useTemplateRef<HTMLTextAreaElement>('textarea')
 const { height: elHeight } = useElementSize(textarea)
 watchDebounced(elHeight, height => settings.layout.element.metadataView.frameCommHeight = height, { debounce: 200 })
 
-const { proposedChanges } = useMetadata(() => track, 'panel')
+const { proposedChanges } = useMetadataStore()!
 </script>
 
 <template>
   <UTextarea
     v-if="track && track.valid"
     ref="textarea"
-    v-model:model-value="proposedChanges.COMM"
+    v-model:model-value="proposedChanges.frames.COMM"
     v-no-autocorrect
+    :placeholder="proposedChanges.mixedFrames.has('COMM') ? 'Mixed...' : undefined"
     style="text-transform: none"
     :style="{ height: `${height}px` }"
     class="max-h-96 min-h-16 resize-y"

@@ -1,48 +1,71 @@
 import { confirm } from '@tauri-apps/plugin-dialog'
 import isObjEqual from 'fast-deep-equal'
-import { LRUCache } from 'lru-cache'
 
-export type TagMap = Partial<Record<Id3FrameId, string>>
+type TagMap = Partial<Record<Id3FrameId, string>>
 
-type Group = 'panel'
+interface ProposedChanges {
+  mixedFrames: Set<Id3FrameId>
+  frames: Partial<Record<Id3FrameId, string>>
+}
 
-const instances = new LRUCache<string, Ref<TagMap>>({ max: 8 })
+const createFlattenedChanges = createUnrefFn((tracks: TrackListEntry[] | null | undefined) => {
+  const originalTags: TagMap[] | undefined = tracks?.map(t => t.tags)
 
-export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null | undefined>, group?: Group | string & {}) {
+  const newChanges: ProposedChanges = { frames: {}, mixedFrames: new Set() }
+
+  originalTags?.forEach((tagMap, idx) => {
+    const tags = objectEntries(tagMap)
+
+    if (idx === 0)
+      newChanges.frames = { ...tagMap }
+
+    else {
+      tags.forEach(([frame, value]) => {
+        if (newChanges.frames[frame] !== value)
+          newChanges.mixedFrames.add(frame)
+
+        else
+          newChanges.frames[frame] = value
+      })
+    }
+  })
+
+  newChanges.mixedFrames.forEach(frame => delete newChanges.frames[frame])
+
+  return newChanges
+})
+
+export const [useProvideMetadata, useMetadataStore] = createInjectionState((tracks: MaybeRefOrGetter<TrackListEntry[] | null | undefined>) => {
   const { refreshTrackData } = useTrackData()
-  const { currentTrack, resetPlayback } = usePlayback()
-  const { emitMessage } = useConsole()
 
-  const getOriginalTags = () => toValue(originalFile)?.tags
-  const getKey = () => toValue(originalFile) ? `${toValue(originalFile)!.path}${group ? `-${group}` : ''}` : null
-  const getInstance = () => {
-    const key = getKey()
-    if (!key)
-      return ref<TagMap>({})
-
-    const instance = instances.get(key)
-    if (instance)
-      return instance
-
-    const newInstance = ref<TagMap>({ ...getOriginalTags() })
-    instances.set(key, newInstance)
-    return newInstance
-  }
-
+  let baseline: ProposedChanges = { frames: {}, mixedFrames: new Set() }
+  const proposedChangesRef = ref<ProposedChanges>({ frames: {}, mixedFrames: new Set() })
   const proposedChanges = computed({
-    get: () => getInstance().value,
-    set: value => getInstance().value = value,
+    get: () => proposedChangesRef.value,
+    set: (value: Id3FrameId | TrackListEntry[] | null | undefined) => {
+      if (typeof value === 'object')
+        proposedChangesRef.value = createFlattenedChanges(value)
+
+      else if (value)
+        proposedChangesRef.value.frames[value] = value
+    },
   })
 
-  const isDirty = computed(() => !isObjEqual(stripEmptyValues(proposedChanges.value), stripEmptyValues(getOriginalTags() ?? {})))
+  watch(() => toValue(tracks), (v) => {
+    baseline = createFlattenedChanges(v)
+    proposedChangesRef.value = {
+      frames: { ...baseline.frames },
+      mixedFrames: new Set(baseline.mixedFrames),
+    }
+  }, { immediate: true })
 
-  const revertChange = createUnrefFn((frame: Id3FrameId) => {
-    const originalTags = getOriginalTags()
-    if (originalTags === undefined)
-      return
+  const isDirty = computed(() => !isObjEqual(proposedChanges.value, baseline))
 
-    proposedChanges.value[frame] = originalTags[frame] ?? ''
-  })
+  const isValueDirty = createUnrefFn((frame: Id3FrameId) => baseline.frames[frame] !== proposedChanges.value.frames[frame])
+
+  function revertChange(frame: Id3FrameId) {
+    proposedChanges.value.frames[frame] = baseline.frames[frame] ?? ''
+  }
 
   async function revertAllChanges() {
     const confirmation = await confirm('Are you sure you want to revert all changes?', {
@@ -53,10 +76,13 @@ export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null
     if (!confirmation)
       return
 
-    proposedChanges.value = { ...getOriginalTags() }
+    proposedChangesRef.value = { ...baseline }
   }
 
-  async function commitChanges() {
+  const { execute: commitChanges, isLoading: isCommittingChanges } = useAsyncState(async () => {
+    if (!isDirty.value)
+      return
+
     const confirmation = await confirm('Are you sure you want to commit changes?', {
       okLabel: 'Commit',
       title: 'Commit changes',
@@ -65,70 +91,36 @@ export function useMetadata(originalFile: MaybeRefOrGetter<TrackListEntry | null
     if (!confirmation)
       return
 
-    const file = toValue(originalFile)
-    const originalTags = file?.tags
-
-    if (!file || !originalTags)
-      return
-
-    if (!(await exists(file.path))) {
-      return emitError({
-        data: `Unable to write metadata to file ${file.path} - file does not exist`,
-        type: 'FileSystem',
+    const changes = objectEntries(proposedChanges.value.frames).filter(([frame, value]) => value !== '' && value !== baseline.frames[frame])
+    try {
+      for (const track of toValue(tracks) ?? []) {
+        await $invoke(
+          commands.writeId3Frames,
+          track.path,
+          track.primary_tag ?? 'id3v2.4',
+          changes.map(([frame, value]) => ({ frame, value: value ?? '' })),
+        )
+      }
+    }
+    catch {
+      emitError({
+        data: 'Failed to commit changes',
+        type: 'Other',
       })
     }
-
-    if (await isDir(file.path)) {
-      return emitError({
-        data: `Unable to write metadata to file ${file.path} - is a directory`,
-        type: 'FileSystem',
-      })
+    finally {
+      await refreshTrackData(toValue(tracks)?.map(t => t.path) ?? [])
+      proposedChangesRef.value = createFlattenedChanges(toValue(tracks))
     }
-
-    const changes = proposedChanges.value
-
-    if (file?.path === currentTrack.value?.path)
-      await resetPlayback()
-
-    const frames = objectEntries(changes)
-      .filter(([frame, value]) => originalTags[frame] !== value)
-      .map(([frame, value]) => ({
-        frame,
-        value: value ?? '',
-      }))
-
-    // todo: make version selectable
-    await $invoke(commands.writeId3Frames, file.path, file.primary_tag ?? 'id3v2.4', frames)
-    await refreshTrackData(file.path)
-
-    emitMessage({
-      source: 'Id3',
-      text: `Metadata written to ${file.path}`,
-      type: 'log',
-    })
-  }
-
-  const isValueDirty = createUnrefFn((frame: Id3FrameId) => {
-    const originalTags = getOriginalTags()
-    if (originalTags === undefined)
-      return false
-
-    if (proposedChanges.value[frame] === '' && !originalTags[frame])
-      return false
-
-    return proposedChanges.value[frame] !== originalTags[frame]
-  })
+  }, undefined, { immediate: false })
 
   return {
     commitChanges,
+    isCommittingChanges,
     isDirty,
     isValueDirty,
     proposedChanges,
     revertAllChanges,
     revertChange,
   }
-}
-
-function stripEmptyValues(tags: Partial<Record<Id3FrameId, string>>) {
-  return objectFromEntries(objectEntries(tags).filter(([_, value]) => value !== ''))
-}
+})
