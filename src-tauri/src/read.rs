@@ -137,11 +137,12 @@ pub async fn get_canonical_path(path: String) -> Result<String> {
 pub async fn get_tracks_data(
   app_handle: AppHandle<tauri::Wry>,
   paths: Vec<String>,
+  refresh: Option<bool>,
 ) -> Result<Vec<FileEntry>> {
   spawn_blocking(move || {
     paths
       .into_iter()
-      .filter_map(|path| get_track_data_core(app_handle.clone(), path, None).ok())
+      .filter_map(|path| get_track_data_core(app_handle.clone(), path, refresh).ok())
       .collect()
   })
   .await
