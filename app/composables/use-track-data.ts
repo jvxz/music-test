@@ -88,24 +88,6 @@ export function refreshTrackListForType(type: TrackListInput['type'], path?: str
   useTrackListRefresh.trigger({ keys })
 }
 
-// export function toCacheEntry(entry: TrackListEntry): TrackListCacheEntry {
-//   if (entry.is_playlist_track) {
-//     return {
-//       added_at: entry.added_at,
-//       id: entry.id,
-//       is_playlist_track: true as const,
-//       path: entry.path,
-//       playlist_id: entry.playlist_id,
-//       position: entry.position,
-//       track_id: entry.track_id,
-//     }
-//   }
-//   return {
-//     is_playlist_track: entry.is_playlist_track,
-//     path: entry.path,
-//   }
-// }
-
 export function createTrackListInputKey(input: TrackListInput) {
   if (input.type === 'library')
     return `library-${input.sortBy}-${input.sortOrder}`
