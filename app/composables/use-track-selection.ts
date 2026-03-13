@@ -5,9 +5,19 @@ interface SelectedTrackData {
 
 export const useTrackSelection = createSharedComposable(() => {
   const trackListInput = useTrackListInput()
-  const selectedTrackData = ref<SelectedTrackData>({
-    entries: [],
-    selectedFrom: trackListInput.value,
+  const trackData = useTrackData()
+  const selectedTrackDataEntries = ref<TrackListEntry[]>([])
+  const selectedTrackData = computed({
+    get: () => {
+      const entries: TrackListEntry[] = selectedTrackDataEntries.value.map(entry => trackData.toTrackListEntry(entry))
+      return {
+        entries,
+        selectedFrom: trackListInput.value,
+      }
+    },
+    set: (value: SelectedTrackData) => {
+      selectedTrackDataEntries.value = value.entries
+    },
   })
 
   function editTrackSelection(shouldSelect: 'select' | 'deselect', entry: TrackListEntry) {
@@ -17,10 +27,10 @@ export const useTrackSelection = createSharedComposable(() => {
       if (checkIsSelected(entry))
         return
 
-      selectedTrackData.value.entries.push(entryToEdit)
+      selectedTrackDataEntries.value = [...selectedTrackData.value.entries, entryToEdit]
     }
     else {
-      selectedTrackData.value.entries = selectedTrackData.value.entries.filter((entry) => {
+      selectedTrackDataEntries.value = selectedTrackData.value.entries.filter((entry) => {
         if (entry.is_playlist_track && entryToEdit.is_playlist_track)
           return entry.position !== entryToEdit.position
 
@@ -57,5 +67,6 @@ export const useTrackSelection = createSharedComposable(() => {
     clearSelectedTracks,
     editTrackSelection,
     selectedTrackData,
+    selectedTrackDataEntries,
   }
 })
