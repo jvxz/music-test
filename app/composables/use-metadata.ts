@@ -1,5 +1,5 @@
 import { confirm } from '@tauri-apps/plugin-dialog'
-import isObjEqual from 'fast-deep-equal'
+import { dequal } from 'dequal'
 
 type TagMap = Partial<Record<Id3FrameId, string>>
 
@@ -87,7 +87,7 @@ export const [useProvideMetadata, useMetadataStore] = createInjectionState((trac
     return tracksValue.length > 1
   })
 
-  const isDirty = computed(() => !isObjEqual(proposedChanges.value, baseline))
+  const isDirty = computed(() => !dequal(proposedChanges.value, baseline))
 
   const isValueDirty = createUnrefFn((frame: Id3FrameId) => {
     const targetFrame = proposedChanges.value.frames[frame]
@@ -95,7 +95,7 @@ export const [useProvideMetadata, useMetadataStore] = createInjectionState((trac
       return false
 
     else if (targetFrame?.type === 'set' || targetFrame?.type === 'clear')
-      return !isObjEqual(baseline.frames[frame], targetFrame)
+      return !dequal(baseline.frames[frame], targetFrame)
 
     else return false
   })
