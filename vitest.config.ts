@@ -16,6 +16,7 @@ export default defineConfig({
           environment: 'nuxt',
           include: ['test/nuxt/*.{test,spec}.ts'],
           name: 'nuxt',
+          setupFiles: ['test/setup/nuxt.tauri.ts'],
         },
       }),
     ],
