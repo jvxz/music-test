@@ -47,20 +47,30 @@ export const useTrackData = defineStore('track-data', () => {
   }
 
   function toTrackListEntry(entry: TrackListCacheEntry): TrackListEntry {
-    const track = trackCache.get(entry.path)!
+    try {
+      const track = trackCache.get(entry.path)!
 
-    if (entry.is_playlist_track) {
+      if (entry.is_playlist_track) {
+        return {
+          ...entry,
+          ...track,
+          is_playlist_track: true as const,
+        }
+      }
+
       return {
         ...entry,
         ...track,
-        is_playlist_track: true as const,
+        is_playlist_track: false as const,
       }
     }
+    catch (err) {
+      emitError({
+        data: `Failed to convert track list entry to track list entry: ${err}`,
+        type: 'Other',
+      })
 
-    return {
-      ...entry,
-      ...track,
-      is_playlist_track: false as const,
+      throw err
     }
   }
 
