@@ -4,14 +4,14 @@ const { id3Frame, track } = defineProps<{
   track: TrackListEntry | null
 }>()
 
-const { isCommittingChanges, isEditable, isEditingMultiple, isValueDirty, proposedChanges, revertChange } = useMetadataStore()!
+const { isCommittingChanges, isEditable, isEditingMultiple, isValueDirty, proposedFrameChanges, proposedMixedFrames, revertChange } = useMetadataStore()!
 
 const isDirty = computed(() => isValueDirty(id3Frame))
 
 const mixedValues = useArrayUnique(() => {
-  const values = proposedChanges.value.mixedFrames.get(id3Frame)
+  const values = proposedMixedFrames.value.get(id3Frame)
   if (!values) {
-    const singleValue = proposedChanges.value.frames[id3Frame]?.value
+    const singleValue = proposedFrameChanges.value[id3Frame]?.value
     return singleValue ? [singleValue] : []
   }
 
@@ -20,7 +20,7 @@ const mixedValues = useArrayUnique(() => {
 
 const frameType = computed({
   get: () => {
-    const targetFrame = proposedChanges.value.frames[id3Frame]
+    const targetFrame = proposedFrameChanges.value[id3Frame]
     if (targetFrame?.type === null)
       return false
 
@@ -30,15 +30,15 @@ const frameType = computed({
     else return false
   },
   set: (value: boolean) => {
-    const targetFrame = proposedChanges.value.frames[id3Frame]
+    const targetFrame = proposedFrameChanges.value[id3Frame]
     if (targetFrame && targetFrame.type !== null && targetFrame.value)
-      value ? (proposedChanges.value.frames[id3Frame] = { ...targetFrame, type: 'clear' }) : revertChange(id3Frame)
+      value ? (proposedFrameChanges.value[id3Frame] = { ...targetFrame, type: 'clear' }) : revertChange(id3Frame)
 
     else if (targetFrame && targetFrame.value && targetFrame.type === null)
-      value ? (proposedChanges.value.frames[id3Frame] = { ...targetFrame, type: 'set' }) : revertChange(id3Frame)
+      value ? (proposedFrameChanges.value[id3Frame] = { ...targetFrame, type: 'set' }) : revertChange(id3Frame)
 
     else if (!targetFrame) {
-      proposedChanges.value.frames[id3Frame] = {
+      proposedFrameChanges.value[id3Frame] = {
         type: value ? 'clear' : null,
         value: '',
       }
@@ -51,7 +51,7 @@ const frameType = computed({
           break
         }
         case null: {
-          proposedChanges.value.frames[id3Frame] = {
+          proposedFrameChanges.value[id3Frame] = {
             type: 'clear',
             value: '',
           }
@@ -63,24 +63,24 @@ const frameType = computed({
 })
 
 const frameValue = computed({
-  get: () => proposedChanges.value.frames[id3Frame]?.value ?? '',
+  get: () => proposedFrameChanges.value[id3Frame]?.value ?? '',
   set: (value: string) => {
-    const targetFrame = proposedChanges.value.frames[id3Frame]
+    const targetFrame = proposedFrameChanges.value[id3Frame]
     if (value && targetFrame && targetFrame.type === 'clear') {
-      proposedChanges.value.frames[id3Frame] = {
+      proposedFrameChanges.value[id3Frame] = {
         type: 'set',
         value,
       }
     }
     else if (value && (!targetFrame || targetFrame?.type === null)) {
-      proposedChanges.value.frames[id3Frame] = {
+      proposedFrameChanges.value[id3Frame] = {
         type: 'set',
         value,
       }
     }
     else if (value && targetFrame) {
       if (targetFrame.value !== value) {
-        proposedChanges.value.frames[id3Frame] = {
+        proposedFrameChanges.value[id3Frame] = {
           type: 'set',
           value,
         }
@@ -90,7 +90,7 @@ const frameValue = computed({
     }
 
     else if (!value) {
-      proposedChanges.value.frames[id3Frame] = {
+      proposedFrameChanges.value[id3Frame] = {
         type: 'clear',
         value: '',
       }

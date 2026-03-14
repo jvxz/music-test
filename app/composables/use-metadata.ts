@@ -3,26 +3,26 @@ import { dequal } from 'dequal'
 
 type TagMap = Partial<Record<Id3FrameId, string>>
 
-interface ProposedChanges {
-  mixedFrames: Map<Id3FrameId, string[]>
-  frames: Partial<{
-    [K in Id3FrameId]: {
-      value: string
-      type: 'set' | 'clear' | null
-    }
-  }>
-}
+type ProposedMixedFrames = Map<Id3FrameId, string[]>
+
+type ProposedFrameChanges = Partial<{
+  [K in Id3FrameId]: {
+    value: string
+    type: 'set' | 'clear' | null
+  }
+}>
 
 const createFlattenedChanges = createUnrefFn((tracks: TrackListEntry[] | null | undefined) => {
   const originalTags: TagMap[] | undefined = tracks?.map(t => t.tags)
 
-  const newChanges: ProposedChanges = { frames: {}, mixedFrames: new Map() }
+  let newFrameChanges: ProposedFrameChanges = {}
+  const newMixedFrames: ProposedMixedFrames = new Map()
 
   originalTags?.forEach((tagMap, idx) => {
     const tags = objectEntries(tagMap)
 
     if (idx === 0) {
-      newChanges.frames = objectFromEntries(tags.map(([frame, value]) => [frame, {
+      newFrameChanges = objectFromEntries(tags.map(([frame, value]) => [frame, {
         type: null,
         value: value ?? '',
       }]))
@@ -30,18 +30,18 @@ const createFlattenedChanges = createUnrefFn((tracks: TrackListEntry[] | null | 
 
     else {
       tags.forEach(([frame, value]) => {
-        const baselineValue = newChanges.frames[frame]?.value ?? ''
+        const baselineValue = newFrameChanges[frame]?.value ?? ''
 
-        if (newChanges.frames[frame]?.value !== value) {
-          const existingValue = newChanges.mixedFrames.get(frame)
+        if (newFrameChanges[frame]?.value !== value) {
+          const existingValue = newMixedFrames.get(frame)
           if (!existingValue)
-            newChanges.mixedFrames.set(frame, [baselineValue, value ?? ''])
+            newMixedFrames.set(frame, [baselineValue, value ?? ''])
           else
             existingValue.push(value ?? '')
         }
 
         else {
-          newChanges.frames[frame] = {
+          newFrameChanges[frame] = {
             type: null,
             value: value ?? '',
           }
@@ -50,22 +50,29 @@ const createFlattenedChanges = createUnrefFn((tracks: TrackListEntry[] | null | 
     }
   })
 
-  newChanges.mixedFrames.forEach((_, frame) => delete newChanges.frames[frame])
+  newMixedFrames.forEach((_, frame) => delete newFrameChanges[frame])
 
-  return newChanges
+  return {
+    frames: newFrameChanges,
+    mixedFrames: newMixedFrames,
+  }
 })
 
 export const [useProvideMetadata, useMetadataStore] = createInjectionState((tracks: MaybeRefOrGetter<TrackListEntry[] | null | undefined>) => {
   const { refreshTrackData } = useTrackData()
 
-  let baseline: ProposedChanges = { frames: {}, mixedFrames: new Map() }
-  const proposedChanges = ref<ProposedChanges>({ frames: {}, mixedFrames: new Map() })
+  let baselineFrameChanges: ProposedFrameChanges = {}
+  const proposedFrameChanges = ref<ProposedFrameChanges>({})
+  const proposedMixedFrames = shallowRef<ProposedMixedFrames>(new Map())
 
   watch(() => toValue(tracks), (v) => {
-    if (!v)
-      return proposedChanges.value = { frames: {}, mixedFrames: new Map() }
+    if (!v) {
+      baselineFrameChanges = {}
+      proposedFrameChanges.value = {}
+      proposedMixedFrames.value = new Map()
+    }
 
-    _resetChanges()
+    else _resetChanges()
   }, { immediate: true })
 
   /**
@@ -87,31 +94,31 @@ export const [useProvideMetadata, useMetadataStore] = createInjectionState((trac
     return tracksValue.length > 1
   })
 
-  const isDirty = computed(() => !dequal(proposedChanges.value, baseline))
+  const isDirty = computed(() => !dequal(proposedFrameChanges.value, baselineFrameChanges))
 
   const isValueDirty = createUnrefFn((frame: Id3FrameId) => {
-    const targetFrame = proposedChanges.value.frames[frame]
+    const targetFrame = proposedFrameChanges.value[frame]
     if (targetFrame?.type === null)
       return false
 
     else if (targetFrame?.type === 'set' || targetFrame?.type === 'clear')
-      return !dequal(baseline.frames[frame], targetFrame)
+      return !dequal(baselineFrameChanges[frame], targetFrame)
 
     else return false
   })
 
   const isValueBaselineEmpty = createUnrefFn((frame: Id3FrameId) => {
-    return baseline.frames[frame]?.value === '' || !baseline.frames[frame]
+    return baselineFrameChanges[frame]?.value === '' || !baselineFrameChanges[frame]
   })
 
   function revertChange(frame: Id3FrameId) {
-    const targetFrame = proposedChanges.value.frames[frame]
+    const targetFrame = proposedFrameChanges.value[frame]
     if (targetFrame) {
-      if (baseline.frames[frame])
-        proposedChanges.value.frames[frame] = { ...baseline.frames[frame] }
+      if (baselineFrameChanges[frame])
+        proposedFrameChanges.value[frame] = { ...baselineFrameChanges[frame] }
 
       else
-        delete proposedChanges.value.frames[frame]
+        delete proposedFrameChanges.value[frame]
     }
   }
 
@@ -139,14 +146,14 @@ export const [useProvideMetadata, useMetadataStore] = createInjectionState((trac
     if (!confirmation)
       return
 
-    const changes = objectEntries(proposedChanges.value.frames).filter(([frame, value]) => {
+    const changes = objectEntries(proposedFrameChanges.value).filter(([frame, value]) => {
       // if the value is null or the type is null, no changes were made, skip
       if (!value || value.type === null)
         return false
 
       // if the type is set, check if the value is different from the baseline
       if (value.type === 'set')
-        return value.value !== baseline.frames[frame]?.value
+        return value.value !== baselineFrameChanges[frame]?.value
 
       // if the type is clear, return true
       return true
@@ -185,13 +192,10 @@ export const [useProvideMetadata, useMetadataStore] = createInjectionState((trac
   }, undefined, { immediate: false })
 
   function _resetChanges() {
-    baseline = createFlattenedChanges(toValue(tracks))
-    proposedChanges.value = {
-      frames: objectFromEntries(
-        objectEntries(baseline.frames).map(([frame, data]) => [frame, { ...data }]),
-      ),
-      mixedFrames: new Map(baseline.mixedFrames),
-    }
+    const { frames, mixedFrames } = createFlattenedChanges(toValue(tracks))
+    baselineFrameChanges = frames
+    proposedFrameChanges.value = { ...frames }
+    proposedMixedFrames.value = mixedFrames
   }
 
   return {
@@ -202,7 +206,8 @@ export const [useProvideMetadata, useMetadataStore] = createInjectionState((trac
     isEditingMultiple,
     isValueBaselineEmpty,
     isValueDirty,
-    proposedChanges,
+    proposedFrameChanges,
+    proposedMixedFrames,
     revertAllChanges,
     revertChange,
   }
