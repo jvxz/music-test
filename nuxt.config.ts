@@ -117,6 +117,7 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     'dayjs-nuxt',
     '@pinia/nuxt',
+    '@nuxt/test-utils/module',
   ],
 
   router: {
