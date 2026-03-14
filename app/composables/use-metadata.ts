@@ -65,11 +65,7 @@ export const [useProvideMetadata, useMetadataStore] = createInjectionState((trac
     if (!v)
       return proposedChanges.value = { frames: {}, mixedFrames: new Map() }
 
-    baseline = createFlattenedChanges(v)
-    proposedChanges.value = {
-      frames: { ...baseline.frames },
-      mixedFrames: new Map(baseline.mixedFrames),
-    }
+    _resetChanges()
   }, { immediate: true })
 
   /**
@@ -128,7 +124,7 @@ export const [useProvideMetadata, useMetadataStore] = createInjectionState((trac
     if (!confirmation)
       return
 
-    proposedChanges.value = { ...baseline }
+    _resetChanges()
   }
 
   const { execute: commitChanges, isLoading: isCommittingChanges } = useAsyncState(async () => {
@@ -184,13 +180,19 @@ export const [useProvideMetadata, useMetadataStore] = createInjectionState((trac
     }
     finally {
       await refreshTrackData(toValue(tracks)?.map(t => t.path) ?? [])
-      baseline = createFlattenedChanges(toValue(tracks))
-      proposedChanges.value = {
-        frames: { ...baseline.frames },
-        mixedFrames: new Map(baseline.mixedFrames),
-      }
+      _resetChanges()
     }
   }, undefined, { immediate: false })
+
+  function _resetChanges() {
+    baseline = createFlattenedChanges(toValue(tracks))
+    proposedChanges.value = {
+      frames: objectFromEntries(
+        objectEntries(baseline.frames).map(([frame, data]) => [frame, { ...data }]),
+      ),
+      mixedFrames: new Map(baseline.mixedFrames),
+    }
+  }
 
   return {
     commitChanges,
