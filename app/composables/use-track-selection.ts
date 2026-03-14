@@ -54,7 +54,7 @@ export const useTrackSelection = createSharedComposable(() => {
 
   function clearSelectedTracks() {
     if (selectedTrackData.value.entries.length)
-      selectedTrackData.value.entries = []
+      selectedTrackDataEntries.value = []
   }
 
   const router = useRouter()
