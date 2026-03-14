@@ -184,7 +184,11 @@ export const [useProvideMetadata, useMetadataStore] = createInjectionState((trac
     }
     finally {
       await refreshTrackData(toValue(tracks)?.map(t => t.path) ?? [])
-      proposedChanges.value = createFlattenedChanges(toValue(tracks))
+      baseline = createFlattenedChanges(toValue(tracks))
+      proposedChanges.value = {
+        frames: { ...baseline.frames },
+        mixedFrames: new Map(baseline.mixedFrames),
+      }
     }
   }, undefined, { immediate: false })
 
