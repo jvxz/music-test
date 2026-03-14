@@ -27,7 +27,7 @@ export const useTrackSelection = createSharedComposable(() => {
       if (checkIsSelected(entry))
         return
 
-      selectedTrackDataEntries.value = [...selectedTrackData.value.entries, entryToEdit]
+      selectedTrackDataEntries.value = [...selectedTrackDataEntries.value, entryToEdit]
     }
     else {
       selectedTrackDataEntries.value = selectedTrackData.value.entries.filter((entry) => {
