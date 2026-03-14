@@ -11,13 +11,23 @@ const { height: elHeight } = useElementSize(textarea)
 watchDebounced(elHeight, height => settings.layout.element.metadataView.frameCommHeight = height, { debounce: 200 })
 
 const { proposedChanges } = useMetadataStore()!
+
+const frameValue = computed({
+  get: () => proposedChanges.value.frames.COMM?.value ?? '',
+  set: (value: string) => {
+    proposedChanges.value.frames.COMM = {
+      type: 'set',
+      value,
+    }
+  },
+})
 </script>
 
 <template>
   <UTextarea
     v-if="track && track.valid"
     ref="textarea"
-    v-model:model-value="proposedChanges.frames.COMM"
+    v-model:model-value="frameValue"
     v-no-autocorrect
     :placeholder="proposedChanges.mixedFrames.has('COMM') ? 'Mixed...' : undefined"
     style="text-transform: none"
