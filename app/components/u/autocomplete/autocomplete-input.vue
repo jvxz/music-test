@@ -26,7 +26,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
 <template>
   <div
     data-slot="autocomplete-input-wrapper"
-    :class="cn(staticStyles.base, interactiveStyles.size.default, 'flex items-center gap-2 p-0 h-fit w-full', props.class)"
+    :class="cn(staticStyles.base, interactiveStyles.size.default, 'flex h-fit w-full items-center gap-2 p-0', props.class)"
   >
     <Icon
       v-if="props.showIcon"
