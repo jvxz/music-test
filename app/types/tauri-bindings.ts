@@ -29,9 +29,9 @@ async getTrackData(pathString: string, refresh: boolean | null) : Promise<Result
     else return { status: "error", error: e  as any };
 }
 },
-async getTracksData(paths: string[]) : Promise<Result<FileEntry[], Error>> {
+async getTracksData(paths: string[], refresh: boolean | null) : Promise<Result<FileEntry[], Error>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("get_tracks_data", { paths }) };
+    return { status: "ok", data: await TAURI_INVOKE("get_tracks_data", { paths, refresh }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };

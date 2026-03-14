@@ -39,6 +39,7 @@ export interface LayoutElementSettings extends Record<LayoutElementKey, unknown>
   metadataView: {
     frames: Id3FrameId[]
     frameCommHeight: number
+    trackToView: 'current-playing-track' | 'selected-tracks'
   }
   player: {
     seekBarThickness: number
@@ -81,6 +82,7 @@ export const defaultLayoutElementSettings = {
   metadataView: {
     frameCommHeight: 16,
     frames: ['TIT2', 'TPE1', 'TALB', 'TPE2'],
+    trackToView: 'selected-tracks',
   },
   player: {
     controlsPosition: 'left',

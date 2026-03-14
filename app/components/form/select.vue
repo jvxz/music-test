@@ -3,42 +3,41 @@ withDefaults(defineProps<{
   disabled?: boolean
   values: T[]
   label: string
-  upperFirstd?: boolean
+  formatUpperFirst?: boolean
+  classes?: {
+    trigger?: string
+    content?: string
+  }
 }>(), {
-  upperFirstd: true,
+  formatUpperFirst: true,
 })
 
 const modelValue = defineModel<T>()
-
-const id = useId()
 </script>
 
 <template>
-  <div
+  <FormPrimitive
     v-if="modelValue"
-    class="flex flex-col gap-2"
+    :label="label"
     v-bind="$attrs"
   >
-    <ULabel :for="id" :disabled>
-      {{ label }}
-    </ULabel>
     <USelectRoot v-model:model-value="modelValue">
-      <USelectTrigger>
+      <USelectTrigger :class="cn('w-lg', $props.classes?.trigger)">
         <USelectValue>
-          {{ $props.upperFirstd ? upperFirst(modelValue) : modelValue }}
+          {{ formatUpperFirst ? upperFirst(splitByCase(modelValue).map(flatCase).join(' ')) : modelValue }}
         </USelectValue>
       </USelectTrigger>
-      <USelectContent>
+      <USelectContent :class="$props.classes?.content">
         <USelectItem
           v-for="value in values"
           :key="String(value)"
           :value
         >
           <USelectItemText>
-            {{ $props.upperFirstd ? upperFirst(value) : value }}
+            {{ formatUpperFirst ? upperFirst(splitByCase(value).map(flatCase).join(' ')) : value }}
           </USelectItemText>
         </USelectItem>
       </USelectContent>
     </USelectRoot>
-  </div>
+  </FormPrimitive>
 </template>

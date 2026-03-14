@@ -24,18 +24,54 @@ export const useTrackData = defineStore('track-data', () => {
   }
 
   async function getTracksData(paths: string[]) {
-    const tracks = await $invoke(commands.getTracksData, paths)
+    const tracks = await $invoke(commands.getTracksData, paths, false)
 
     tracks.forEach(track => trackCache.set(track.path, track))
 
     return tracks
   }
 
-  async function refreshTrackData(path: string) {
+  async function refreshTrackData(path: string[]): Promise<FileEntry[]>
+  async function refreshTrackData(path: string): Promise<FileEntry>
+  async function refreshTrackData(path: string | string[]) {
+    if (Array.isArray(path)) {
+      const tracks = await $invoke(commands.getTracksData, path, true)
+      tracks.forEach(track => trackCache.set(track.path, track))
+      return tracks
+    }
+
     const track = await $invoke(commands.getTrackData, path, true)
     trackCache.set(path, track)
 
     return track
+  }
+
+  function toTrackListEntry(entry: TrackListCacheEntry): TrackListEntry {
+    try {
+      const track = trackCache.get(entry.path)!
+
+      if (entry.is_playlist_track) {
+        return {
+          ...entry,
+          ...track,
+          is_playlist_track: true as const,
+        }
+      }
+
+      return {
+        ...entry,
+        ...track,
+        is_playlist_track: false as const,
+      }
+    }
+    catch (err) {
+      emitError({
+        data: `Failed to convert track list entry to track list entry: ${err}`,
+        type: 'Other',
+      })
+
+      throw err
+    }
   }
 
   return {
@@ -43,6 +79,7 @@ export const useTrackData = defineStore('track-data', () => {
     getTrackData,
     getTracksData,
     refreshTrackData,
+    toTrackListEntry,
     trackCache,
     trackListCache,
   }

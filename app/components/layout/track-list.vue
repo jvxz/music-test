@@ -11,7 +11,7 @@ const { getTrackList } = useTrackList()
 const { playbackStatus, playTrack } = usePlayback()
 const { layoutPanels: playlistHeaderPercents } = useTrackListColumns()
 const { isUpdatingPlayCount } = usePlayCount()
-const { checkIsSelected, clearSelectedTracks, editTrackSelection, selectedTrackData } = useTrackSelection()
+const { checkIsSelected, clearSelectedTracks, editTrackSelection, selectedTrackData, selectedTrackDataEntries } = useTrackSelection()
 const settings = useSettings()
 
 const { getColumnFields } = useTrackListColumns()
@@ -101,14 +101,14 @@ async function handleSelectDragStart(entryTriggeredFrom: TrackListEntry) {
           lastSelectedEntryIndex,
           idx,
         )
-        selectedTrackData.value.entries = [...selectedTrackData.value.entries, ...newEntries]
+        selectedTrackDataEntries.value = [...selectedTrackData.value.entries, ...newEntries]
       }
       else {
         const newEntries = folderEntries.value.slice(
           idx,
           folderEntries.value.findIndex(entry => entry.path === selectedTrackData.value.entries[0]!.path),
         )
-        selectedTrackData.value.entries = [...newEntries, ...selectedTrackData.value.entries]
+        selectedTrackDataEntries.value = [...newEntries, ...selectedTrackData.value.entries]
       }
     }
   }
@@ -131,13 +131,13 @@ function handleRightClick(entry: TrackListEntry) {
   const clickedOnSelectedTrack = checkIsSelected(entry)
 
   if (!clickedOnSelectedTrack || !selectedTrackData.value.entries.length || selectedTrackData.value.entries.length === 1)
-    selectedTrackData.value.entries = [entry]
+    selectedTrackDataEntries.value = [entry]
 }
 
 const columnFieldsKey = computed(() => columnFields.value.map(field => field.key).join())
 
-onKeyStrokeSafe('ctrl_a', () => selectedTrackData.value.entries = folderEntries.value)
-onKeyStrokeSafe('ctrl_d', () => selectedTrackData.value.entries = [])
+onKeyStrokeSafe('ctrl_a', () => selectedTrackDataEntries.value = folderEntries.value)
+onKeyStrokeSafe('ctrl_d', () => selectedTrackDataEntries.value = [])
 
 const scrollY = shallowRef(0)
 
