@@ -136,6 +136,40 @@ export default defineNuxtConfig({
   vite: {
     clearScreen: false,
     envPrefix: ['VITE_', 'TAURI_'],
+    optimizeDeps: {
+      include: [
+        '@vue/devtools-core',
+        '@vue/devtools-kit',
+        'dayjs', // CJS
+        'dayjs/plugin/updateLocale', // CJS
+        'dayjs/plugin/duration', // CJS
+        'dayjs/plugin/relativeTime', // CJS
+        'dayjs/plugin/utc', // CJS
+        '@tauri-apps/api/webviewWindow',
+        '@tauri-apps/plugin-fs',
+        '@tauri-apps/api/path',
+        '@tauri-apps/plugin-sql',
+        'kysely',
+        'kysely-dialect-tauri',
+        '@tauri-apps/api/core',
+        '@tauri-apps/api/event',
+        '@tauri-apps/plugin-store',
+        '@tauri-apps/api/menu',
+        '@tauri-apps/plugin-dialog',
+        '@tauri-store/pinia',
+        'clsx',
+        'tailwind-merge',
+        '@crabnebula/tauri-plugin-drag',
+        '@tauri-apps/plugin-os',
+        'colorjs.io',
+        'p-queue',
+        'zod',
+        '@tauri-apps/plugin-opener',
+        '@vueuse/integrations/useFuse',
+        '@iptv/playlist',
+        'class-variance-authority',
+      ],
+    },
     plugins: [tailwindcss(), vueDevTools()],
     server: {
       hmr: {
