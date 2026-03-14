@@ -26,6 +26,9 @@ export default defineNuxtPlugin({
       const blacklist = [' ', 'backspace']
       if (blacklist.includes(e.key.toLowerCase()) && e.target === document.body)
         e.preventDefault()
+
+      if (e.key.toLowerCase() === 'a' && e.metaKey && e.target === document.body)
+        e.preventDefault()
     })
   },
 })
