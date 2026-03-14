@@ -30,7 +30,7 @@ export const useTrackSelection = createSharedComposable(() => {
       selectedTrackDataEntries.value = [...selectedTrackDataEntries.value, entryToEdit]
     }
     else {
-      selectedTrackDataEntries.value = selectedTrackData.value.entries.filter((entry) => {
+      selectedTrackDataEntries.value = selectedTrackDataEntries.value.filter((entry) => {
         if (entry.is_playlist_track && entryToEdit.is_playlist_track)
           return entry.position !== entryToEdit.position
 
