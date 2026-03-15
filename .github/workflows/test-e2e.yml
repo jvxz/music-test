@@ -12,9 +12,6 @@ jobs:
     name: e2e tests
     runs-on: ubicloud-standard-2
     env:
-      RUSTC_WRAPPER: sccache
-      SCCACHE_GHA_ENABLED: 'false'
-      CARGO_HOME: /home/runner/.cargo
       CARGO_INCREMENTAL: 0
       CARGO_TERM_COLOR: always
     steps:
@@ -32,26 +29,18 @@ jobs:
             xvfb \
             dbus-x11
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
       - uses: dtolnay/rust-toolchain@stable
 
-      - name: setup rust cache
-        uses: Swatinem/rust-cache@v2
+      # for Swatinem/rust-cache
+      - uses: actions/setup-node@v4
         with:
-          workspaces: src-tauri -> target
-          cache-on-failure: 'true'
-          prefix-key: v0-rust
-          shared-key: e2e-linux
-          add-job-id-key: false
-          add-rust-environment-hash-key: false
-          save-if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
-          cache-all-crates: true
+          node-version: 23
 
-      - name: setup sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+          prefix-key: e2e-ubicloud
+          workspaces: src-tauri -> target
 
       - uses: actions/setup-node@v4
         with:
