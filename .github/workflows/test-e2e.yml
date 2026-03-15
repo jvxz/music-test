@@ -1,0 +1,89 @@
+name: e2e tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    name: e2e tests
+    runs-on: warp-ubuntu-latest-x64-2x
+    env:
+      RUSTC_WRAPPER: sccache
+      SCCACHE_GHA_ENABLED: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            libasound2-dev \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            webkit2gtk-driver \
+            xvfb
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+          key: rust-e2e
+          shared-key: rust-${{ runner.os }}-e2e
+          cache-on-failure: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 23
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.10
+
+      - name: cache bun + node_modules
+        uses: WarpBuilds/cache@v1
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: bun-e2e-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            bun-e2e-
+
+      - name: cache nuxt artifacts
+        uses: WarpBuilds/cache@v1
+        with:
+          path: |
+            .nuxt
+            .output
+          key: nuxt-e2e-${{ runner.os }}-${{ hashFiles('bun.lock', 'package.json', 'nuxt.config.ts', 'src-tauri/tauri.conf.json', 'app/**/*') }}
+          restore-keys: |
+            nuxt-e2e-${{ runner.os }}-
+
+      - run: bun install --frozen-lockfile
+
+      - name: cache tauri-driver binary
+        id: tauri-driver-cache
+        uses: WarpBuilds/cache@v1
+        with:
+          path: ~/.cargo/bin/tauri-driver
+          key: tauri-driver-${{ runner.os }}-${{ runner.arch }}-v1
+
+      - name: install tauri-driver
+        if: steps.tauri-driver-cache.outputs.cache-hit != 'true'
+        run: cargo install tauri-driver --locked
+
+      - name: run tests
+        run: xvfb-run bun run test:e2e

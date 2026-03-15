@@ -233,11 +233,14 @@ pub async fn run() {
         .decorations(true);
 
       // make db pool
-      let db_path = app
+      let local_data_dir = app
         .path()
         .app_local_data_dir()
-        .map_err(|e| Error::Backend(format!("Could not resolve app local data path: {}", e)))?
-        .join("swim.db");
+        .map_err(|e| Error::Backend(format!("Could not resolve app local data path: {}", e)))?;
+      std::fs::create_dir_all(&local_data_dir)
+        .map_err(|e| Error::Backend(format!("Failed to create app local data directory: {}", e)))?;
+
+      let db_path = local_data_dir.join("swim.db");
 
       let db = ConnectionManager::<SqliteConnection>::new(format!(
         "sqlite://{}",
@@ -351,13 +354,16 @@ pub async fn run() {
 }
 
 fn get_initial_state<R: Runtime>(app_handle: &AppHandle<R>) -> Result<Option<StreamStatus>> {
-  let initial_state = match app_handle.store("prefs.json") {
+  let store = match app_handle.store("prefs.json") {
     Ok(store) => store,
     Err(_) => return Ok(None),
   };
-  let initial_state = initial_state.get("playback-status").unwrap_or_default();
-  let initial_state: StreamStatus = serde_json::from_value(initial_state)
-    .map_err(|_| Error::Store("failed to deserialize initial state".to_string()))?;
+  let Some(initial_state) = store.get("playback-status") else {
+    return Ok(None);
+  };
+  let Ok(initial_state) = serde_json::from_value::<StreamStatus>(initial_state) else {
+    return Ok(None);
+  };
 
   return Ok(Some(initial_state));
 }
