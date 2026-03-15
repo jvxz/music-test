@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 
 export default defineNuxtPlugin({
+  dependsOn: ['tauri'],
   parallel: true,
   setup: () => {
     // provide the invoke function to the window object
