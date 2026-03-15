@@ -22,7 +22,9 @@
     "build": "bash scripts/build.sh",
     "tauri:build": "tauri build",
     "tauri:build:debug": "tauri build --debug",
-    "db:types": "kysely-codegen"
+    "test": "vitest",
+    "db:types": "kysely-codegen",
+    "test:e2e": "wdio run ./wdio.conf.ts"
   },
   "dependencies": {
     "@crabnebula/tauri-plugin-drag": "^2.1.0",
@@ -79,20 +81,32 @@
   "devDependencies": {
     "@antfu/eslint-config": "^7.7.2",
     "@nuxt/eslint": "^1.15.2",
+    "@nuxt/test-utils": "^4.0.0",
     "@tauri-apps/cli": "^2.10.1",
     "@types/node": "^25.5.0",
     "@vue/devtools": "^8.1.0",
+    "@vue/test-utils": "^2.4.6",
     "@vueuse/core": "^14.2.1",
     "@vueuse/nuxt": "^14.2.1",
+    "@wdio/cli": "^9.25.0",
+    "@wdio/globals": "^9.23.0",
+    "@wdio/local-runner": "^9.25.0",
+    "@wdio/mocha-framework": "^9.25.0",
+    "@wdio/spec-reporter": "^9.25.0",
     "bumpp": "^10.4.1",
     "concurrently": "^9.2.1",
     "eslint": "^10.0.3",
     "eslint-plugin-better-tailwindcss": "^4.3.2",
     "eslint-plugin-format": "^2.0.1",
+    "expect-webdriverio": "^5.6.5",
+    "happy-dom": "^20.8.4",
     "kysely-codegen": "^0.20.0",
     "typescript": "^5.9.3",
     "vite-plugin-vue-devtools": "^8.1.0",
-    "vue-devtools": "^5.1.4"
+    "vitest": "^4.1.0",
+    "vue-devtools": "^5.1.4",
+    "wdio-wait-for": "^3.1.1",
+    "webdriverio": "^9.25.0"
   },
   "trustedDependencies": [
     "@parcel/watcher",

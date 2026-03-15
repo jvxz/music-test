@@ -60,6 +60,7 @@ export default defineNuxtConfig({
   },
 
   experimental: {
+    payloadExtraction: 'client',
     typedPages: true,
   },
 
@@ -117,6 +118,7 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     'dayjs-nuxt',
     '@pinia/nuxt',
+    '@nuxt/test-utils/module',
   ],
 
   router: {
