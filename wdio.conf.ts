@@ -12,9 +12,16 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 let tauriDriver: ChildProcess
 let exit = false
 
-export const config = {
+export const config: WebdriverIO.Config = {
   afterSession: () => {
     closeTauriDriver()
+  },
+  // wait for the invoke function to be available in window object before running tests
+  before: async (_capabilities, _specs, browser) => {
+    await browser.waitUntil(
+      async () => (await browser.execute(() => typeof window.__TAURI_INVOKE__ === 'function')) === true,
+      { interval: 100, timeout: 10000 },
+    )
   },
   // ensure `tauri-driver` so webdriver requests are proxied
   beforeSession: () => {
@@ -41,9 +48,10 @@ export const config = {
       'tauri:options': {
         application: resolveAppBinaryPath(),
       },
-    },
+    } as WebdriverIO.Capabilities,
   ],
   framework: 'mocha',
+  // @ts-expect-error - host is not a valid property in the config type
   host: '127.0.0.1',
   maxInstances: 1,
   mochaOpts: {
