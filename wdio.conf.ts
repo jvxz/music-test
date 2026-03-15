@@ -8,7 +8,6 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
-// keep track of the `tauri-driver` child process
 let tauriDriver: ChildProcess
 let exit = false
 
@@ -18,6 +17,8 @@ export const config: WebdriverIO.Config = {
   },
   // wait for the invoke function to be available in window object before running tests
   before: async (_capabilities, _specs, browser) => {
+    await browser.setTimeout({ script: 60000 })
+
     await browser.waitUntil(
       async () => (await browser.execute(() => typeof window.__TAURI_INVOKE__ === 'function')) === true,
       { interval: 100, timeout: 10000 },
@@ -58,7 +59,6 @@ export const config: WebdriverIO.Config = {
     timeout: 60000,
     ui: 'bdd',
   },
-  // build for webdriver sessions
   onPrepare: () => {
     spawnSync(
       'bun',
@@ -92,11 +92,10 @@ function resolveAppBinaryPath() {
   if (existsSync(fallback))
     return fallback
 
-  // on first run this can be called before `onPrepare` builds; default to selected target
   return preferred
 }
 
-function onShutdown(fn) {
+function onShutdown(fn: () => void) {
   const cleanup = () => {
     try {
       fn()
