@@ -13,7 +13,7 @@ describe('tauri invoke commands', () => {
   ]) {
     it(`successfully invokes get_track_data command & returns correct data for ${test.filename}`, async () => {
       const fixturePath = path.resolve(process.cwd(), 'test/fixtures', test.filename)
-      const trackData = await $invoke<FileEntry>('get_track_data', [fixturePath, false])
+      const trackData = await $invoke<FileEntry>('get_track_data', { pathString: fixturePath, refresh: false })
 
       expect(trackData?.valid).toBe(true)
       expect(trackData?.tags.TIT2).toBe(test.title)
