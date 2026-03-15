@@ -32,7 +32,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
 
       # for Swatinem/rust-cache
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 23
 
@@ -42,7 +42,7 @@ jobs:
           prefix-key: e2e-ubicloud
           workspaces: src-tauri -> target
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 23
 
