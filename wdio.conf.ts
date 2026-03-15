@@ -13,6 +13,15 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 let tauriDriver: ChildProcess
 let exit = false
 
+export function getCapabilities() {
+  return [{
+    'maxInstances': 1,
+    'tauri:options': {
+      application: resolveAppBinaryPath(),
+    },
+  } as WebdriverIO.Capabilities]
+}
+
 export const config: WebdriverIO.Config = {
   afterSession: () => {
     closeTauriDriver()
@@ -45,14 +54,7 @@ export const config: WebdriverIO.Config = {
       }
     })
   },
-  capabilities: [
-    {
-      'maxInstances': 1,
-      'tauri:options': {
-        application: resolveAppBinaryPath(),
-      },
-    } as WebdriverIO.Capabilities,
-  ],
+  capabilities: getCapabilities(),
   framework: 'mocha',
   // @ts-expect-error - host is not a valid property in the config type
   host: '127.0.0.1',
