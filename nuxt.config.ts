@@ -60,6 +60,7 @@ export default defineNuxtConfig({
   },
 
   experimental: {
+    payloadExtraction: 'client',
     typedPages: true,
   },
 
