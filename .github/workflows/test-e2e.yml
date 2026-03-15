@@ -29,7 +29,8 @@ jobs:
             libwebkit2gtk-4.1-dev \
             libayatana-appindicator3-dev \
             webkit2gtk-driver \
-            xvfb
+            xvfb \
+            dbus-x11
 
       - uses: actions/setup-node@v4
         with:
