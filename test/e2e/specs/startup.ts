@@ -10,8 +10,10 @@ describe('tauri startup behavior', () => {
     delete capabilities[0].maxInstances
 
     for (let i = 0; i < count; i++) {
-      if (i > 0)
+      if (i > 0) {
         await browser.reloadSession(capabilities[0])
+        await new Promise(r => setTimeout(r, 400))
+      }
 
       await browser.waitUntil(
         async () => (await browser.execute(() => typeof window.__TAURI_INVOKE__ === 'function')) === true,
