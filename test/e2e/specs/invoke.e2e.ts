@@ -1,32 +1,23 @@
-import type { invoke } from '@tauri-apps/api/core'
-import type { Browser } from 'webdriverio'
 import type { FileEntry } from '../../../app/types/tauri-bindings'
-import { browser, expect } from '@wdio/globals'
+import path from 'node:path'
+import { expect } from '@wdio/globals'
+import { $invoke } from '../utils/invoke'
 
-declare global {
-  const browser: Browser
-}
+describe('tauri invoke commands', () => {
+  for (const test of [
+    {
+      artist: 'Artist',
+      filename: 'title-artist.mp3',
+      title: 'Title',
+    },
+  ]) {
+    it(`successfully invokes get_track_data command & returns correct data for ${test.filename}`, async () => {
+      const fixturePath = path.resolve(process.cwd(), 'test/fixtures', test.filename)
+      const trackData = await $invoke<FileEntry>('get_track_data', [fixturePath, false])
 
-declare global {
-  interface Window {
-    __TAURI_INVOKE__: typeof invoke
+      expect(trackData?.valid).toBe(true)
+      expect(trackData?.tags.TIT2).toBe(test.title)
+      expect(trackData?.tags.TPE1).toBe(test.artist)
+    })
   }
-}
-
-describe('tauri invoke', () => {
-  it('successfully invokes a tauri command', async () => {
-    await browser.waitUntil(
-      async () => (await browser.execute(() => typeof window.__TAURI_INVOKE__ === 'function')) === true,
-      { interval: 100, timeout: 10000 },
-    )
-
-    const trackData = await browser.execute(async () => window.__TAURI_INVOKE__<FileEntry>('get_track_data', {
-      pathString: '../fixtures/title-artist.mp3',
-      refresh: false,
-    }))
-
-    console.log('______TRACK DATA______: ', trackData)
-
-    expect(trackData).toBeDefined()
-  })
 })
