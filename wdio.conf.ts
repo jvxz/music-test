@@ -1,3 +1,5 @@
+/// <reference path="test/e2e/globals.d.ts" />
+
 // https://v2.tauri.app/develop/tests/webdriver/example/webdriverio/
 import type { ChildProcess } from 'node:child_process'
 import { spawn, spawnSync } from 'node:child_process'
