@@ -1,6 +1,6 @@
 import { getCapabilities } from '../../../wdio.conf'
 
-const count = 20
+const count = 50
 
 describe('tauri startup behavior', () => {
   it(`successfully starts the app ${count} times`, async () => {
