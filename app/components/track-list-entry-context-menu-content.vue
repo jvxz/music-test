@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { dirname } from '@tauri-apps/api/path'
 import { confirm } from '@tauri-apps/plugin-dialog'
 import { revealItemInDir } from '@tauri-apps/plugin-opener'
 
@@ -45,6 +46,18 @@ async function handleRemove() {
 
   await removeFromPlaylist(entries.filter(entry => entry.is_playlist_track))
 }
+
+async function handleViewContainingFolder() {
+  if (!entries || !entries[0])
+    return
+
+  navigateTo({
+    name: 'folder-path',
+    params: {
+      path: await dirname(entries[0].path),
+    },
+  })
+}
 </script>
 
 <template>
@@ -69,6 +82,9 @@ async function handleRemove() {
     </UContextMenuItem>
     <UContextMenuItem @click="handleReveal">
       Reveal in file explorer
+    </UContextMenuItem>
+    <UContextMenuItem :disabled="entries.length !== 1" @click="handleViewContainingFolder">
+      View containing folder
     </UContextMenuItem>
     <UContextMenuSub>
       <UContextMenuSubTrigger :disabled="!lastFmProfile || lastFmProfilePending">
