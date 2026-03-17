@@ -170,6 +170,7 @@ export default defineNuxtConfig({
         '@vueuse/integrations/useFuse',
         '@iptv/playlist',
         'class-variance-authority',
+        'vue-draggable-plus',
       ],
     },
     plugins: [tailwindcss(), vueDevTools()],
