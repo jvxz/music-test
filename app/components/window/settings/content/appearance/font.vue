@@ -46,13 +46,13 @@ const variants = useArrayUnique(() => !currentFontData.value
 </script>
 
 <template>
-  <div class="flex w-full flex-col gap-2">
+  <div class="flex flex-col gap-2 w-full">
     <FormSubtitle>
       Font <USpinner v-if="isLoadingFonts" />
     </FormSubtitle>
     <div class="flex flex-col gap-2">
       <FormPrimitive label="Name">
-        <div class="flex items-center gap-2">
+        <div class="flex gap-2 items-center">
           <UComboboxRoot
             v-model:open="dropdownOpen"
             v-model:model-value="settings.appearance.font.name"

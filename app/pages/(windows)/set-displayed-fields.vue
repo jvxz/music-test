@@ -54,8 +54,8 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
 </script>
 
 <template>
-  <div class="flex gap-2 overflow-hidden p-2">
-    <UDraggableShell class="size-full flex-1 p-0">
+  <div class="p-2 flex gap-2 overflow-hidden">
+    <UDraggableShell class="p-0 flex-1 size-full">
       <UInput
         v-model="availableListQuery"
         v-no-autocorrect
@@ -63,12 +63,12 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
         placeholder="Search available fields..."
         class="shrink-0"
       />
-      <UDraggableList ref="availableListEl" class="relative flex size-full flex-col gap-1 overflow-y-auto rounded-sm">
+      <UDraggableList ref="availableListEl" class="rounded-sm flex flex-col gap-1 size-full relative overflow-y-auto">
         <div
           v-for="column in ALL_TRACK_LIST_COLUMNS"
           v-show="contains(`${column.label} ${column.key}`, availableListQuery)"
           :key="column.key"
-          class="flex w-full shrink-0 active:text-foreground"
+          class="flex shrink-0 w-full active:text-foreground"
           :class="{
             'pointer-events-none': columnFields.some(f => f.key === column.key),
             'opacity-50': showDeleteOverlay,
@@ -78,7 +78,7 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
           <UDraggableItem
             :disabled="columnFields.some(f => f.key === column.key)"
             :item="column"
-            class="flex-1 rounded-none"
+            class="rounded-none flex-1"
             @pointerdown.right="selectedField = column"
             @click="() => {
               if (!isDragging) columnFields = [...columnFields, column]
@@ -87,7 +87,7 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
             <span class="truncate">{{ column.label }}</span>
           </UDraggableItem>
         </div>
-        <div v-if="showDeleteOverlay" class="pointer-events-none absolute inset-0 grid size-full place-items-center">
+        <div v-if="showDeleteOverlay" class="grid size-full pointer-events-none inset-0 place-items-center absolute">
           <p class="text-lg font-medium">
             Drop to delete
           </p>
@@ -97,9 +97,9 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
     <USeparator orientation="vertical" />
     <UContextMenu>
       <UContextMenuTrigger as-child>
-        <UDraggableShell class="w-full flex-1 p-0">
-          <div ref="activeListEl" class="flex size-full flex-col gap-1 overflow-y-auto rounded-sm">
-            <div :style="activeListBarStyles" class="absolute z-120 h-px bg-muted-foreground" />
+        <UDraggableShell class="p-0 flex-1 w-full">
+          <div ref="activeListEl" class="rounded-sm flex flex-col gap-1 size-full overflow-y-auto">
+            <div :style="activeListBarStyles" class="bg-muted-foreground h-px absolute z-120" />
             <div
               v-for="item in columnFields"
               :key="item.key"
@@ -117,7 +117,7 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
               <UButton
                 size="icon"
                 variant="ghost"
-                class="shrink-0 rounded-none transition-none duration-0 active:text-foreground"
+                class="rounded-none shrink-0 duration-0 transition-none active:text-foreground"
                 data-no-drag
                 @click="handleRemoveField(item)"
               >

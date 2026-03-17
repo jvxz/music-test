@@ -42,7 +42,7 @@ function handleScroll(event: Event) {
 <template>
   <LayoutPanelLayout
     ref="container"
-    class="flex size-full p-2 text-sm"
+    class="text-sm p-2 flex size-full"
     @scroll.passive="handleScroll"
   >
     <div

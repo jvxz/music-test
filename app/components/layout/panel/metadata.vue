@@ -21,17 +21,17 @@ onKeyStrokeSafe('meta_r', () => {
 </script>
 
 <template>
-  <LayoutPanelLayout class="size-full gap-0 overflow-y-auto p-0 *:shrink-0">
+  <LayoutPanelLayout class="p-0 gap-0 size-full overflow-y-auto *:shrink-0">
     <UContextMenu>
       <UContextMenuTrigger as-child>
-        <div class="flex w-full items-center gap-1 border-b pr-2 pl-1">
-          <div class="m-1 flex items-center gap-1">
+        <div class="pl-1 pr-2 border-b flex gap-1 w-full items-center">
+          <div class="m-1 flex gap-1 items-center">
             <UButton
               :disabled="!isDirty"
               :is-loading="isCommittingChanges"
               variant="ghost"
               size="icon"
-              class="size-6 shrink-0"
+              class="shrink-0 size-6"
               :class="{
                 'text-emerald-500 hover:text-emerald-500 active:text-emerald-500': isDirty,
               }"
@@ -44,7 +44,7 @@ onKeyStrokeSafe('meta_r', () => {
               :disabled="!isDirty || isCommittingChanges"
               variant="ghost"
               size="icon"
-              class="size-6 shrink-0"
+              class="shrink-0 size-6"
               :class="{
                 'text-danger hover:text-danger active:text-danger': isDirty,
               }"
@@ -54,7 +54,7 @@ onKeyStrokeSafe('meta_r', () => {
               <Icon name="tabler:arrow-back-up" />
             </UButton>
           </div>
-          <p class="w-full flex-1 truncate text-xs font-medium text-muted-foreground" :title="currentTrack?.filename">
+          <p class="text-xs text-muted-foreground font-medium flex-1 w-full truncate" :title="currentTrack?.filename">
             {{ currentTrack?.filename }}
           </p>
           <USelectRoot>
@@ -89,7 +89,7 @@ onKeyStrokeSafe('meta_r', () => {
       </UContextMenuContent>
     </UContextMenu>
 
-    <form class="flex flex-col gap-2 p-4">
+    <form class="p-4 flex flex-col gap-2">
       <LayoutPanelMetadataField
         v-for="frame in $settings.layout.element.metadataView.frames"
         :key="frame"

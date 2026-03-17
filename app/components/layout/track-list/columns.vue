@@ -29,7 +29,7 @@ const { barStyles, getDragElementProps } = useDraggable(columnFields, container,
 </script>
 
 <template>
-  <div class="sticky top-0 z-30">
+  <div class="top-0 sticky z-30">
     <UContextMenu>
       <UContextMenuTrigger as-child>
         <SplitterGroup
@@ -39,13 +39,13 @@ const { barStyles, getDragElementProps } = useDraggable(columnFields, container,
           as-child
           @layout="playlistColumnPercents = $event"
         >
-          <div class="group/row z-20 h-8! shrink-0 bg-background">
-            <div :style="barStyles" class="absolute w-px bg-primary" />
+          <div class="group/row bg-background shrink-0 z-20 h-8!">
+            <div :style="barStyles" class="bg-primary w-px absolute" />
             <template
               v-for="(col, index) in columnFields"
               :key="col.key"
             >
-              <SplitterResizeHandle v-if="index !== 0" class="invisible h-8 w-px bg-muted group-hover/row:visible" />
+              <SplitterResizeHandle v-if="index !== 0" class="bg-muted h-8 w-px invisible group-hover/row:visible" />
               <SplitterPanel
                 :default-size="playlistColumnPercents[index]"
                 :min-size="col.minSize"
@@ -53,11 +53,11 @@ const { barStyles, getDragElementProps } = useDraggable(columnFields, container,
                 as-child
               >
                 <div
-                  class="flex h-8 flex-1 items-center"
+                  class="flex flex-1 h-8 items-center"
                   v-bind="getDragElementProps(col)"
                   @click="handleColumnLeftClick(col)"
                 >
-                  <p class="truncate px-1.5 text-xs font-medium text-muted-foreground">
+                  <p class="text-xs text-muted-foreground font-medium px-1.5 truncate">
                     {{ col.hideLabelInColumn ? '' : col.label }}
                   </p>
                   <Icon

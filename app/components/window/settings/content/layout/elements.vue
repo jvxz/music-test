@@ -38,7 +38,7 @@ useStyleTag(computed(() => elementDraggingData.value && elementDraggingData.valu
 </script>
 
 <template>
-  <div class="relative -m-1 flex h-fit w-1/4 flex-col gap-1 p-2">
+  <div class="p-2 flex flex-col gap-1 h-fit w-1/4 relative -m-1">
     <ULabel
       class="font-medium"
       :class="{
@@ -49,7 +49,7 @@ useStyleTag(computed(() => elementDraggingData.value && elementDraggingData.valu
     </ULabel>
     <div
       ref="listEl"
-      class="flex h-fit shrink-0 flex-col gap-1 rounded-sm py-1"
+      class="py-1 rounded-sm flex shrink-0 flex-col gap-1 h-fit"
       :class="{
         'opacity-25': elementDraggingData && elementDraggingData.from !== 'AVAILABLE_ELEMENTS',
       }"
@@ -61,7 +61,7 @@ useStyleTag(computed(() => elementDraggingData.value && elementDraggingData.valu
         variant="ghost"
         draggable="true"
 
-        class="justify-start rounded-r-none transition-none duration-0 active:bg-inherit active:text-muted-foreground"
+        class="rounded-r-none duration-0 transition-none justify-start active:text-muted-foreground active:bg-inherit"
       >
         <Icon name="tabler:grip-vertical" class="size-3.5!" />
         <p>{{ element.label }}</p>
@@ -69,7 +69,7 @@ useStyleTag(computed(() => elementDraggingData.value && elementDraggingData.valu
     </div>
     <div
       v-if="elementDraggingData && elementDraggingData.from !== 'AVAILABLE_ELEMENTS'"
-      class="pointer-events-none absolute inset-0 flex size-full items-center justify-center rounded-sm font-medium"
+      class="font-medium rounded-sm flex size-full pointer-events-none items-center inset-0 justify-center absolute"
       :class="!isOutsideList && 'bg-muted/40'"
     >
       Drop to delete

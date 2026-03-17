@@ -20,7 +20,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
       props.class,
     )"
   >
-    <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
+    <span class="flex size-3.5 pointer-events-none items-center left-2 justify-center absolute">
       <ContextMenuItemIndicator>
         <Icon name="tabler:circle-fill" class="size-2!" />
       </ContextMenuItemIndicator>

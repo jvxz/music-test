@@ -101,14 +101,14 @@ const frameValue = computed({
 
 <template>
   <div class="flex flex-col gap-1">
-    <div class="flex items-center gap-2">
+    <div class="flex gap-2 items-center">
       <UCheckbox
         v-if="isEditingMultiple"
         :id="id3Frame"
         v-model:model-value="frameType"
         :disabled="!isEditable"
       />
-      <ULabel :for="isEditable ? id3Frame : undefined" class="shrink-0 text-sm">
+      <ULabel :for="isEditable ? id3Frame : undefined" class="text-sm shrink-0">
         {{ ID3_MAP[id3Frame] }}
       </ULabel>
       <div class="flex-1" />
@@ -118,7 +118,7 @@ const frameValue = computed({
         tabindex="-1"
         variant="ghost"
         size="icon"
-        class="size-5 shrink-0 text-danger hover:text-danger active:text-danger"
+        class="text-danger shrink-0 size-5 active:text-danger hover:text-danger"
         title="Revert to original value"
         @click.prevent="revertChange(id3Frame)"
       >

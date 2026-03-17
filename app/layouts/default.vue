@@ -1,6 +1,6 @@
 <template>
-  <div class="flex h-screen flex-col overflow-hidden">
-    <div data-tauri-drag-region class="h-[28px] w-full shrink-0 border-b bg-background" />
+  <div class="flex flex-col h-screen overflow-hidden">
+    <div data-tauri-drag-region class="border-b bg-background shrink-0 h-[28px] w-full" />
     <slot />
   </div>
 </template>

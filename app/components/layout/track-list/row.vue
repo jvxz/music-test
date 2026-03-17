@@ -33,7 +33,7 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
 
 <template>
   <div
-    class="col-span-full grid grid-cols-subgrid group-data-[row-style=bordered]:not-last:gap-0 group-data-[row-style=bordered]:not-last:border-b group-data-[row-style=alternating]:data-is-even:bg-muted/25"
+    class="grid col-span-full grid-cols-subgrid group-data-[row-style=bordered]:not-last:border-b group-data-[row-style=alternating]:data-[is-even]:bg-muted/25 group-data-[row-style=bordered]:not-last:gap-0"
     :class="{
       'border-transparent bg-primary/25!': isSelected,
       'bg-danger/20': !entry.valid,
@@ -71,7 +71,7 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
       <p
         v-else-if="col.key === 'TYER'"
         :class="classes"
-        class="truncate px-1 text-sm"
+        class="text-sm px-1 truncate"
         :title="getTrackYear(entry, $settings.layout.element.trackList.deriveYearFromTDRC)"
         @dragstart="emits('textDragStart', $event)"
       >
@@ -94,7 +94,7 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
       <div
         v-else-if="col.key === 'DURATION'"
         :class="classes"
-        class="truncate px-1 text-sm duration-150"
+        class="text-sm px-1 truncate duration-150"
         @dragstart="emits('textDragStart', $event)"
       >
         {{ formatDuration(entry.duration, 'seconds') }}
@@ -109,7 +109,7 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
             'animate-pulse': isUpdatingPlayCount,
           },
         ]"
-        class="truncate px-1 text-sm duration-150"
+        class="text-sm px-1 truncate duration-150"
         @dragstart="emits('textDragStart', $event)"
       >
         {{ entry.play_count === -1 ? PLACEHOLDER_CHAR : entry.play_count }}
@@ -118,7 +118,7 @@ function getCellContent(entry: TrackListEntry, frame: Id3FrameId | undefined) {
       <p
         v-else
         :class="classes"
-        class="truncate px-1 text-sm"
+        class="text-sm px-1 truncate"
         :title="getCellContent(entry, col.id3)"
         @dragstart="emits('textDragStart', $event)"
       >

@@ -61,10 +61,10 @@ async function handlePresetDelete() {
 </script>
 
 <template>
-  <div class="flex w-sm items-center gap-2">
+  <div class="flex gap-2 w-sm items-center">
     <UDropdownMenuRoot>
       <UDropdownMenuTrigger as-child>
-        <UButton variant="soft" class="w-full shrink justify-between">
+        <UButton variant="soft" class="shrink w-full justify-between">
           <span class="truncate">{{ selectedPreset?.name ?? 'Presets' }}</span> <Icon class="shrink-0" name="tabler:chevron-down" />
         </UButton>
       </UDropdownMenuTrigger>

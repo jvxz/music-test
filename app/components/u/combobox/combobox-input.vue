@@ -30,7 +30,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
     <Icon
       v-if="props.showIcon"
       name="tabler:search"
-      class="size-4 shrink-0 opacity-50"
+      class="opacity-50 shrink-0 size-4"
     />
     <ComboboxInput
       v-no-autocorrect

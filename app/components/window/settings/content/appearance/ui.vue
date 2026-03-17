@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full flex-col gap-2">
+  <div class="flex flex-col gap-2 w-full">
     <FormSubtitle>
       UI
     </FormSubtitle>

@@ -38,7 +38,7 @@ onUnmounted(() => {
     )"
     :hidden="isRender ? undefined : true"
   >
-    <ListboxGroupLabel v-if="heading" class="my-0.5 flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-muted-foreground">
+    <ListboxGroupLabel v-if="heading" class="text-xs text-muted-foreground font-medium my-0.5 px-2 py-1.5 flex gap-1 items-center">
       <Icon v-if="icon" :name="icon" />
       {{ heading }}
     </ListboxGroupLabel>

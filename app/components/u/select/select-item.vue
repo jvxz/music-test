@@ -20,7 +20,7 @@ const forwardedProps = useForwardProps(delegatedProps)
       props.class,
     )"
   >
-    <span class="absolute top-1/2 right-2 -translate-y-1/2">
+    <span class="right-2 top-1/2 absolute -translate-y-1/2">
       <SelectItemIndicator>
         <slot name="indicator-icon">
           <Icon name="tabler:check" class="" />

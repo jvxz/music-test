@@ -35,14 +35,14 @@ async function handleDrop(folderPaths: string[]) {
     </FormSubtitle>
     <div class="flex flex-col gap-1">
       <TauriDragoverProvider v-slot="{ isOver }" @drop="handleDrop">
-        <UCard class="relative gap-0 bg-background p-1 px-2 font-mono text-sm">
-          <div v-show="isOver" class="pointer-events-none absolute inset-0 grid place-items-center bg-background/50">
+        <UCard class="text-sm font-mono p-1 px-2 bg-background gap-0 relative">
+          <div v-show="isOver" class="bg-background/50 grid pointer-events-none inset-0 place-items-center absolute">
             Drop to add folder
           </div>
           <ToggleGroupRoot
             v-model:model-value="selectedFolder"
             type="single"
-            class="h-32 space-y-0.5 overflow-y-auto"
+            class="h-32 overflow-y-auto space-y-0.5"
           >
             <UContextMenu
               v-for="folder in folders"
@@ -53,7 +53,7 @@ async function handleDrop(folderPaths: string[]) {
                   :value="folder.path"
                   as-child
                 >
-                  <button :title="folder.path" class="w-full truncate text-left select-none data-active:ghost-button-active">
+                  <button :title="folder.path" class="data-active:ghost-button-active text-left w-full select-none truncate">
                     {{ folder.path }}
                   </button>
                 </ToggleGroupItem>

@@ -29,11 +29,11 @@ syncRef(modelValue, searchRef)
 </script>
 
 <template>
-  <div class="flex h-12 shrink-0 items-center gap-2 px-4" cmdk-input-wrapper>
+  <div class="px-4 flex shrink-0 gap-2 h-12 items-center" cmdk-input-wrapper>
     <Icon
       v-if="props.icon"
       :name="props.icon"
-      class="size-4 shrink-0 opacity-50"
+      class="opacity-50 shrink-0 size-4"
     />
 
     <ListboxFilter

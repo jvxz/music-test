@@ -31,7 +31,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
     <Icon
       v-if="props.showIcon"
       name="mingcute:search-line"
-      class="size-4 shrink-0 opacity-50"
+      class="opacity-50 shrink-0 size-4"
     />
     <AutocompleteInput
       v-no-autocorrect

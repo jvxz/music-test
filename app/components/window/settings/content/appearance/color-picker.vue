@@ -48,7 +48,7 @@ const borderColor = computed(() => {
     <ULabel class="text-sm">
       {{ label }}
     </ULabel>
-    <div class="relative flex items-center gap-1">
+    <div class="flex gap-1 items-center relative">
       <UButton
         class="aspect-square"
         :style="{
@@ -62,7 +62,7 @@ const borderColor = computed(() => {
         ref="colorPicker"
         v-model="localColor"
         type="color"
-        class="invisible absolute inset-0 -left-2"
+        class="invisible inset-0 absolute -left-2"
       />
       <UInput
         v-model="localColor"

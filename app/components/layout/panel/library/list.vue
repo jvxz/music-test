@@ -130,7 +130,7 @@ const treeItems = computed<TreeItem[]>(() => [
               >
                 <UButton
                   variant="togglable"
-                  class="w-full justify-start text-foreground"
+                  class="text-foreground w-full justify-start"
                 >
                   <Icon
                     :name="item.value.icon || 'tabler:chevron-right'"
@@ -152,7 +152,7 @@ const treeItems = computed<TreeItem[]>(() => [
                   : isSelected
                     ? 'toggled'
                     : 'togglable'"
-                class="w-full justify-start text-foreground"
+                class="text-foreground w-full justify-start"
                 @click="item.value.onClick?.()"
               >
                 <Icon
