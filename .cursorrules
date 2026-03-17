@@ -1,13 +1,13 @@
 # Cursor Rules for Nuxt 4 + Tauri 2 Desktop Application
 
 ## Project Overview
-This is a Nuxt 4 desktop application built with Tauri 2, using TypeScript, Tailwind CSS v4, VueUse, and Bun as the package manager. The application runs in SPA mode (SSR disabled) and targets desktop platforms.
+This is a Nuxt 4 desktop application built with Tauri 2, using TypeScript, UnoCSS (presetWind4), VueUse, and Bun as the package manager. The application runs in SPA mode (SSR disabled) and targets desktop platforms.
 
 ## Core Technologies & Versions
 - **Nuxt**: 4.2.1+
 - **Vue**: 3.5.25+
 - **Tauri**: 2.9.1+
-- **Tailwind CSS**: 4.1.17+
+- **UnoCSS**: 66.x with presetWind4 and presetAnimations
 - **VueUse**: 14.1.0+
 - **TypeScript**: 5.7.3+
 - **Package Manager**: Bun 1.3.3+
@@ -118,7 +118,7 @@ This is a Nuxt 4 desktop application built with Tauri 2, using TypeScript, Tailw
 - Use `useTauriWebviewWindow*` for window operations
 - Consider window state persistence for better UX
 
-## Tailwind CSS v4 Best Practices
+## UnoCSS Best Practices
 
 ### Utility-First Approach
 - Use utility classes directly in templates
@@ -184,7 +184,7 @@ This is a Nuxt 4 desktop application built with Tauri 2, using TypeScript, Tailw
   - `createContext` - Create component context providers
 
 ### Component Structure
-- UI components wrap Reka UI primitives with Tailwind styling
+- UI components wrap Reka UI primitives with UnoCSS utility classes
 - Use `cn()` utility for conditional class merging
 - Components follow the pattern: import types → import utilities → wrap Reka UI components
 - Example:
@@ -215,7 +215,7 @@ const forwarded = useForwardPropsEmits(props, emits)
 ### Best Practices
 - Always import types from `reka-ui` for type safety
 - Use `useForwardProps` or `useForwardPropsEmits` to properly forward props
-- Wrap Reka UI components with Tailwind classes using `cn()` utility
+- Wrap Reka UI components with UnoCSS utility classes using `cn()` utility
 - Maintain component composition patterns (root, trigger, content, etc.)
 - **Important**: Do not confuse Reka UI with Radix UI - they are different libraries
 
@@ -290,7 +290,7 @@ function handleClick() {...}
 </template>
 
 <style scoped>
-/* Component-specific styles (use Tailwind utilities when possible) */
+/* Component-specific styles (use UnoCSS utilities when possible) */
 </style>
 ```
 
@@ -300,14 +300,14 @@ function handleClick() {...}
 - Uses `@antfu/eslint-config` with Nuxt integration
 - Formatters enabled (Prettier-like)
 - TypeScript and Vue plugins enabled
-- Better Tailwind CSS plugin for class ordering
+- UnoCSS ESLint plugin for class ordering
 
 ### Code Style Rules
 - `perfectionist/sort-objects`: Warn (object key sorting)
 - `vue/html-self-closing`: Off
 - `vue/max-attributes-per-line`: Warn (1 multiline, 2 singleline)
 - `vue/sort-keys`: Warn
-- `better-tailwindcss`: Recommended rules enabled
+- `@unocss/eslint-plugin`: Order rules enabled
 
 ### Best Practices
 - Run `bun run lint` before committing
@@ -416,7 +416,7 @@ export function useCounter(initial = 0) {
 1. Check Nuxt 4 documentation: https://nuxt.com/docs/4.x
 2. Check Tauri 2 documentation: https://v2.tauri.app
 3. Check VueUse documentation: https://vueuse.org
-4. Check Tailwind CSS v4 documentation: https://tailwindcss.com/docs
+4. Check UnoCSS documentation: https://unocss.dev
 5. Follow existing code patterns in the codebase
 6. Use Context7 MCP for up-to-date library documentation
 
