@@ -14,14 +14,8 @@
 
   "eslint.enable": true,
   "files.associations": {
-    "*.css": "tailwindcss"
+    "*.css": "css"
   },
-  "tailwindCSS.experimental.classRegex": [
-    "tw`(.*?)`",
-    "tw\\('(.*?)'\\)",
-    "tw\\(\\s*('(.*?)'|\"(.*?)\")\\s*\\)",
-    [":classes=\"\\{([^}]*)\\}(?=\")", "(['\"`]([^'\"`]*?)['\"`])"]
-  ],
   "editor.quickSuggestions": {
     "strings": true
   },
@@ -58,7 +52,6 @@
     "astro",
     "svelte",
     "css",
-    "tailwindcss",
     "less",
     "scss",
     "pcss",

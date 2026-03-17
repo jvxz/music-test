@@ -4,6 +4,6 @@
     "antfu.file-nesting",
     "antfu.iconify",
     "vue.volar",
-    "bradlc.vscode-tailwindcss"
+    "antfu.unocss"
   ]
 }
