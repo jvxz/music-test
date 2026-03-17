@@ -35,24 +35,16 @@
   --border: hsl(157, 0%, 9.016%);
 }
 
-@utility scrollbar-fancy {
-  scrollbar-color: var(--color-border) #0000;
-}
-
-@utility scrollbar-gutter-stable {
+.scrollbar-gutter-stable {
   scrollbar-gutter: stable;
   overflow-y: auto;
 }
 
-@utility glow-* {
-  box-shadow: 0 0 28px -3px oklch(from --value(--color-*) l c h / 0.3);
-}
-
-@utility text-trim {
+.text-trim {
   text-box: trim-both cap alphabetic;
 }
 
-@utility ease-snappy {
+.ease-snappy {
   transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
@@ -98,16 +90,16 @@ textarea {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: var(--border);
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: var(--color-muted-foreground);
+  background: var(--muted-foreground);
 }
 
 html {
-  @apply scrollbar-fancy;
   -webkit-tap-highlight-color: transparent;
+  scrollbar-color: var(--border) var(--background);
 }
 
 body[style*='padding-right'] {
@@ -154,17 +146,17 @@ body[style*='padding-right'] {
   }
 }
 
-@utility ghost-button-active {
+.ghost-button-active {
   @apply bg-muted/80 text-foreground;
 }
 
-@utility animate-slide-down {
+.animate-slide-down {
   @apply ease-snappy;
   animation-name: slideDown;
   animation-duration: var(--duration);
 }
 
-@utility animate-slide-up {
+.animate-slide-up {
   @apply ease-snappy;
   animation-name: slideUp;
   animation-duration: var(--duration);
