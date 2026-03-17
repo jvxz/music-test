@@ -1,4 +1,3 @@
-import tailwindcss from '@tailwindcss/vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 export default defineNuxtConfig({
@@ -112,6 +111,7 @@ export default defineNuxtConfig({
   },
 
   modules: [
+    '@unocss/nuxt',
     '@vueuse/nuxt',
     'reka-ui/nuxt',
     '@nuxt/eslint',
@@ -173,7 +173,7 @@ export default defineNuxtConfig({
         'vue-draggable-plus',
       ],
     },
-    plugins: [tailwindcss(), vueDevTools()],
+    plugins: [vueDevTools()],
     server: {
       hmr: {
         host: '0.0.0.0',
