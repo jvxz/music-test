@@ -4,7 +4,7 @@ const themeTokens = ['background', 'border', 'foreground', 'primary', 'surface',
 
 <template>
   <WindowSettingsContentTabLayout title="Appearance">
-    <div class="flex w-full max-w-2/3 flex-col gap-4">
+    <div class="flex flex-col gap-4 max-w-2/3 w-full">
       <FormSubtitle>
         Theme
       </FormSubtitle>

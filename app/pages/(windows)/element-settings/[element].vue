@@ -19,7 +19,7 @@ const ElementSettings = defineAsyncComponent<VNode>(async () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 p-4 *:shrink-0">
+  <div class="p-4 flex flex-col gap-4 *:shrink-0">
     <ElementSettings />
   </div>
 </template>

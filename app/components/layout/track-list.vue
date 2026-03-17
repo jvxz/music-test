@@ -165,7 +165,7 @@ onMounted(() => {
 <template>
   <div
     :data-row-style="settings.layout.element.trackList.rowStyle"
-    class="group flex h-full flex-1 cursor-default flex-col select-none"
+    class="group flex flex-1 flex-col h-full cursor-default select-none"
   >
     <LayoutTrackListHeader
       :path
@@ -182,13 +182,13 @@ onMounted(() => {
         :entries="folderEntries"
       >
         <div
-          class="h-full cursor-default overflow-y-auto select-none"
+          class="h-full cursor-default select-none overflow-y-auto"
           v-bind="containerProps"
           :class="{
             'scrollbar-gutter-stable': settings.layout.element.trackList.showScrollbarGutter,
           }"
         >
-          <LayoutTrackListColumns v-bind="props" class="sticky top-0 z-30 h-8" />
+          <LayoutTrackListColumns v-bind="props" class="h-8 top-0 sticky z-30" />
           <LayoutTrackListRowContextMenu :entries="contextMenuEntries">
             <div
               class="grid h-full"
@@ -231,12 +231,12 @@ onMounted(() => {
       <div
         v-else
         ref="nonVirtualContainer"
-        class="h-full cursor-default overflow-y-auto select-none"
+        class="h-full cursor-default select-none overflow-y-auto"
         :class="{
           'scrollbar-gutter-stable': settings.layout.element.trackList.showScrollbarGutter,
         }"
       >
-        <LayoutTrackListColumns v-bind="props" class="sticky top-0 z-30 h-8" />
+        <LayoutTrackListColumns v-bind="props" class="h-8 top-0 sticky z-30" />
         <LayoutTrackListRowContextMenu :entries="contextMenuEntries">
           <div
             class="grid"

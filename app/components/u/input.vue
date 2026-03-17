@@ -20,8 +20,8 @@ const modelValue = useVModel(props, 'modelValue', emits, {
 </script>
 
 <template>
-  <div v-if="props.leadingIcon" class="relative shrink-0">
-    <Icon :name="props.leadingIcon" class="absolute inset-0 top-1/2 left-1.5 shrink-0 -translate-y-1/2 scale-80 opacity-50" />
+  <div v-if="props.leadingIcon" class="shrink-0 relative">
+    <Icon :name="props.leadingIcon" class="opacity-50 shrink-0 scale-80 inset-0 left-1.5 top-1/2 absolute -translate-y-1/2" />
     <input
       v-bind="$attrs"
       v-model="modelValue"

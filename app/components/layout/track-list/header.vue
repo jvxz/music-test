@@ -69,10 +69,10 @@ const title = computed(() => {
 </script>
 
 <template>
-  <div class="flex h-16 shrink-0 items-center justify-between border-b bg-background px-4">
+  <div class="px-4 border-b bg-background flex shrink-0 h-16 items-center justify-between">
     <div class="flex flex-col justify-center">
-      <div class="flex items-center gap-2">
-        <p :title class="max-w-md truncate font-medium">
+      <div class="flex gap-2 items-center">
+        <p :title class="font-medium max-w-md truncate">
           {{ title }}
         </p>
         <Icon
@@ -85,7 +85,7 @@ const title = computed(() => {
         {{ trackCount }} {{ checkPlural(trackCount, 'tracks', 'track') }}
       </p>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex gap-2 items-center">
       <UInput
         id="track-list-search-input"
         ref="searchInput"

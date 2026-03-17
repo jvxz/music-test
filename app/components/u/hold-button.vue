@@ -28,7 +28,7 @@ function onComplete() {
   >
     <div
       ref="scope"
-      class="absolute inset-0 h-full origin-left opacity-40 mix-blend-overlay"
+      class="opacity-40 h-full origin-left inset-0 absolute mix-blend-overlay"
       :style="{ backgroundColor: props.color }"
       style="transform: scaleX(0)"
     />

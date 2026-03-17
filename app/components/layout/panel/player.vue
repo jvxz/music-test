@@ -20,9 +20,9 @@ async function handleDragStart() {
 </script>
 
 <template>
-  <LayoutPanelLayout class="flex flex-row items-center justify-between gap-4">
-    <div class="flex h-full flex-1 items-center">
-      <div class="flex h-full items-start gap-4">
+  <LayoutPanelLayout class="flex flex-row gap-4 items-center justify-between">
+    <div class="flex flex-1 h-full items-center">
+      <div class="flex gap-4 h-full items-start">
         <LayoutPanelCoverArt
           v-if="$settings.layout.element.player.showTrackCover"
           :key="$settings.layout.element.player.titlePosition"
@@ -39,7 +39,7 @@ async function handleDragStart() {
       <LayoutPanelPlayerControls v-if="$settings.layout.element.player.controlsPosition === 'left'" class="mx-auto" />
     </div>
 
-    <div class="flex w-[45%] shrink-0 flex-col items-center justify-center gap-4">
+    <div class="flex shrink-0 flex-col gap-4 w-[45%] items-center justify-center">
       <LayoutPanelPlayerTitle v-if="$settings.layout.element.player.titlePosition === 'center'" :current-track />
       <LayoutPanelPlayerControls v-if="$settings.layout.element.player.controlsPosition === 'center'" class="mx-auto" />
       <LayoutPanelPlayerSeekBar
@@ -51,9 +51,9 @@ async function handleDragStart() {
         }"
       />
     </div>
-    <div class="flex flex-1 justify-end gap-4">
+    <div class="flex flex-1 gap-4 justify-end">
       <LayoutPanelPlayerVolume class="translate-y-0" />
-      <div class="flex items-center gap-2">
+      <div class="flex gap-2 items-center">
         <UButton
           variant="ghost"
           size="icon"

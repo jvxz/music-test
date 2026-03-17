@@ -44,7 +44,7 @@ const urlPlaylistId = computed(() => 'id' in route.params ? Number(route.params.
         >
           <UButton
             :variant="isSelected ? 'toggled' : 'togglable'"
-            class="group w-full justify-start text-foreground"
+            class="group text-foreground w-full justify-start"
             :class="cn(isEditing ? 'bg-transparent!' : '', urlPlaylistId === playlist.id && 'ghost-button-active', props.class)"
             v-bind="$attrs"
             @click="!isEditing && navigateTo({
@@ -59,7 +59,7 @@ const urlPlaylistId = computed(() => 'id' in route.params ? Number(route.params.
                 <span>{{ playlist.name }}</span>
               </EditablePreview>
               <EditableInput
-                class="w-full bg-card outline-none"
+                class="outline-none bg-card w-full"
                 @blur="submit"
                 @keydown.enter="submit"
               />

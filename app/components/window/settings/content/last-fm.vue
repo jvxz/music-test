@@ -46,8 +46,8 @@ const { isOnline } = useNetwork()
 
 <template>
   <WindowSettingsContentTabLayout title="Last.fm" class="flex *:h-full">
-    <div class="flex w-full flex-col items-center gap-2">
-      <div class="flex w-full items-center gap-2">
+    <div class="flex flex-col gap-2 w-full items-center">
+      <div class="flex gap-2 w-full items-center">
         <ULabel for="doScrobbling">
           Enable scrobbling
         </ULabel>
@@ -57,7 +57,7 @@ const { isOnline } = useNetwork()
           :disabled="!lastFm.lastFmProfile"
         />
       </div>
-      <div class="flex w-full items-center gap-2">
+      <div class="flex gap-2 w-full items-center">
         <ULabel for="doOfflineScrobbling">
           Update "now playing" status
         </ULabel>
@@ -67,7 +67,7 @@ const { isOnline } = useNetwork()
           :disabled="!lastFm.lastFmProfile"
         />
       </div>
-      <div class="flex w-full items-center gap-2">
+      <div class="flex gap-2 w-full items-center">
         <ULabel for="doOfflineScrobbling">
           Enable offline scrobbling
         </ULabel>
@@ -78,10 +78,10 @@ const { isOnline } = useNetwork()
         />
       </div>
     </div>
-    <div class="flex w-fit shrink-0 justify-between gap-4">
+    <div class="flex shrink-0 gap-4 w-fit justify-between">
       <template v-if="!isOnline">
         <!-- <div class="flex items-center justify-around gap-2 text-muted-foreground"> -->
-        <div class="flex flex-col items-end justify-around text-muted-foreground">
+        <div class="text-muted-foreground flex flex-col items-end justify-around">
           <p class="italic">
             You are currently offline
           </p>
@@ -102,8 +102,8 @@ const { isOnline } = useNetwork()
             </UHoverCardContent>
           </UHoverCardRoot> -->
         </div>
-        <div class="grid size-[72px] place-items-center rounded-sm border border-dashed border-muted">
-          <Icon name="tabler:wifi-off" class="size-6! text-muted-foreground" />
+        <div class="border border-muted rounded-sm border-dashed grid size-[72px] place-items-center">
+          <Icon name="tabler:wifi-off" class="text-muted-foreground size-6!" />
         </div>
       </template>
       <template v-else-if="lastFm.lastFmProfilePending">
@@ -117,7 +117,7 @@ const { isOnline } = useNetwork()
             Loading...
           </UButton>
         </div>
-        <div class="size-[72px] rounded-sm border border-dashed border-muted"></div>
+        <div class="border border-muted rounded-sm border-dashed size-[72px]"></div>
       </template>
       <template v-else-if="lastFm.lastFmProfile">
         <div class="flex flex-col items-end justify-around">
@@ -166,7 +166,7 @@ const { isOnline } = useNetwork()
             </UAlertDialogContent>
           </UAlertDialogRoot>
         </div>
-        <div class="size-[72px] rounded-sm border border-dashed border-muted" />
+        <div class="border border-muted rounded-sm border-dashed size-[72px]" />
       </template>
     </div>
   </WindowSettingsContentTabLayout>

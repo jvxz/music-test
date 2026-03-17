@@ -31,7 +31,7 @@ const settings = useSettings()
   <template v-if="asSplitterPanel">
     <SplitterPanel
       v-bind="forwarded"
-      class="flex h-full flex-1 flex-col"
+      class="flex flex-1 flex-col h-full"
     >
       <ReusePanels />
     </SplitterPanel>

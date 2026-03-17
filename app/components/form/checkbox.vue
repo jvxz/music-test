@@ -10,7 +10,7 @@ const modelValue = defineModel<boolean>()
 </script>
 
 <template>
-  <div class="flex items-center gap-2" v-bind="$attrs">
+  <div class="flex gap-2 items-center" v-bind="$attrs">
     <UCheckbox
       :id
       v-model:model-value="modelValue"

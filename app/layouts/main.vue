@@ -33,12 +33,12 @@ const visiblePanels = computed(() => {
 
 <template>
   <NuxtLayout name="default">
-    <div class="flex h-screen flex-col">
+    <div class="flex flex-col h-screen">
       <LayoutTopBar v-if="settings.layout.panel.top.elements.length" />
       <SplitterGroup
         :key="visiblePanels.join('-')"
         direction="horizontal"
-        class="flex size-full flex-1"
+        class="flex flex-1 size-full"
         @layout="sizes => handlePanelSizeChange(['left', 'main', 'right'], sizes)"
       >
         <template v-if="settings.layout.panel.left.elements.length">
@@ -47,7 +47,7 @@ const visiblePanels = computed(() => {
             key="left"
             :max-size="35"
             :min-size="12.5"
-            class="flex shrink-0 flex-col border-r"
+            class="border-r flex shrink-0 flex-col"
             :default-size="settings.layout.panel.left.size"
           >
             <LayoutSidebarLeft />
@@ -57,7 +57,7 @@ const visiblePanels = computed(() => {
         <SplitterPanel
           v-if="settings.layout.panel.main.elements.length"
           key="main"
-          class="flex h-full flex-1 flex-col"
+          class="flex flex-1 flex-col h-full"
           :default-size="settings.layout.panel.main.size"
         >
           <slot />
@@ -69,7 +69,7 @@ const visiblePanels = computed(() => {
             :max-size="35"
             :min-size="12.5"
             :default-size="settings.layout.panel.right.size"
-            class="shrink-0 border-l"
+            class="border-l shrink-0"
           >
             <LayoutSidebarRight />
           </SplitterPanel>

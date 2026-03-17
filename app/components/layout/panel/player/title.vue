@@ -32,7 +32,7 @@ const [DefineMarquee, ReuseMarquee] = createReusableTemplate()
       :delay="2"
       gap="0.5rem"
       :pause-on-hover="true"
-      class="w-fit! max-w-2xl"
+      class="max-w-2xl w-fit!"
     >
       <component :is="$slots.default" />
     </UMarquee>
@@ -41,14 +41,14 @@ const [DefineMarquee, ReuseMarquee] = createReusableTemplate()
 
   <div
     :data-position="$settings.layout.element.player.titlePosition"
-    class="group flex h-full cursor-default flex-col justify-center self-center data-[position=center]:h-9 data-[position=center]:items-center"
+    class="group flex flex-col h-full cursor-default self-center justify-center data-[position=center]:h-9 data-[position=center]:items-center"
     draggable="true"
     @dragstart.prevent="handleDragStart"
   >
     <ReuseMarquee>
       <p
         :title="currentTrack?.tags.TIT2 ?? currentTrack?.name"
-        class="truncate font-medium group-data-[position=center]:text-sm"
+        class="font-medium truncate group-data-[position=center]:text-sm"
         :class="{
           'max-w-2xl': !$settings.layout.element.player.marqueeText,
         }"
@@ -59,7 +59,7 @@ const [DefineMarquee, ReuseMarquee] = createReusableTemplate()
     <ReuseMarquee>
       <p
         :title="currentTrack?.tags.TPE1"
-        class="truncate text-sm text-muted-foreground group-data-[position=center]:text-xs"
+        class="text-sm text-muted-foreground truncate group-data-[position=center]:text-xs"
         :class="{
           'max-w-2xl': !$settings.layout.element.player.marqueeText,
         }"

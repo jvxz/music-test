@@ -89,7 +89,7 @@ function handleCmdItemMount(item: VNode) {
   <UCommandDialog :open="open" @update:open="open = $event">
     <UCommandRoot
       v-model:model-value="commandRootValue"
-      class="relative size-full"
+      class="size-full relative"
       @highlight="listBoxHighlightedItem = $event"
     >
       <UCommandInput

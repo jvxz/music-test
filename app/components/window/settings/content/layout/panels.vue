@@ -25,16 +25,16 @@ const containerHoverClass = computed(() => {
 <template>
   <div
     ref="containerEl"
-    class="group -m-2 flex items-start gap-2 overflow-hidden rounded-sm p-2"
+    class="group p-2 rounded-sm flex gap-2 items-start overflow-hidden -m-2"
     :class="containerHoverClass"
   >
     <div class="flex shrink-0 flex-col gap-2">
-      <div class="flex aspect-video w-24 rounded-sm border">
+      <div class="border rounded-sm flex w-24 aspect-video">
         <div :class="panel.class" />
       </div>
     </div>
-    <div class="flex w-2/5 flex-col gap-2">
-      <div class="flex items-center gap-2">
+    <div class="flex flex-col gap-2 w-2/5">
+      <div class="flex gap-2 items-center">
         <ULabel>
           {{ panel.label }}
         </ULabel>

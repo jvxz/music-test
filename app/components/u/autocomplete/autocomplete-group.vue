@@ -17,7 +17,7 @@ const delegatedProps = reactiveOmit(props, 'class')
     v-bind="delegatedProps"
     :class="cn('overflow-hidden text-foreground', props.class)"
   >
-    <AutocompleteLabel v-if="heading" class="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+    <AutocompleteLabel v-if="heading" class="text-xs text-muted-foreground font-medium px-2 py-1.5">
       {{ heading }}
     </AutocompleteLabel>
     <slot />

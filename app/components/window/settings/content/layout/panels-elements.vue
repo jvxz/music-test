@@ -34,7 +34,7 @@ function hasSettings(elementKey: LayoutElementKey) {
       },
     }"
     selected-class="bg-blue-500"
-    class="relative flex flex-col gap-1 empty:before:absolute empty:before:inset-0 empty:before:text-sm empty:before:text-muted-foreground empty:before:content-['(hidden,_no_elements_contained)']"
+    class="flex flex-col gap-1 relative empty:before:text-sm empty:before:text-muted-foreground empty:before:content-['(hidden,_no_elements_contained)'] empty:before:inset-0 empty:before:absolute"
     @end="(evt) => {
       if (evt.from !== evt.to) {
         removeElementFromPanel(props.panelKey, evt.data)
@@ -54,7 +54,7 @@ function hasSettings(elementKey: LayoutElementKey) {
         >
           <UButton
             variant="ghost"
-            class="justify-start transition-none duration-0 active:bg-inherit active:text-muted-foreground"
+            class="duration-0 transition-none justify-start active:text-muted-foreground active:bg-inherit"
             :class="hasSettings(element) ? 'rounded-r-none' : ''"
           >
             <Icon name="tabler:grip-vertical" class="size-3.5!" />
@@ -64,7 +64,7 @@ function hasSettings(elementKey: LayoutElementKey) {
             v-if="hasSettings(element)"
             variant="ghost"
             size="icon"
-            class="rounded-l-none transition-none duration-0"
+            class="rounded-l-none duration-0 transition-none"
             @click="openElementWindow(element)"
           >
             <Icon name="tabler:pencil" class="size-3.5!" />

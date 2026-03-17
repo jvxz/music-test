@@ -30,7 +30,7 @@ const forwarded = useForwardProps(delegatedProps)
         size="icon"
         class="size-5"
       >
-        <Icon name="mingcute:down-line" class="size-3.5! text-muted-foreground" />
+        <Icon name="mingcute:down-line" class="text-muted-foreground size-3.5!" />
       </UButton>
     </slot>
   </AutocompleteTrigger>

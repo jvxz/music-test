@@ -45,7 +45,7 @@ const computedPosition = computed(() => formatDuration(playbackStatus.value?.pos
     >
       {{ computedPosition }} / {{ computedDuration }}
     </p>
-    <div class="flex w-full items-center gap-4">
+    <div class="flex gap-4 w-full items-center">
       <p
         v-if="showDuration === 'both-sides'"
         class="text-xs text-muted-foreground tabular-nums"
@@ -55,13 +55,13 @@ const computedPosition = computed(() => formatDuration(playbackStatus.value?.pos
       <SliderRoot
         v-model:model-value="localPosition"
         :max="playbackStatus?.duration ?? 0"
-        class="relative flex h-4 w-full grow"
+        class="flex grow h-4 w-full relative"
         :step="0.01"
         @pointerdown="handlePointer('down')"
         @pointerup="handlePointer('up')"
       >
-        <SliderTrack class="absolute top-1/2 h-2 w-full grow -translate-y-1/2 bg-muted">
-          <SliderRange class="absolute top-1/2 h-2 -translate-y-1/2 bg-primary/25" />
+        <SliderTrack class="bg-muted grow h-2 w-full top-1/2 absolute -translate-y-1/2">
+          <SliderRange class="bg-primary/25 h-2 top-1/2 absolute -translate-y-1/2" />
         </SliderTrack>
         <SliderThumb
           :class="cn('absolute top-1/2 h-2 w-4 -translate-y-1/2 bg-primary outline-none focus-visible:ring-0', classes?.thumb)"

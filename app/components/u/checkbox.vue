@@ -25,7 +25,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
   >
     <CheckboxIndicator
       data-slot="checkbox-indicator"
-      class="flex items-center justify-center text-current transition-none"
+      class="text-current flex transition-none items-center justify-center"
     >
       <slot v-bind="slotProps">
         <Icon name="tabler:check" class="size-3.5!" />

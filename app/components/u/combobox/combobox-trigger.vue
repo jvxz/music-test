@@ -24,7 +24,7 @@ const forwarded = useForwardProps(delegatedProps)
     )"
   >
     <slot>
-      <Icon name="tabler:chevron-down" class="size-3.5! translate-y-0.5 text-muted-foreground" />
+      <Icon name="tabler:chevron-down" class="text-muted-foreground translate-y-0.5 size-3.5!" />
     </slot>
   </ComboboxTrigger>
 </template>

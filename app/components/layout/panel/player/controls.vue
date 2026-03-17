@@ -23,7 +23,7 @@ const { playbackStatus, playPauseCurrentTrack } = usePlayback()
           ? 'tabler:player-pause-filled'
           : 'tabler:player-play-filled'
         "
-        class="size-6! text-background"
+        class="text-background size-6!"
       />
     </LayoutPanelPlayerButton>
     <!-- skip forward -->

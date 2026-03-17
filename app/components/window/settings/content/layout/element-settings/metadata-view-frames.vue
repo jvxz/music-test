@@ -58,7 +58,7 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
 
 <template>
   <div class="flex gap-2 overflow-hidden">
-    <UDraggableShell class="size-full flex-1 p-0">
+    <UDraggableShell class="p-0 flex-1 size-full">
       <UInput
         v-model="availableListQuery"
         v-no-autocorrect
@@ -66,12 +66,12 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
         placeholder="Search available frames..."
         class="shrink-0"
       />
-      <UDraggableList ref="availableListEl" class="relative flex size-full flex-col gap-1 overflow-y-auto rounded-sm">
+      <UDraggableList ref="availableListEl" class="rounded-sm flex flex-col gap-1 size-full relative overflow-y-auto">
         <div
           v-for="frame in objectKeys(ID3_MAP)"
           v-show="contains(`${frame} ${ID3_MAP[frame]}`, availableListQuery)"
           :key="frame"
-          class="flex w-full shrink-0 active:text-foreground"
+          class="flex shrink-0 w-full active:text-foreground"
           :class="{
             'pointer-events-none': fields.some(f => f === frame),
             'opacity-50': showDeleteOverlay,
@@ -81,7 +81,7 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
           <UDraggableItem
             :disabled="fields.some(f => f === frame)"
             :item="frame"
-            class="flex-1 rounded-none"
+            class="rounded-none flex-1"
             @pointerdown.right="selectedField = frame"
             @click="() => {
               if (!isDragging) settings.layout.element.metadataView.frames = [...fields, frame]
@@ -90,7 +90,7 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
             <span class="truncate">{{ ID3_MAP[frame] }}</span>
           </UDraggableItem>
         </div>
-        <div v-if="showDeleteOverlay" class="pointer-events-none absolute inset-0 grid size-full place-items-center">
+        <div v-if="showDeleteOverlay" class="grid size-full pointer-events-none inset-0 place-items-center absolute">
           <p class="text-lg font-medium">
             Drop to delete
           </p>
@@ -100,9 +100,9 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
     <USeparator orientation="vertical" />
     <UContextMenu>
       <UContextMenuTrigger as-child>
-        <UDraggableShell class="w-full flex-1 p-0">
-          <div ref="activeListEl" class="flex size-full flex-col gap-1 overflow-y-auto rounded-sm">
-            <div :style="activeListBarStyles" class="absolute z-120 h-px bg-muted-foreground" />
+        <UDraggableShell class="p-0 flex-1 w-full">
+          <div ref="activeListEl" class="rounded-sm flex flex-col gap-1 size-full overflow-y-auto">
+            <div :style="activeListBarStyles" class="bg-muted-foreground h-px absolute z-120" />
             <div
               v-for="item in fields"
               :key="item"
@@ -120,7 +120,7 @@ const showDeleteOverlay = computed(() => !!draggingActiveItem.value && !isOutsid
               <UButton
                 size="icon"
                 variant="ghost"
-                class="shrink-0 rounded-none transition-none duration-0 active:text-foreground"
+                class="rounded-none shrink-0 duration-0 transition-none active:text-foreground"
                 data-no-drag
                 @click="handleRemoveField(item)"
               >
