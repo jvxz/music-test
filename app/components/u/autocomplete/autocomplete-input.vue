@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { AutocompleteInputEmits, AutocompleteInputProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
-import { cn, interactiveStyles, staticStyles } from '#imports'
 import { AutocompleteInput, useForwardPropsEmits } from 'reka-ui'
+import { cn, interactiveStyles, staticStyles } from '#imports'
 
 defineOptions({
   inheritAttrs: false,

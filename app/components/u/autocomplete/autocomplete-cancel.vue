@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { ComboboxCancelProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
-import { cn, interactiveStyles } from '#imports'
 import { AutocompleteCancel, useForwardProps } from 'reka-ui'
+import { cn, interactiveStyles } from '#imports'
 
 const props = withDefaults(
   defineProps<ComboboxCancelProps & { class?: HTMLAttributes['class'], size?: 'sm' | 'default' }>(),
