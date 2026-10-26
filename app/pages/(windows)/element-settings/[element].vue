@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 const { params } = useRoute()
-const element = 'element' in params ? params.element as LayoutElementKey : undefined
+const element = 'element' in params
+  ? params.element as LayoutElementKey
+  : undefined
 
 const ElementSettings = defineAsyncComponent<VNode>(async () => {
   if (!element)

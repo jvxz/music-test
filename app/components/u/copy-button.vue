@@ -9,7 +9,10 @@ const props = defineProps<{
 const animate = { opacity: 1, scale: 1 }
 const exit = { opacity: 0, scale: 0.5 }
 const initial = { opacity: 0, scale: 0.5 }
-const transition: Transition = { duration: 0.15, ease: [0.25, 0, 0.06, 1] }
+const transition: Transition = {
+  duration: 0.15,
+  ease: [0.25, 0, 0.06, 1],
+}
 
 const copied = ref(false)
 const { copy } = useClipboard()

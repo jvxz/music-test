@@ -14,12 +14,22 @@ export function useTrackListSearch(entries: Ref<TrackListEntry[]>, input: MaybeR
 
   const { fuse, results: fuseResults } = useFuse(query, entries, {
     fuseOptions: {
-      keys: ['tags.TIT2', 'tags.TPE1', 'tags.TALB', 'tags.TYER', 'tags.TCON', 'tags.TRCK', 'name'],
+      keys: [
+        'tags.TIT2',
+        'tags.TPE1',
+        'tags.TALB',
+        'tags.TYER',
+        'tags.TCON',
+        'tags.TRCK',
+        'name',
+      ],
       threshold: 0.35,
     },
   })
 
-  const results = computed(() => query.value ? resultsToEntries(fuseResults.value) : entries.value)
+  const results = computed(() => query.value
+    ? resultsToEntries(fuseResults.value)
+    : entries.value)
 
   function resultsToEntries(results: FuseResult<TrackListEntry>[]): TrackListEntry[] {
     const mappedEntries = results.map(result => result.item)

@@ -192,7 +192,9 @@ export function useUserPlaylists() {
     const channels = await Promise.all(tracks.map(async (track) => {
       const { duration } = await getTrackData(track.path)
 
-      const name = track.tags.TPE1 ? `${getTrackTitle(track)} - ${track.tags.TPE1}` : getTrackTitle(track)
+      const name = track.tags.TPE1
+        ? `${getTrackTitle(track)} - ${track.tags.TPE1}`
+        : getTrackTitle(track)
       const url = await $invoke(commands.getCanonicalPath, track.path)
 
       return {

@@ -133,7 +133,9 @@ export const useTrackListColumns = createSharedComposable(() => {
       }
 
       const toSubtract = newColSize / oldColumns.length - remainder
-      const newLayoutPanelSizes = layoutPanels.value.map((p, i) => i === newColIdx ? newColSize : p - toSubtract)
+      const newLayoutPanelSizes = layoutPanels.value.map((p, i) => i === newColIdx
+        ? newColSize
+        : p - toSubtract)
 
       layoutPanels.set(newLayoutPanelSizes)
     }

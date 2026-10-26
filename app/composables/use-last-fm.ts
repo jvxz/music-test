@@ -154,7 +154,9 @@ export const useLastFm = defineStore('lastfm', () => {
       artist: track.tags.TPE1,
       duration: Number(duration.toFixed(0)),
       track: track.tags.TIT2,
-      track_number: track.tags.TRCK ? Number(track.tags.TRCK) : null,
+      track_number: track.tags.TRCK
+        ? Number(track.tags.TRCK)
+        : null,
     }
   }
 
@@ -165,7 +167,10 @@ export const useLastFm = defineStore('lastfm', () => {
 
     const offlineScrobbles = (await offlineScrobbleCache.get('scrobbles')) as SerializedOfflineScrobble[] | undefined
 
-    offlineScrobbleCache.set('scrobbles', [...offlineScrobbles ?? [], scrobble])
+    offlineScrobbleCache.set('scrobbles', [
+      ...offlineScrobbles ?? [],
+      scrobble,
+    ])
   }
 
   return {

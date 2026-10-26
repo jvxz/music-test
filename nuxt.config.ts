@@ -4,7 +4,9 @@ export default defineNuxtConfig({
   $development: {
     app: {
       head: {
-        script: [{ src: 'http://localhost:8098' }],
+        script: [
+          { src: 'http://localhost:8098' },
+        ],
       },
     },
   },
@@ -78,10 +80,12 @@ export default defineNuxtConfig({
       {
         cache: true,
         from: 'defu',
-        imports: [{
-          as: '$defu',
-          name: 'defu',
-        }],
+        imports: [
+          {
+            as: '$defu',
+            name: 'defu',
+          },
+        ],
       },
       {
         cache: true,
@@ -173,7 +177,9 @@ export default defineNuxtConfig({
         'vue-draggable-plus',
       ],
     },
-    plugins: [vueDevTools()],
+    plugins: [
+      vueDevTools(),
+    ],
     server: {
       hmr: {
         host: '0.0.0.0',

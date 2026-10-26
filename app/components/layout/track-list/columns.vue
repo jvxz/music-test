@@ -9,7 +9,11 @@ function handleColumnLeftClick(col: TrackListColumn) {
   if (!col.canSort)
     return
 
-  const sortOrder = col.key === trackListInput.value.sortBy ? trackListInput.value.sortOrder === 'Asc' ? 'Desc' : 'Asc' : 'Asc'
+  const sortOrder = col.key === trackListInput.value.sortBy
+    ? trackListInput.value.sortOrder === 'Asc'
+      ? 'Desc'
+      : 'Asc'
+    : 'Asc'
 
   trackListInput.value = {
     ...trackListInput.value,

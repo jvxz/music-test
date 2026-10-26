@@ -1,6 +1,12 @@
 // @unocss-include
 /* eslint-disable perfectionist/sort-objects */
-export const layoutPanelNames = ['top', 'left', 'main', 'right', 'bottom'] as const
+export const layoutPanelNames = [
+  'top',
+  'left',
+  'main',
+  'right',
+  'bottom',
+] as const
 
 export const layoutPanels = {
   top: {

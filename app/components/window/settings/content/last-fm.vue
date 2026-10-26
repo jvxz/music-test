@@ -16,7 +16,9 @@ async function handleStartAuth() {
     token.value = await startAuth()
   }
   catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error)
+    const errorMsg = error instanceof Error
+      ? error.message
+      : String(error)
     emitError({ data: errorMsg, type: 'LastFm' })
     isAuthDialogOpen.value = false
   }

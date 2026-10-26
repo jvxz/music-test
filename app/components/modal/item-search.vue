@@ -70,7 +70,9 @@ function getInputType(path: string) {
 
   const fileIdx = path.lastIndexOf('.')
   const folderIdx = path.lastIndexOf('/')
-  return fileIdx > folderIdx ? 'file' : 'folder'
+  return fileIdx > folderIdx
+    ? 'file'
+    : 'folder'
 }
 
 function handleKeyDownRight() {

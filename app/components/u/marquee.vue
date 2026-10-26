@@ -146,30 +146,52 @@ const duration = computed(() => {
 const containerStyle = computed(() => ({
   ...style,
   '--pause-on-click':
-        !shouldAnimate.value || (pauseOnHover && !pauseOnClick) || pauseOnClick ? 'paused' : 'running',
-  '--pause-on-hover': !shouldAnimate.value || pauseOnHover ? 'paused' : 'running',
+        !shouldAnimate.value || (pauseOnHover && !pauseOnClick) || pauseOnClick
+          ? 'paused'
+          : 'running',
+  '--pause-on-hover': !shouldAnimate.value || pauseOnHover
+    ? 'paused'
+    : 'running',
   '--transform':
-        direction === 'up' ? 'rotate(-90deg)' : direction === 'down' ? 'rotate(90deg)' : 'none',
-  '--width': direction === 'up' || direction === 'down' ? `100vh` : '100%',
+        direction === 'up'
+          ? 'rotate(-90deg)'
+          : direction === 'down'
+            ? 'rotate(90deg)'
+            : 'none',
+  '--width': direction === 'up' || direction === 'down'
+    ? `100vh`
+    : '100%',
 }))
 
 const gradientStyle = computed(() => ({
   '--gradient-color': gradientColor,
-  '--gradient-width': typeof gradientWidth === 'number' ? `${gradientWidth}px` : gradientWidth,
+  '--gradient-width': typeof gradientWidth === 'number'
+    ? `${gradientWidth}px`
+    : gradientWidth,
 }))
 
 const marqueeStyle = computed(() => ({
   '--delay': `${delay}s`,
-  '--direction': direction === 'left' ? 'normal' : 'reverse',
+  '--direction': direction === 'left'
+    ? 'normal'
+    : 'reverse',
   '--duration': `${duration.value}s`,
-  '--iteration-count': loop ? `${loop}` : 'infinite',
-  '--min-width': autoFill ? `auto` : '100%',
+  '--iteration-count': loop
+    ? `${loop}`
+    : 'infinite',
+  '--min-width': autoFill
+    ? `auto`
+    : '100%',
   '--play': shouldAnimate.value ? 'running' : 'paused',
 }))
 
 const parentStyle = computed(() => ({
   '--transform':
-        direction === 'up' ? 'rotate(90deg)' : direction === 'down' ? 'rotate(-90deg)' : 'none',
+        direction === 'up'
+          ? 'rotate(90deg)'
+          : direction === 'down'
+            ? 'rotate(-90deg)'
+            : 'none',
 }))
 
 function calculateWidth() {
@@ -187,7 +209,9 @@ function calculateWidth() {
 
     if (autoFill && _containerWidth && _marqueeWidth) {
       multiplier.value
-        = _marqueeWidth < _containerWidth ? Math.ceil(_containerWidth / _marqueeWidth) : 1
+        = _marqueeWidth < _containerWidth
+          ? Math.ceil(_containerWidth / _marqueeWidth)
+          : 1
     }
     else
       multiplier.value = 1
@@ -198,10 +222,19 @@ function calculateWidth() {
 }
 
 function multiplyChildren(multiplier: number) {
-  return Array.from<number>({ length: Number.isFinite(multiplier) && multiplier >= 0 ? multiplier : 0 })
+  return Array.from<number>({
+    length: Number.isFinite(multiplier) && multiplier >= 0
+      ? multiplier
+      : 0,
+  })
 }
 
-watch([() => autoFill, () => direction, isMounted, containerRef], () => {
+watch([
+  () => autoFill,
+  () => direction,
+  isMounted,
+  containerRef,
+], () => {
   if (isMounted.value) {
     calculateWidth()
 

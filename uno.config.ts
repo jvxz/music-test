@@ -47,5 +47,7 @@ export default defineConfig({
     //   sm: '0 2.25px 3px 0 #00000012',
     // },
   },
-  transformers: [transformerDirectives({ throwOnMissing: false })],
+  transformers: [
+    transformerDirectives({ throwOnMissing: false }),
+  ],
 })

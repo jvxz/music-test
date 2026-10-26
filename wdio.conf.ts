@@ -14,12 +14,14 @@ let tauriDriver: ChildProcess
 let exit = false
 
 export function getCapabilities() {
-  return [{
-    'maxInstances': 1,
-    'tauri:options': {
-      application: resolveAppBinaryPath(),
-    },
-  } as WebdriverIO.Capabilities]
+  return [
+    {
+      'maxInstances': 1,
+      'tauri:options': {
+        application: resolveAppBinaryPath(),
+      },
+    } as WebdriverIO.Capabilities,
+  ]
 }
 
 export const config: WebdriverIO.Config = {
@@ -40,7 +42,9 @@ export const config: WebdriverIO.Config = {
     tauriDriver = spawn(
       path.resolve(os.homedir(), '.cargo', 'bin', 'tauri-driver'),
       [],
-      { stdio: [null, process.stdout, process.stderr] },
+      {
+        stdio: [null, process.stdout, process.stderr],
+      },
     )
 
     tauriDriver.on('error', (error) => {
@@ -66,7 +70,13 @@ export const config: WebdriverIO.Config = {
   onPrepare: () => {
     spawnSync(
       'bun',
-      ['run', 'tauri', 'build', '--debug', '--no-bundle'],
+      [
+        'run',
+        'tauri',
+        'build',
+        '--debug',
+        '--no-bundle',
+      ],
       {
         cwd: __dirname,
         shell: true,

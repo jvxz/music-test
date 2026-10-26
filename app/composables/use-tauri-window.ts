@@ -5,7 +5,9 @@ import Color from 'colorjs.io'
 
 export function useTauriWindow(label: string, options?: Omit<WebviewOptions, 'x' | 'y' | 'width' | 'height'> & WindowOptions) {
   const settings = useSettings()
-  const isHotLoaded = getCurrentWebviewWindow().label === 'main' ? HOT_LOADED_WINDOWS.includes(label) : false
+  const isHotLoaded = getCurrentWebviewWindow().label === 'main'
+    ? HOT_LOADED_WINDOWS.includes(label)
+    : false
 
   const backgroundColor = computed(() => new Color(settings.appearance.token.background).toString({ format: 'hex' }))
 

@@ -12,7 +12,9 @@ const mixedValues = useArrayUnique(() => {
   const values = proposedMixedFrames.value.get(id3Frame)
   if (!values) {
     const singleValue = proposedFrameChanges.value[id3Frame]?.value
-    return singleValue ? [singleValue] : []
+    return singleValue
+      ? [singleValue]
+      : []
   }
 
   return values.filter(value => value.trim() !== '')
@@ -31,11 +33,17 @@ const frameType = computed({
   },
   set: (value: boolean) => {
     const targetFrame = proposedFrameChanges.value[id3Frame]
-    if (targetFrame && targetFrame.type !== null && targetFrame.value)
-      value ? (proposedFrameChanges.value[id3Frame] = { ...targetFrame, type: 'clear' }) : revertChange(id3Frame)
+    if (targetFrame && targetFrame.type !== null && targetFrame.value) {
+      value
+        ? (proposedFrameChanges.value[id3Frame] = { ...targetFrame, type: 'clear' })
+        : revertChange(id3Frame)
+    }
 
-    else if (targetFrame && targetFrame.value && targetFrame.type === null)
-      value ? (proposedFrameChanges.value[id3Frame] = { ...targetFrame, type: 'set' }) : revertChange(id3Frame)
+    else if (targetFrame && targetFrame.value && targetFrame.type === null) {
+      value
+        ? (proposedFrameChanges.value[id3Frame] = { ...targetFrame, type: 'set' })
+        : revertChange(id3Frame)
+    }
 
     else if (!targetFrame) {
       proposedFrameChanges.value[id3Frame] = {
