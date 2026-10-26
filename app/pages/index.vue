@@ -1,3 +1,5 @@
 <script lang="ts" setup>
-definePageMeta({ middleware: () => navigateTo('/library') })
+definePageMeta({
+  middleware: () => navigateTo('/library'),
+})
 </script>

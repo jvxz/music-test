@@ -11,7 +11,9 @@ export function defineDraggableOptions(name: string, opts: Opts): DraggableOptio
       ? {
           ...opts,
           group: {
-            ...(typeof opts.draggableOpts.group === 'object' ? opts.draggableOpts.group : {}),
+            ...(typeof opts.draggableOpts.group === 'object'
+              ? opts.draggableOpts.group
+              : {}),
             name,
             pull: 'clone',
             put: false,

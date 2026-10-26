@@ -101,19 +101,27 @@ async function handleSelectDragStart(entryTriggeredFrom: TrackListEntry) {
           lastSelectedEntryIndex,
           idx,
         )
-        selectedTrackDataEntries.value = [...selectedTrackData.value.entries, ...newEntries]
+        selectedTrackDataEntries.value = [
+          ...selectedTrackData.value.entries,
+          ...newEntries,
+        ]
       }
       else {
         const newEntries = folderEntries.value.slice(
           idx,
           folderEntries.value.findIndex(entry => entry.path === selectedTrackData.value.entries[0]!.path),
         )
-        selectedTrackDataEntries.value = [...newEntries, ...selectedTrackData.value.entries]
+        selectedTrackDataEntries.value = [
+          ...newEntries,
+          ...selectedTrackData.value.entries,
+        ]
       }
     }
   }
 
-  shouldSelectOrDeselect = (keys.shift?.value && isEntryTriggeredFromSelected) ? 'deselect' : 'select'
+  shouldSelectOrDeselect = (keys.shift?.value && isEntryTriggeredFromSelected)
+    ? 'deselect'
+    : 'select'
   wasMouseDownOnTrackRow = true
 
   editTrackSelection(shouldSelectOrDeselect, entryTriggeredFrom)

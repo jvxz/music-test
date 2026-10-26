@@ -19,7 +19,13 @@ export const useConsole = defineStore('console', () => {
     if (message.text.trim() === '')
       return
 
-    consoleMessages.value = [...consoleMessages.value, { ...message, timestamp: Date.now() }]
+    consoleMessages.value = [
+      ...consoleMessages.value,
+      {
+        ...message,
+        timestamp: Date.now(),
+      },
+    ]
     // eslint-disable-next-line no-console
     console[message.type ?? 'log'](message.text)
   }

@@ -15,7 +15,12 @@ interface Options extends UseMagicKeysOptions<false> {
   ignore?: string[]
 }
 
-const INPUT_TAGS = ['input', 'textarea', 'button', 'select']
+const INPUT_TAGS = [
+  'input',
+  'textarea',
+  'button',
+  'select',
+]
 
 export function onKeyStrokeSafe(keystroke: string | string[], callback: () => void, options?: Options) {
   const keys = options?.magicKeys ?? useGlobalKeys(options)

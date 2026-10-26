@@ -19,7 +19,11 @@ export const usePlayback = createSharedComposable(() => {
     if (!fileEntry)
       return _currentTrackContext.value
 
-    return { ...fileEntry, ..._currentTrackContext.value, tags: { ...fileEntry.tags } }
+    return {
+      ...fileEntry,
+      ..._currentTrackContext.value,
+      tags: { ...fileEntry.tags },
+    }
   })
 
   let timeListenedMs = 0

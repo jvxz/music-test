@@ -25,7 +25,9 @@ async function handleDrop(itemPaths: string[]) {
 }
 
 const route = useRoute()
-const urlPlaylistId = computed(() => 'id' in route.params ? Number(route.params.id) : null)
+const urlPlaylistId = computed(() => 'id' in route.params
+  ? Number(route.params.id)
+  : null)
 </script>
 
 <template>

@@ -218,13 +218,17 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
         const hoveredElementRect = hoveredElement.getBoundingClientRect()
         const relativePosition = pointer.x.value - hoveredElementRect.left
 
-        return inElementHalf.value = relativePosition > hoveredElementRect.width / 2 ? 'bottom/right' : 'top/left'
+        return inElementHalf.value = relativePosition > hoveredElementRect.width / 2
+          ? 'bottom/right'
+          : 'top/left'
       }
 
       const hoveredElementRect = hoveredElement.getBoundingClientRect()
       const relativePosition = pointer.y.value - hoveredElementRect.top
 
-      return inElementHalf.value = relativePosition > hoveredElementRect.height / 2 ? 'bottom/right' : 'top/left'
+      return inElementHalf.value = relativePosition > hoveredElementRect.height / 2
+        ? 'bottom/right'
+        : 'top/left'
     }
 
     function handleBar() {
@@ -250,7 +254,9 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
           barGap = gap
       }
 
-      const siblingElement = getValidSibling(hoveredElement, half === 'bottom/right' ? 'next' : 'prev')
+      const siblingElement = getValidSibling(hoveredElement, half === 'bottom/right'
+        ? 'next'
+        : 'prev')
 
       const hoveredElementRect = hoveredElement.getBoundingClientRect()
 
@@ -261,7 +267,9 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
             ? (hoveredElementRect.height + hoveredElementRect.top)
             : (hoveredElementRect.top)
 
-          const top = `calc(${topValue}px ${half === 'bottom/right' ? '+' : '-'} ${barGap} / 2)`
+          const top = `calc(${topValue}px ${half === 'bottom/right'
+            ? '+'
+            : '-'} ${barGap} / 2)`
 
           return barStyles.value = {
             top,
@@ -273,7 +281,9 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
           ? (hoveredElementRect.width + hoveredElementRect.left)
           : (hoveredElementRect.left)
 
-        const left = `calc(${leftValue}px ${half === 'bottom/right' ? '+' : '-'} ${barGap} / 2)`
+        const left = `calc(${leftValue}px ${half === 'bottom/right'
+          ? '+'
+          : '-'} ${barGap} / 2)`
 
         return barStyles.value = {
           height: `${hoveredElementRect.height}px`,
@@ -308,9 +318,14 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
       }
 
       function getValidSibling(el: Element, direction: 'next' | 'prev') {
-        let sibling = direction === 'next' ? el.nextElementSibling : el.previousElementSibling
-        while (sibling && !lookupElement(sibling))
-          sibling = direction === 'next' ? sibling.nextElementSibling : sibling.previousElementSibling
+        let sibling = direction === 'next'
+          ? el.nextElementSibling
+          : el.previousElementSibling
+        while (sibling && !lookupElement(sibling)) {
+          sibling = direction === 'next'
+            ? sibling.nextElementSibling
+            : sibling.previousElementSibling
+        }
 
         return sibling
       }
@@ -399,7 +414,9 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
       }
     }
 
-    let insertionIdx = targetIdx + (inElementHalf.value === 'bottom/right' ? 1 : 0)
+    let insertionIdx = targetIdx + (inElementHalf.value === 'bottom/right'
+      ? 1
+      : 0)
 
     if (prevIdx !== -1 && prevIdx < insertionIdx) {
       insertionIdx--
@@ -466,7 +483,9 @@ export function useDraggable<T>(list: Ref<T[]>, container: MaybeRef<MaybeElement
     }
   })
 
-  const localDraggingItem = computed(() => draggingItem.value?._listId === listId ? draggingItem.value as DragItem<T> : null)
+  const localDraggingItem = computed(() => draggingItem.value?._listId === listId
+    ? draggingItem.value as DragItem<T>
+    : null)
 
   return {
     barStyles,
@@ -499,10 +518,15 @@ export function handleListRearrange<T>(listRef: MaybeRefOrGetter<T[]>, paramsRef
   }
 
   // handle recieving from different list (add at index)
-  if (params.prevIdx === -1)
-    return check(filters.doAdding) ? insertAt(list, params.targetIdx, params.prevItem.data) : list
+  if (params.prevIdx === -1) {
+    return check(filters.doAdding)
+      ? insertAt(list, params.targetIdx, params.prevItem.data)
+      : list
+  }
 
-  return check(filters.doMoving) ? moveArrayMember(list, params.prevIdx, params.targetIdx) : list
+  return check(filters.doMoving)
+    ? moveArrayMember(list, params.prevIdx, params.targetIdx)
+    : list
 
   function check(f: Filter | undefined): boolean {
     if (!f)
@@ -522,5 +546,9 @@ export function moveArrayMember<T>(arr: T[], from: number, to: number) {
 }
 
 export function insertAt<T>(arr: T[], index: number, element: T): T[] {
-  return [...arr.slice(0, index), element, ...arr.slice(index)]
+  return [
+    ...arr.slice(0, index),
+    element,
+    ...arr.slice(index),
+  ]
 }

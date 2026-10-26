@@ -49,5 +49,7 @@ export const sortTrackList = createUnrefFn((trackList: TrackListEntry[], input: 
     return aValue.localeCompare(bValue)
   })
 
-  return input.sortOrder === 'Asc' ? sortedTrackList : sortedTrackList.reverse()
+  return input.sortOrder === 'Asc'
+    ? sortedTrackList
+    : sortedTrackList.reverse()
 })

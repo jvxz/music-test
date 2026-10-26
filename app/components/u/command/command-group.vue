@@ -16,7 +16,9 @@ const delegatedProps = reactiveOmit(props, 'class')
 const { allGroups, filterState } = useCommand()
 const id = useId()
 
-const isRender = computed(() => !filterState.search ? true : props.shouldRender ?? filterState.filtered.groups.has(id))
+const isRender = computed(() => !filterState.search
+  ? true
+  : props.shouldRender ?? filterState.filtered.groups.has(id))
 
 provideCommandGroupContext({ id })
 onMounted(() => {

@@ -13,8 +13,11 @@ export default defineNuxtPlugin({
 
     onKeyStrokeSafe('meta_comma', () => createSettingsWindow(), { activeElement })
 
-    if (w.label !== 'main')
-      onKeyStrokeSafe('escape', () => HOT_LOADED_WINDOWS.includes(w.label) ? w.hide() : w.close(), { activeElement })
+    if (w.label !== 'main') {
+      onKeyStrokeSafe('escape', () => HOT_LOADED_WINDOWS.includes(w.label)
+        ? w.hide()
+        : w.close(), { activeElement })
+    }
 
     if (import.meta.dev) {
       onKeyStrokeSafe('meta_r', () => {

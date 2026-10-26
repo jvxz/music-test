@@ -1,5 +1,12 @@
 <script lang="ts" setup>
-const themeTokens = ['background', 'border', 'foreground', 'primary', 'surface', 'muted'] as const
+const themeTokens = [
+  'background',
+  'border',
+  'foreground',
+  'primary',
+  'surface',
+  'muted',
+] as const
 </script>
 
 <template>

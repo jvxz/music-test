@@ -20,14 +20,17 @@ export default withNuxt(
       'node/prefer-global/process': 'off',
       'perfectionist/sort-objects': 'warn',
       'vue/html-self-closing': 'off',
-      'vue/max-attributes-per-line': ['warn', {
-        multiline: {
-          max: 1,
+      'vue/max-attributes-per-line': [
+        'warn',
+        {
+          multiline: {
+            max: 1,
+          },
+          singleline: {
+            max: 2,
+          },
         },
-        singleline: {
-          max: 2,
-        },
-      }],
+      ],
       'vue/no-multiple-template-root': 'off',
       'vue/sort-keys': 'warn',
     },

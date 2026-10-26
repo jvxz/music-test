@@ -2,7 +2,9 @@
 definePageMeta({ layout: 'main' })
 
 const route = useRoute()
-const path: string = 'path' in route.params ? decodeURIComponent(route.params.path) : ''
+const path: string = 'path' in route.params
+  ? decodeURIComponent(route.params.path)
+  : ''
 
 const trackListInput = useTrackListInput()
 

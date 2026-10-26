@@ -15,7 +15,9 @@ const macosAliasMap: Record<string, string> = {
 export const useGlobalKeys = createSharedComposable((opts?: UseMagicKeysOptions<false>) => {
   const os = useTauriOsPlatform()
 
-  const aliasMap = os === 'macos' ? macosAliasMap : windowsAliasMap
+  const aliasMap = os === 'macos'
+    ? macosAliasMap
+    : windowsAliasMap
 
   return useMagicKeys({
     ...opts,

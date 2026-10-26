@@ -33,7 +33,9 @@ export default defineNuxtModule<ModuleOptions>({
     tauriModules.forEach(({ importPath, module, prefix }) => {
       Object.keys(module).filter(name => name !== 'default').forEach((name) => {
         const prefixedName = `${options.prefix}${prefix}` || ''
-        const as = prefixedName ? prefixedName + capitalize(name) : name
+        const as = prefixedName
+          ? prefixedName + capitalize(name)
+          : name
         addImports({ as, from: importPath, name })
       })
     })

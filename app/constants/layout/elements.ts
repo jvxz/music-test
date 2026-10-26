@@ -3,7 +3,14 @@ interface LayoutElement {
   label: string
 }
 
-export const layoutPanelElementKeys = ['coverArt', 'libraryView', 'metadataView', 'player', 'trackList', 'console'] as const
+export const layoutPanelElementKeys = [
+  'coverArt',
+  'libraryView',
+  'metadataView',
+  'player',
+  'trackList',
+  'console',
+] as const
 
 export const layoutPanelElements: LayoutElement[] = [
   {
@@ -94,7 +101,16 @@ export const defaultLayoutElementSettings = {
     titlePosition: 'left',
   },
   trackList: {
-    columnFields: ['APIC', 'CURRENTLY_PLAYING', 'TIT2', 'TPE1', 'TALB', 'TYER', 'TCON', 'TRCK'],
+    columnFields: [
+      'APIC',
+      'CURRENTLY_PLAYING',
+      'TIT2',
+      'TPE1',
+      'TALB',
+      'TYER',
+      'TCON',
+      'TRCK',
+    ],
     deriveYearFromTDRC: true,
     persistScroll: true,
     rowStyle: 'bordered',

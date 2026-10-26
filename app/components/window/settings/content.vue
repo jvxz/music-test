@@ -5,16 +5,19 @@ const { tab } = useSettingsWindow()
 
 const components = Object.fromEntries(
   SETTINGS_WINDOW_TABS.map(
-    t => [t, defineAsyncComponent<VNode>(async () => {
-      const filename = kebabCase(t)
-      try {
-        const component = await import(`~/components/window/settings/content/${filename}.vue`)
-        return component
-      }
-      catch {
-        return h('div', { innerHTML: `Please create ~/components/window/settings/content/${filename}.vue` })
-      }
-    })],
+    t => [
+      t,
+      defineAsyncComponent<VNode>(async () => {
+        const filename = kebabCase(t)
+        try {
+          const component = await import(`~/components/window/settings/content/${filename}.vue`)
+          return component
+        }
+        catch {
+          return h('div', { innerHTML: `Please create ~/components/window/settings/content/${filename}.vue` })
+        }
+      }),
+    ],
   ),
 )
 </script>

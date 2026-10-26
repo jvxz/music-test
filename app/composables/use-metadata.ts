@@ -22,10 +22,13 @@ const createFlattenedChanges = createUnrefFn((tracks: TrackListEntry[] | null | 
     const tags = objectEntries(tagMap)
 
     if (idx === 0) {
-      newFrameChanges = objectFromEntries(tags.map(([frame, value]) => [frame, {
-        type: null,
-        value: value ?? '',
-      }]))
+      newFrameChanges = objectFromEntries(tags.map(([frame, value]) => [
+        frame,
+        {
+          type: null,
+          value: value ?? '',
+        },
+      ]))
     }
 
     else {
